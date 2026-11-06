@@ -12,6 +12,7 @@ class Announcement extends Model
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
         'is_active' => 'boolean',
+        'tampil_di_beranda' => 'boolean',
     ];
 
     public function getFileLampiranUrlAttribute(): ?string

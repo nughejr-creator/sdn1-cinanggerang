@@ -10,6 +10,7 @@ class Post extends Model
 
     protected $casts = [
         'published_at' => 'date',
+        'tampil_di_beranda' => 'boolean',
     ];
 
     public function getThumbnailUrlAttribute(): ?string

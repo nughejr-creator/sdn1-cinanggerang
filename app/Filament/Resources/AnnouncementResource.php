@@ -51,6 +51,10 @@ class AnnouncementResource extends Resource
                         Forms\Components\Toggle::make('is_active')
                             ->label('Status Aktif')
                             ->default(true),
+                        Forms\Components\Toggle::make('tampil_di_beranda')
+                            ->label('Sematkan / Tampilkan di Papan Pengumuman Beranda')
+                            ->helperText('Aktifkan agar pengumuman ini tampil di kartu agenda Papan Pengumuman Beranda (maksimal 2 agenda).')
+                            ->default(true),
                     ]),
             ]);
     }
@@ -74,6 +78,10 @@ class AnnouncementResource extends Resource
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean(),
+                Tables\Columns\IconColumn::make('tampil_di_beranda')
+                    ->label('Di Beranda')
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('file_lampiran')
                     ->label('Lampiran PDF')
                     ->boolean()

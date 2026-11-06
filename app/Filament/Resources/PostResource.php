@@ -57,6 +57,7 @@ class PostResource extends Resource
                         Forms\Components\FileUpload::make('thumbnail')
                             ->label('Foto Utama (Thumbnail)')
                             ->image()
+                            ->disk('public')
                             ->directory('posts-thumbnails')
                             ->columnSpanFull(),
                         Forms\Components\RichEditor::make('konten')
@@ -71,6 +72,10 @@ class PostResource extends Resource
                             ])
                             ->default('Publish')
                             ->required(),
+                        Forms\Components\Toggle::make('tampil_di_beranda')
+                            ->label('Sematkan ke Halaman Beranda Utama')
+                            ->helperText('Aktifkan agar artikel ini menjadi sorotan utama di kolom Warta Beranda (maksimal 2 artikel).')
+                            ->default(false),
                     ]),
             ]);
     }
@@ -81,6 +86,7 @@ class PostResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('thumbnail')
                     ->label('Foto')
+                    ->disk('public')
                     ->square(),
                 Tables\Columns\TextColumn::make('judul')
                     ->label('Judul Berita')
@@ -94,6 +100,10 @@ class PostResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->color(fn ($state) => $state === 'Publish' ? 'success' : 'gray'),
+                Tables\Columns\IconColumn::make('tampil_di_beranda')
+                    ->label('Di Beranda')
+                    ->boolean()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('published_at')
                     ->label('Tgl Tayang')
                     ->date('d M Y')

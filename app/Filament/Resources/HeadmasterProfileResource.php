@@ -76,6 +76,7 @@ class HeadmasterProfileResource extends Resource
                         Forms\Components\FileUpload::make('photo_path')
                             ->label('Foto Resmi Kepala Sekolah')
                             ->image()
+                            ->disk('public')
                             ->directory('headmaster')
                             ->helperText('Format PNG/JPG, rasio kotak atau pas foto.'),
 

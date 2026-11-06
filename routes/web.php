@@ -138,6 +138,61 @@ try {
         } catch (\Throwable $e) {}
     }
 
+    // Pastikan kolom ticker & pengaturan beranda di school_profiles tersedia
+    if (\Illuminate\Support\Facades\Schema::hasTable('school_profiles')) {
+        \Illuminate\Support\Facades\Schema::table('school_profiles', function ($table) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('school_profiles', 'ticker_text')) {
+                $table->text('ticker_text')->nullable();
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('school_profiles', 'is_ticker_active')) {
+                $table->boolean('is_ticker_active')->default(true);
+            }
+        });
+    }
+
+    // Pastikan kolom tampil_di_beranda di posts & announcements tersedia
+    if (\Illuminate\Support\Facades\Schema::hasTable('posts')) {
+        \Illuminate\Support\Facades\Schema::table('posts', function ($table) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'tampil_di_beranda')) {
+                $table->boolean('tampil_di_beranda')->default(false);
+            }
+        });
+    }
+    if (\Illuminate\Support\Facades\Schema::hasTable('announcements')) {
+        \Illuminate\Support\Facades\Schema::table('announcements', function ($table) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('announcements', 'tampil_di_beranda')) {
+                $table->boolean('tampil_di_beranda')->default(true);
+            }
+        });
+    }
+
+    // Pastikan pengumuman agenda SAS 1 T.A. 2026/2027 tersedia
+    if (\Illuminate\Support\Facades\Schema::hasTable('announcements')) {
+        \App\Models\Announcement::firstOrCreate(
+            ['judul' => 'PENGUMUMAN: Pelaksanaan Sumatif Akhir Semester (SAS) 1 T.A. 2026/2027 SD Negeri Cinanggerang I'],
+            [
+                'tanggal_mulai' => '2026-11-30',
+                'tanggal_selesai' => '2026-12-12',
+                'isi' => '<p>Diberitahukan kepada seluruh Bapak/Ibu Pendidik, Tenaga Kependidikan, Orang Tua/Wali Murid, serta seluruh Peserta Didik SD Negeri Cinanggerang I bahwa <strong>Pelaksanaan Sumatif Akhir Semester (SAS) 1 Tahun Ajaran 2026/2027</strong> akan diselenggarakan mulai tanggal <strong>30 November s.d. 12 Desember 2026</strong>. Mohon seluruh peserta didik mempersiapkan diri dengan optimal.</p>',
+                'is_active' => true,
+            ]
+        );
+    }
+
+    // Pastikan minimal 2 berita tayang agar grid 2 kolom di beranda seimbang
+    if (\Illuminate\Support\Facades\Schema::hasTable('posts')) {
+        \App\Models\Post::firstOrCreate(
+            ['slug' => 'gelar-karya-p5-kearifan-lokal'],
+            [
+                'judul' => 'Gelar Karya P5 SDN Cinanggerang I: Menumbuhkan Karakter Pancasila Melalui Kearifan Lokal',
+                'kategori' => 'Kegiatan Kurikulum Merdeka',
+                'published_at' => '2026-11-05',
+                'konten' => '<p>SD Negeri Cinanggerang I menyelenggarakan kegiatan Gelar Karya P5 (Proyek Penguatan Profil Pelajar Pancasila) dengan tema Kearifan Lokal. Seluruh peserta didik menampilkan kreativitas bernilai budaya dan kewirausahaan.</p>',
+                'status' => 'Publish',
+            ]
+        );
+    }
+
     // Sinkronisasi logo resmi sekolah ke favicon dan fallback images
     if (\Illuminate\Support\Facades\Schema::hasTable('school_profiles')) {
         $p = SchoolProfile::first();
@@ -174,10 +229,24 @@ Route::get('/favicon.ico', function () {
 
 // Fallback akses berkas Cloudflare R2 / S3 jika dipanggil melalui path storage lokal
 Route::get('/storage/{path}', function ($path) {
+    // 1. Cek langsung di storage/app/public/ (tempat upload lokal Laravel/Filament)
+    $storageFile = storage_path('app/public/' . $path);
+    if (file_exists($storageFile) && !is_dir($storageFile)) {
+        return response()->file($storageFile);
+    }
+
+    // 2. Cek di public/storage/ (jika symlink atau folder disalin ke public)
     $localFile = public_path('storage/' . $path);
     if (file_exists($localFile) && !is_dir($localFile)) {
         return response()->file($localFile);
     }
+
+    // 3. Cek di storage/app/
+    $rawStorage = storage_path('app/' . $path);
+    if (file_exists($rawStorage) && !is_dir($rawStorage)) {
+        return response()->file($rawStorage);
+    }
+
     if (env('AWS_URL')) {
         return redirect(rtrim(env('AWS_URL'), '/') . '/' . ltrim($path, '/'));
     }
@@ -209,8 +278,8 @@ Route::get('/guru', [FrontendController::class, 'guru'])->name('guru');
 Route::get('/rombel', [FrontendController::class, 'rombel'])->name('rombel');
 Route::get('/siswa', [FrontendController::class, 'siswa'])->name('siswa');
 Route::get('/warta', [FrontendController::class, 'warta'])->name('warta');
-Route::get('/warta/{slug}', [FrontendController::class, 'wartaDetail'])->name('warta.detail');
-Route::get('/berita/{slug}', fn ($slug) => redirect()->route('warta.detail', $slug));
+Route::get('/warta/{slug}', [FrontendController::class, 'wartaDetail'])->name('warta.detail')->where('slug', '.*');
+Route::get('/berita/{slug}', fn ($slug) => redirect()->route('warta.detail', $slug))->where('slug', '.*');
 Route::get('/pengumuman', [FrontendController::class, 'pengumuman'])->name('pengumuman');
 Route::get('/pengumuman/{id}', [FrontendController::class, 'pengumumanDetail'])->name('pengumuman.detail');
 Route::get('/dokumentasi', [FrontendController::class, 'dokumentasi'])->name('dokumentasi');

@@ -128,7 +128,8 @@ class SchoolProfileResource extends Resource
                             ->directory('school-branding')
                             ->openable(),
                         Forms\Components\FileUpload::make('banner_hero')
-                            ->label('Banner Utama Halaman Depan')
+                            ->label('Banner Utama Hero Section (Halaman Beranda Rasio 16:9)')
+                            ->helperText('Foto kegiatan atau gedung sekolah resolusi tinggi. Foto ini langsung tampil di bingkai sisi kanan Hero Section Beranda.')
                             ->image()
                             ->disk('public')
                             ->directory('school-branding')
@@ -141,6 +142,22 @@ class SchoolProfileResource extends Resource
                             ->directory('school-branding')
                             ->columnSpanFull()
                             ->openable(),
+                    ]),
+
+                Forms\Components\Section::make('Pengaturan Tampilan Beranda & Bilah Pengumuman (Ticker)')
+                    ->description('Kelola teks pengumuman berjalan (ticker bar) di bawah navbar halaman depan')
+                    ->schema([
+                        Forms\Components\Toggle::make('is_ticker_active')
+                            ->label('Aktifkan Bilah Pengumuman Berjalan (Ticker Bar)')
+                            ->helperText('Jika aktif, bilah pengumuman akan tampil di bawah menu navigasi.')
+                            ->default(true),
+
+                        Forms\Components\Textarea::make('ticker_text')
+                            ->label('Isi Teks Pengumuman Berjalan')
+                            ->placeholder('Pelaksanaan Sumatif Akhir Semester (SAS) 1 T.A. 2026/2027 SD Negeri Cinanggerang I dijadwalkan mulai 30 November s.d. 12 Desember 2026...')
+                            ->helperText('Teks berjalan yang tampil di bilah pengumuman di bawah navbar.')
+                            ->rows(2)
+                            ->columnSpanFull(),
                     ]),
 
                 Forms\Components\Section::make('Visi, Misi & Sambutan Kepala Sekolah')

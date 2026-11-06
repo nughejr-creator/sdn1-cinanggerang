@@ -45,8 +45,9 @@ class GalleryResource extends Resource
                             ->label('Unggah Foto-foto Kegiatan (Bisa pilih banyak foto sekaligus)')
                             ->multiple()
                             ->image()
-                            ->reorderable()
+                            ->disk('public')
                             ->directory('galleries')
+                            ->reorderable()
                             ->columnSpanFull(),
                     ]),
             ]);
@@ -58,6 +59,7 @@ class GalleryResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('foto')
                     ->label('Foto')
+                    ->disk('public')
                     ->circular()
                     ->stacked()
                     ->limit(3)
@@ -72,7 +74,7 @@ class GalleryResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('foto_count')
                     ->label('Jumlah Foto')
-                    ->state(fn ($record) => is_array($record->foto) ? count($record->foto) . ' Foto' : '0 Foto')
+                    ->state(fn ($record) => count($record->foto_urls) . ' Foto')
                     ->badge()
                     ->color('info'),
             ])

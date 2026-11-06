@@ -33,6 +33,14 @@ class FrontendController extends Controller
             ->orderBy('urutan')
             ->get();
 
+        // Data Kepala Sekolah Resmi (Bpk. Aep Yayat, S.Pd.SD)
+        $kepalaSekolah = Teacher::where('is_active', true)
+            ->where(function ($q) {
+                $q->where('jabatan', 'like', '%Kepala%')
+                  ->orWhere('nama', 'like', '%Aep Yayat%');
+            })
+            ->first();
+
         // Statistik Realtime
         $stats = [
             'total_siswa' => max(Student::count(), 219),
@@ -41,17 +49,45 @@ class FrontendController extends Controller
             'npsn' => $profile?->npsn ?? '20208801',
         ];
 
-        // Berita & Artikel Terbaru
-        $posts = Post::where('status', 'Publish')
+        // 1. Artikel Berita untuk Beranda: Ambil maksimal 2 artikel yang disematkan (tampil_di_beranda = true)
+        // Fallback otomatis ke 2 artikel terbaru jika belum ada yang disematkan
+        $pinnedPosts = Post::where('status', 'Publish')
+            ->where('tampil_di_beranda', true)
             ->latest('published_at')
-            ->take(3)
+            ->take(2)
             ->get();
 
-        // Pengumuman Aktif
-        $announcements = Announcement::where('is_active', true)
-            ->latest()
-            ->take(3)
+        if ($pinnedPosts->count() < 2) {
+            $needed = 2 - $pinnedPosts->count();
+            $fallbackPosts = Post::where('status', 'Publish')
+                ->whereNotIn('id', $pinnedPosts->pluck('id'))
+                ->latest('published_at')
+                ->take($needed)
+                ->get();
+            $posts = $pinnedPosts->concat($fallbackPosts);
+        } else {
+            $posts = $pinnedPosts;
+        }
+
+        // 2. Pengumuman untuk Beranda: Ambil maksimal 2 pengumuman yang disematkan (tampil_di_beranda = true)
+        // Fallback otomatis ke 2 pengumuman aktif terbaru
+        $pinnedAnnouncements = Announcement::where('is_active', true)
+            ->where('tampil_di_beranda', true)
+            ->latest('tanggal_mulai')
+            ->take(2)
             ->get();
+
+        if ($pinnedAnnouncements->count() < 2) {
+            $needed = 2 - $pinnedAnnouncements->count();
+            $fallbackAnnouncements = Announcement::where('is_active', true)
+                ->whereNotIn('id', $pinnedAnnouncements->pluck('id'))
+                ->latest('tanggal_mulai')
+                ->take($needed)
+                ->get();
+            $announcements = $pinnedAnnouncements->concat($fallbackAnnouncements);
+        } else {
+            $announcements = $pinnedAnnouncements;
+        }
 
         // Auto-seed / sync video resmi jika belum lengkap
         if (VideoGallery::count() < 7) {
@@ -95,6 +131,7 @@ class FrontendController extends Controller
 
         return view('frontend.index', compact(
             'profile',
+            'kepalaSekolah',
             'teachers',
             'stats',
             'posts',

@@ -9,6 +9,20 @@ class SchoolProfile extends Model
 {
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'is_ticker_active' => 'boolean',
+    ];
+
+    /**
+     * Teks pengumuman berjalan (ticker) dengan fallback default
+     */
+    public function getTickerTextDisplayAttribute(): string
+    {
+        return !empty($this->ticker_text)
+            ? $this->ticker_text
+            : 'Pelaksanaan Sumatif Akhir Semester (SAS) 1 T.A. 2026/2027 SD Negeri Cinanggerang I dijadwalkan mulai 30 November s.d. 12 Desember 2026. Mohon dipersiapkan dengan optimal. • Pendaftaran PPDB Tahun Ajaran 2026/2027 Resmi Dibuka Melalui Jalur Online. • Jam Efektif Presensi GTK Dimulai Pukul 06:30 - 07:30 WIB.';
+    }
+
     /**
      * URL Logo Resmi Sekolah (Cloudflare R2 / Local Storage dengan Fallback)
      */

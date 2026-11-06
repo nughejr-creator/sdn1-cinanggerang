@@ -199,21 +199,16 @@
                     <div>
                         {{-- Avatar / Foto Kepala Sekolah --}}
                         <div class="relative w-36 h-36 sm:w-44 sm:h-44 mx-auto mb-5 rounded-2xl overflow-hidden border-4 border-sumedang-amber/70 shadow-2xl bg-forest-950 flex items-center justify-center">
-                            @if(!empty($headmaster?->photo_url))
-                                <img src="{{ $headmaster->photo_url }}"
-                                     alt="{{ $headmaster->name }}"
-                                     class="w-full h-full object-cover object-top"
-                                     onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
-                                <div class="hidden w-full h-full bg-gradient-to-br from-forest-800 to-forest-950 flex flex-col items-center justify-center text-center p-4">
-                                    <span class="text-4xl sm:text-5xl font-black text-sumedang-amber">AY</span>
-                                    <span class="text-[10px] text-emerald-300 font-bold uppercase mt-1 tracking-wider">Kepala Sekolah</span>
-                                </div>
-                            @else
-                                <div class="w-full h-full bg-gradient-to-br from-forest-800 to-forest-950 flex flex-col items-center justify-center text-center p-4">
-                                    <span class="text-4xl sm:text-5xl font-black text-sumedang-amber">AY</span>
-                                    <span class="text-[10px] text-emerald-300 font-bold uppercase mt-1 tracking-wider">Kepala Sekolah</span>
-                                </div>
-                            @endif
+                            @php
+                                $pkksHeadmasterPhoto = $headmaster?->photo_url 
+                                    ?: ($profile?->foto_kepala_sekolah_url 
+                                    ?: (\App\Models\Teacher::where('jabatan', 'like', '%Kepala%')->orWhere('nama', 'like', '%Aep Yayat%')->first()?->foto_url 
+                                    ?: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80'));
+                            @endphp
+                            <img src="{{ $pkksHeadmasterPhoto }}"
+                                 alt="{{ $headmaster?->name ?? 'Bpk. Aep Yayat, S.Pd' }}"
+                                 class="w-full h-full object-cover object-top"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80';">
 
                             {{-- Status Badge Aktif --}}
                             <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-forest-950 font-black text-[9px] uppercase tracking-wider flex items-center gap-1 shadow">

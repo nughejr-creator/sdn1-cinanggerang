@@ -19,7 +19,17 @@ class Gallery extends Model
      */
     public function getFotoUrlsAttribute(): array
     {
-        if (empty($this->foto) || !is_array($this->foto)) {
+        if (empty($this->foto)) {
+            return [];
+        }
+
+        $raw = $this->foto;
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            $photos = is_array($decoded) ? $decoded : [$raw];
+        } elseif (is_array($raw)) {
+            $photos = $raw;
+        } else {
             return [];
         }
 
@@ -33,7 +43,7 @@ class Gallery extends Model
             } catch (\Throwable $e) {
                 return asset('storage/' . $path);
             }
-        }, $this->foto)));
+        }, $photos)));
     }
 
     /**
@@ -50,6 +60,6 @@ class Gallery extends Model
      */
     public function getJumlahFotoAttribute(): int
     {
-        return is_array($this->foto) ? count($this->foto) : 0;
+        return count($this->foto_urls);
     }
 }
