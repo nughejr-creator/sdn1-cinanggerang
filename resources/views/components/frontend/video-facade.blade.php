@@ -31,8 +31,8 @@
                     <template class="video-embed-src hidden">{!! $video->embed_html ?? '' !!}</template>
 
                     {{-- Cover / Thumbnail --}}
-                    @if(!empty($video->thumbnail_custom))
-                        <img src="{{ asset('storage/' . $video->thumbnail_custom) }}"
+                    @if(!empty($video->thumbnail_url))
+                        <img src="{{ $video->thumbnail_url }}"
                              alt="{{ $video->judul }}"
                              loading="lazy"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform">

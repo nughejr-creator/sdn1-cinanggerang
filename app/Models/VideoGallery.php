@@ -59,4 +59,16 @@ class VideoGallery extends Model
 
         return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="text-primary-600 underline">Tonton Video di Tautan Eksternal</a>';
     }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if (!empty($this->thumbnail_custom)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->thumbnail_custom);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->thumbnail_custom);
+            }
+        }
+        return null;
+    }
 }

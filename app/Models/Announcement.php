@@ -13,4 +13,16 @@ class Announcement extends Model
         'tanggal_selesai' => 'date',
         'is_active' => 'boolean',
     ];
+
+    public function getFileLampiranUrlAttribute(): ?string
+    {
+        if (!empty($this->file_lampiran)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_lampiran);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->file_lampiran);
+            }
+        }
+        return null;
+    }
 }

@@ -94,7 +94,7 @@
 
             {{-- Logo Resmi Sekolah --}}
             <div class="w-20 h-20 flex items-center justify-center shrink-0">
-                <img src="{{ !empty($profile?->logo) ? asset('storage/' . $profile->logo) : asset('images/logo-official.png') }}"
+                <img src="{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
                      alt="Logo SDN Cinanggerang I"
                      class="w-18 h-18 object-contain">
             </div>
