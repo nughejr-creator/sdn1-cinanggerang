@@ -157,14 +157,14 @@ class AttendanceController extends Controller
             'duty_location_name' => 'required_if:attendance_type,Dinas Luar|nullable|string|max:255',
             'duty_description'   => 'required_if:attendance_type,Dinas Luar|nullable|string',
             'duty_proof_type'    => 'required_if:attendance_type,Dinas Luar|nullable|in:Surat Tugas / Undangan,Foto Kegiatan di Lokasi',
-            'duty_proof_file'    => 'required_if:attendance_type,Dinas Luar|nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'duty_proof_file'    => 'required_if:attendance_type,Dinas Luar|nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
         ], [
             'duty_proof_file.required_if' => 'Untuk presensi dinas luar, wajib melampirkan berkas surat tugas atau foto dokumentasi di lokasi kegiatan.',
             'duty_location_name.required_if' => 'Nama lokasi/instansi dinas luar wajib diisi.',
             'duty_description.required_if' => 'Keterangan agenda kegiatan dinas luar wajib diisi.',
             'duty_proof_type.required_if' => 'Pilih jenis bukti validasi dinas luar.',
-            'duty_proof_file.max' => 'Ukuran berkas bukti dinas luar maksimal 2 MB.',
-            'duty_proof_file.mimes' => 'Format berkas bukti harus berupa PDF, JPG, JPEG, atau PNG.',
+            'duty_proof_file.max' => 'Ukuran berkas bukti dinas luar maksimal 10 MB.',
+            'duty_proof_file.mimes' => 'Format berkas bukti harus berupa PDF, JPG, JPEG, WEBP, atau PNG.',
             'selfie_image.required_without' => 'Swafoto (selfie) wajah wajib diambil sebelum merekam presensi.',
             'foto_selfie.required_without' => 'Swafoto (selfie) wajah wajib diambil sebelum merekam presensi.',
         ]);
@@ -218,11 +218,52 @@ class AttendanceController extends Controller
         $selfieBase64 = $request->input('selfie_image') ?: $request->input('foto_selfie');
         $photoPath = $this->storeBase64Selfie($selfieBase64, $teacher->id, $tipe);
 
-        // Penanganan Berkas Bukti Dinas Luar
+        // Penanganan Berkas Bukti Dinas Luar (Dikompresi Otomatis jika Foto/Gambar)
         $dutyProofPath = null;
         if ($attendanceType === 'Dinas Luar' && $request->hasFile('duty_proof_file')) {
             $file = $request->file('duty_proof_file');
-            $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+            $mime = $file->getMimeType() ?: '';
+
+            if (str_starts_with($mime, 'image/') && function_exists('imagecreatefromstring')) {
+                try {
+                    $imageContent = file_get_contents($file->getRealPath());
+                    $sourceImage = @imagecreatefromstring($imageContent);
+                    if ($sourceImage !== false) {
+                        $w = imagesx($sourceImage);
+                        $h = imagesy($sourceImage);
+                        $maxDim = 1024;
+                        if ($w > $maxDim || $h > $maxDim) {
+                            if ($w > $h) {
+                                $newW = $maxDim;
+                                $newH = (int) round(($h * $maxDim) / $w);
+                            } else {
+                                $newH = $maxDim;
+                                $newW = (int) round(($w * $maxDim) / $h);
+                            }
+                            $resized = imagecreatetruecolor($newW, $newH);
+                            imagecopyresampled($resized, $sourceImage, 0, 0, 0, 0, $newW, $newH, $w, $h);
+                            imagedestroy($sourceImage);
+                            $sourceImage = $resized;
+                        }
+
+                        $fileName = 'proof_' . $teacher->id . '_' . date('Ymd_His') . '.jpg';
+                        $dutyProofPath = 'presensi_dinas_luar/' . $fileName;
+
+                        ob_start();
+                        imagejpeg($sourceImage, null, 72);
+                        $compressedData = ob_get_clean();
+                        imagedestroy($sourceImage);
+
+                        Storage::disk('public')->put($dutyProofPath, $compressedData);
+                    } else {
+                        $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+                    }
+                } catch (\Throwable $e) {
+                    $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+                }
+            } else {
+                $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+            }
         }
 
         $now = now()->setTimezone('Asia/Jakarta');

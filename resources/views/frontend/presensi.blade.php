@@ -444,7 +444,7 @@
                         <span class="text-rose-500">*</span>
                     </label>
                     <p class="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
-                        Format berkas: JPG, JPEG, PNG, atau PDF (Ukuran maksimal 2 MB).
+                        Format berkas: JPG, JPEG, PNG, atau PDF (Foto kamera HP otomatis dikompresi menjadi ringkas maks. ~100 KB).
                     </p>
 
                     <div class="flex items-center gap-2">
@@ -741,21 +741,103 @@ function presensiGpsApp(config) {
             return R * c;
         },
 
-        handleDutyFileChange(event) {
+        compressImageFile(file, maxWidth = 1024, maxHeight = 1024, quality = 0.72) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                resolve(file);
+                                return;
+                            }
+                            // Jika masih di atas 110 KB, perkecil dengan kualitas 0.55
+                            if (blob.size > 112640 && quality > 0.55) {
+                                canvas.toBlob((blob2) => {
+                                    const finalBlob = blob2 || blob;
+                                    const compressed = new File([finalBlob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                                        type: 'image/jpeg',
+                                        lastModified: Date.now()
+                                    });
+                                    resolve(compressed);
+                                }, 'image/jpeg', 0.55);
+                            } else {
+                                const compressed = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(compressed);
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = () => resolve(file);
+                };
+                reader.onerror = () => resolve(file);
+            });
+        },
+
+        async handleDutyFileChange(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Validasi ukuran maks 2 MB (2 * 1024 * 1024 bytes)
-            if (file.size > 2097152) {
-                this.alertMessage = 'Ukuran berkas melebihi batas maksimal 2 MB!';
+            // Jika berkas berupa foto/gambar (JPG, PNG, WEBP, dari Kamera HP atau Galeri)
+            if (file.type.startsWith('image/')) {
+                this.alertMessage = 'Sedang mereduksi ukuran foto otomatis...';
+                this.alertType = 'success';
+
+                try {
+                    const compressed = await this.compressImageFile(file);
+                    this.dutyProofFile = compressed;
+                    const sizeKb = Math.round(compressed.size / 1024);
+                    const originalKb = Math.round(file.size / 1024);
+                    this.dutyProofFileName = `${file.name} (${sizeKb} KB • Terkompres Otomatis dari ${originalKb} KB)`;
+                    this.alertMessage = `Foto berhasil dioptimasi menjadi ${sizeKb} KB (Hemat penyimpanan & kuota).`;
+                    this.alertType = 'success';
+                } catch (err) {
+                    this.dutyProofFile = file;
+                    this.dutyProofFileName = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+                    this.alertMessage = '';
+                }
+            } else if (file.type === 'application/pdf') {
+                // Berkas PDF Surat Tugas Resmi (Batas aman 5 MB)
+                if (file.size > 5242880) {
+                    this.alertMessage = 'Ukuran berkas PDF melebihi batas maksimal 5 MB!';
+                    this.alertType = 'error';
+                    event.target.value = '';
+                    return;
+                }
+                this.dutyProofFile = file;
+                this.dutyProofFileName = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+                this.alertMessage = '';
+            } else {
+                this.alertMessage = 'Format berkas tidak didukung. Mohon gunakan foto (JPG, PNG) atau dokumen PDF.';
                 this.alertType = 'error';
                 event.target.value = '';
-                return;
             }
-
-            this.dutyProofFile = file;
-            this.dutyProofFileName = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-            this.alertMessage = '';
         },
 
         clearDutyFile() {
@@ -819,7 +901,7 @@ function presensiGpsApp(config) {
 
             ctx.fillText(`${tagLokasi} • ${this.liveTime}`, 20, canvas.height - 21);
 
-            this.snapshotData = canvas.toDataURL('image/jpeg', 0.85);
+            this.snapshotData = canvas.toDataURL('image/jpeg', 0.72);
             return this.snapshotData;
         },
 
