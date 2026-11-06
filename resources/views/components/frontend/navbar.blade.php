@@ -44,9 +44,14 @@
                 {{-- Logo SDN Cinanggerang I (Satu-satunya Logo di Header) --}}
                 <div class="relative flex items-center justify-center">
                     @if(!empty($profile?->logo))
-                        <img src="{{ asset('storage/' . $profile->logo) }}" alt="Logo SDN Cinanggerang I" class="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105">
+                        <img src="{{ asset('storage/' . $profile->logo) }}"
+                             alt="Logo SDN Cinanggerang I"
+                             class="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+                             onerror="this.onerror=null; this.src='{{ asset('images/logo-official.png') }}';">
                     @else
-                        <img src="{{ asset('images/logo-sd.svg') }}" alt="Logo SDN Cinanggerang I" class="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-sm">
+                        <img src="{{ asset('images/logo-official.png') }}"
+                             alt="Logo SDN Cinanggerang I"
+                             class="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-sm">
                     @endif
                 </div>
 
