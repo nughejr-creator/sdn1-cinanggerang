@@ -21,6 +21,8 @@ php artisan storage:link --force || true
 echo "==> Mendaftarkan paket & aset Filament..."
 php artisan package:discover --ansi || true
 php artisan filament:upgrade || true
+php artisan filament:assets || true
+php artisan livewire:publish --assets || true
 
 echo "==> Menjalankan migrasi basis data..."
 php artisan migrate --force || true
