@@ -1,0 +1,257 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Announcement;
+use App\Models\PkksEvidence;
+use App\Models\PkksKomponen;
+use App\Models\Post;
+use App\Models\SchoolProfile;
+use App\Models\Student;
+use App\Models\StudentClass;
+use App\Models\Teacher;
+use App\Models\VideoGallery;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class FrontendController extends Controller
+{
+    /**
+     * Tampilkan Halaman Utama Resmi SDN Cinanggerang I
+     */
+    public function index(): View
+    {
+        // Bersihkan cache view terkompilasi agar selalu fresh di lokal
+        if (app()->environment('local')) {
+            array_map('unlink', glob(storage_path('framework/views/*.php')));
+        }
+
+        $profile = SchoolProfile::first();
+
+        // 11 Personil Guru & Tenaga Kependidikan Resmi
+        $teachers = Teacher::where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        // Statistik Realtime
+        $stats = [
+            'total_siswa' => max(Student::count(), 219),
+            'total_guru' => $teachers->count() ?: 11,
+            'total_rombel' => StudentClass::count() ?: 8,
+            'npsn' => $profile?->npsn ?? '20208801',
+        ];
+
+        // Berita & Artikel Terbaru
+        $posts = Post::where('status', 'Publish')
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        // Pengumuman Aktif
+        $announcements = Announcement::where('is_active', true)
+            ->latest()
+            ->take(3)
+            ->get();
+
+        // Auto-seed / sync video resmi jika belum lengkap
+        if (VideoGallery::count() < 7) {
+            (new \Database\Seeders\VideoGallerySeeder())->run();
+        }
+
+        // Galeri Video Interaktif (YouTube, TikTok, Google Drive)
+        $videos = VideoGallery::latest('id')
+            ->take(8)
+            ->get();
+
+        // Auto-seed data E-PKKS 12 Indikator Permendikdasmen No. 23/2026 jika belum ada
+        if (!\Illuminate\Support\Facades\Schema::hasTable('headmaster_profiles') || 
+            !\Illuminate\Support\Facades\Schema::hasTable('pkks_indicators') || 
+            !\Illuminate\Support\Facades\Schema::hasTable('pkks_evidences') ||
+            !\Illuminate\Support\Facades\Schema::hasColumn('pkks_evidences', 'pkks_indicator_id')) {
+            try {
+                $migration = require database_path('migrations/2026_11_05_180000_create_pkks_permendikdasmen_tables.php');
+                $migration->up();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('pkks_indicators')) {
+            if (\App\Models\PkksIndicator::count() < 12 || \App\Models\HeadmasterProfile::count() === 0) {
+                (new \Database\Seeders\PkksDatabaseSeeder())->run();
+            }
+        }
+
+        // Showcase Portofolio E-PKKS (12 Indikator Permendikdasmen No. 23/2026) Tahun Aktif
+        $pkksIndicators = \App\Models\PkksIndicator::whereHas('period', function ($q) {
+            $q->where('status', 'active');
+        })->with('evidences')->orderBy('indicator_number')->get();
+
+        if ($pkksIndicators->isEmpty()) {
+            $pkksIndicators = \App\Models\PkksIndicator::with('evidences')
+                ->orderBy('indicator_number')
+                ->get();
+        }
+
+        return view('frontend.index', compact(
+            'profile',
+            'teachers',
+            'stats',
+            'posts',
+            'announcements',
+            'videos',
+            'pkksIndicators'
+        ));
+    }
+
+    /**
+     * Halaman Profil & Visi Misi Sekolah
+     */
+    public function profil(): View
+    {
+        if (app()->environment('local')) {
+            array_map('unlink', glob(storage_path('framework/views/*.php')));
+        }
+        $profile = SchoolProfile::first();
+        return view('frontend.profil', compact('profile'));
+    }
+
+    /**
+     * Halaman Direktori Guru & Tenaga Kependidikan
+     */
+    public function guru(): View
+    {
+        if (app()->environment('local')) {
+            array_map('unlink', glob(storage_path('framework/views/*.php')));
+        }
+        $profile = SchoolProfile::first();
+        $teachers = Teacher::where('is_active', true)
+            ->orderBy('urutan')
+            ->get();
+
+        return view('frontend.guru', compact('profile', 'teachers'));
+    }
+
+    /**
+     * Halaman Warta, Berita & Pengumuman Sekolah
+     */
+    public function warta(): View
+    {
+        $profile = SchoolProfile::first();
+        $posts = Post::where('status', 'Publish')
+            ->latest('published_at')
+            ->paginate(6);
+
+        $announcements = Announcement::where('is_active', true)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('frontend.warta', compact('profile', 'posts', 'announcements'));
+    }
+
+    /**
+     * Halaman Dokumentasi Kegiatan (Video TikTok & Arsip Google Drive)
+     */
+    public function dokumentasi(): View
+    {
+        $profile = SchoolProfile::first();
+        
+        if (VideoGallery::count() < 7) {
+            (new \Database\Seeders\VideoGallerySeeder())->run();
+        }
+
+        $videos = VideoGallery::latest('id')->get();
+
+        return view('frontend.dokumentasi', compact('profile', 'videos'));
+    }
+
+    /**
+     * Halaman Portofolio Mutu Digital E-PKKS (12 Indikator Permendikdasmen No. 23/2026)
+     */
+    public function pkks(Request $request): View
+    {
+        return (new PkksController())->index($request);
+    }
+
+    /**
+     * Halaman Rombongan Belajar (Rombel Kelas I - VI)
+     */
+    public function rombel(): View
+    {
+        // Bersihkan data sampah non-siswa jika ada
+        Student::whereIn('nama', ['Kepribadian', 'Profesional', 'Sosial'])->delete();
+        Student::whereNull('student_class_id')->whereNull('nisn')->delete();
+
+        $profile = SchoolProfile::first();
+        $rombels = StudentClass::withCount(['students' => function ($q) {
+                $q->where('status', 'Aktif');
+            }])
+            ->with('teacher')
+            ->orderBy('tingkat')
+            ->orderBy('nama')
+            ->get();
+
+        $totalSiswa = Student::where('status', 'Aktif')->count();
+
+        return view('frontend.rombel', compact('profile', 'rombels', 'totalSiswa'));
+    }
+
+    /**
+     * Halaman Daftar Siswa & Pencarian / Cek NISN Mandiri
+     */
+    public function siswa(Request $request): View
+    {
+        // Bersihkan data sampah non-siswa (misal komponen PKKS yang sempat terbaca)
+        Student::whereIn('nama', ['Kepribadian', 'Profesional', 'Sosial'])->delete();
+        Student::whereNull('student_class_id')->whereNull('nisn')->delete();
+
+        $profile = SchoolProfile::first();
+        $query = trim((string)$request->get('q', ''));
+        $rombelFilter = $request->get('rombel_id');
+
+        $siswaQuery = Student::where('status', 'Aktif')
+            ->select('id', 'nama', 'nisn', 'student_class_id', 'jenis_kelamin')
+            ->with('studentClass:id,nama');
+
+        // Filter pencarian nama atau NISN (minimal 2 karakter)
+        if ($query && strlen($query) >= 2) {
+            $siswaQuery->where(function ($q) use ($query) {
+                $q->where('nama', 'like', "%{$query}%")
+                  ->orWhere('nisn', 'like', "%{$query}%");
+            });
+        }
+
+        // Filter berdasarkan Rombel/Kelas (opsional)
+        if (!empty($rombelFilter)) {
+            $siswaQuery->where('student_class_id', $rombelFilter);
+        }
+
+        $siswa = $siswaQuery->orderBy('student_class_id')
+            ->orderBy('nama')
+            ->paginate(20)
+            ->withQueryString();
+
+        $rombels = StudentClass::select('id', 'nama', 'tingkat')
+            ->withCount(['students' => function ($q) {
+                $q->where('status', 'Aktif');
+            }])
+            ->orderBy('tingkat')
+            ->orderBy('nama')
+            ->get();
+
+        $totalSiswa = Student::where('status', 'Aktif')->count();
+
+        return view('frontend.siswa', compact('profile', 'siswa', 'rombels', 'query', 'rombelFilter', 'totalSiswa'));
+    }
+
+    /**
+     * Halaman Layanan & Informasi PPDB Online
+     */
+    public function ppdb(): View
+    {
+        $profile = SchoolProfile::first();
+        $setting = \App\Models\PpdbSetting::getSetting();
+        return view('frontend.ppdb', compact('profile', 'setting'));
+    }
+}

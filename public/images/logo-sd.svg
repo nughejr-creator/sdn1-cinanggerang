@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+    <defs>
+        <linearGradient id="goldBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FCD34D"/>
+            <stop offset="50%" stop-color="#F59E0B"/>
+            <stop offset="100%" stop-color="#D97706"/>
+        </linearGradient>
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#38BDF8"/>
+            <stop offset="100%" stop-color="#7DD3FC"/>
+        </linearGradient>
+        <linearGradient id="emeraldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#065F46"/>
+            <stop offset="100%" stop-color="#022C22"/>
+        </linearGradient>
+        <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#DC2626"/>
+            <stop offset="50%" stop-color="#F59E0B"/>
+            <stop offset="100%" stop-color="#FEF08A"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Outer Circle Ring (Dark Emerald + Gold Border) -->
+    <circle cx="64" cy="64" r="62" fill="url(#emeraldDark)" stroke="url(#goldBorder)" stroke-width="4"/>
+    <circle cx="64" cy="64" r="56" fill="none" stroke="#FDE68A" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.8"/>
+
+    <!-- Inner Round Sky -->
+    <circle cx="64" cy="64" r="50" fill="url(#skyGrad)" stroke="#064E3B" stroke-width="2"/>
+
+    <!-- Rays of Knowledge (Light Beams) -->
+    <g opacity="0.35" stroke="#FFFFFF" stroke-width="1.5">
+        <line x1="64" y1="18" x2="64" y2="35"/>
+        <line x1="38" y1="28" x2="48" y2="40"/>
+        <line x1="90" y1="28" x2="80" y2="40"/>
+        <line x1="22" y1="52" x2="38" y2="56"/>
+        <line x1="106" y1="52" x2="90" y2="56"/>
+    </g>
+
+    <!-- Golden Rice & Cotton Wreath (Padi & Kapas) -->
+    <!-- Left Wreath (Rice / Padi) -->
+    <g fill="#F59E0B" stroke="#B45309" stroke-width="0.5">
+        <ellipse cx="26" cy="68" rx="4" ry="7" transform="rotate(-30 26 68)"/>
+        <ellipse cx="24" cy="54" rx="4" ry="7" transform="rotate(-15 24 54)"/>
+        <ellipse cx="28" cy="40" rx="4" ry="7" transform="rotate(5 28 40)"/>
+        <ellipse cx="36" cy="29" rx="4" ry="6" transform="rotate(25 36 29)"/>
+        <ellipse cx="48" cy="22" rx="4" ry="6" transform="rotate(45 48 22)"/>
+    </g>
+
+    <!-- Right Wreath (Cotton / Kapas) -->
+    <g fill="#FFFFFF" stroke="#065F46" stroke-width="0.8">
+        <circle cx="102" cy="68" r="5"/>
+        <circle cx="104" cy="54" r="5"/>
+        <circle cx="100" cy="40" r="5"/>
+        <circle cx="92" cy="29" r="4.5"/>
+        <circle cx="80" cy="22" r="4.5"/>
+    </g>
+
+    <!-- Obor Pendidikan / Torch & Monument in Center -->
+    <!-- Handle / Base -->
+    <rect x="61" y="60" width="6" height="24" rx="1.5" fill="#475569" stroke="#1E293B" stroke-width="1"/>
+    <!-- Bowl of Torch -->
+    <path d="M54 58 L74 58 L68 66 L60 66 Z" fill="url(#goldBorder)" stroke="#B45309" stroke-width="1"/>
+    <!-- Burning Flame -->
+    <path d="M64 34 C58 42 56 48 58 54 C61 52 63 49 64 47 C65 50 67 52 70 54 C72 48 70 42 64 34 Z" fill="url(#flameGrad)" filter="drop-shadow(0px 0px 3px rgba(245,158,11,0.8))"/>
+
+    <!-- Open Book at the Base (Buku Sumber Ilmu) -->
+    <path d="M64 78 C52 70 34 72 26 77 C26 63 35 59 48 59 C55 59 60 62 64 66 C68 62 73 59 80 59 C93 59 102 63 102 77 C94 72 76 70 64 78 Z" fill="#FFFFFF" stroke="#334155" stroke-width="1.5"/>
+    <!-- Spine of the Book -->
+    <line x1="64" y1="66" x2="64" y2="82" stroke="#64748B" stroke-width="2"/>
+    <!-- Text Lines inside Book -->
+    <path d="M34 68 Q48 67 58 72 M34 72 Q48 71 58 76" stroke="#94A3B8" stroke-width="1" fill="none"/>
+    <path d="M94 68 Q80 67 70 72 M94 72 Q80 71 70 76" stroke="#94A3B8" stroke-width="1" fill="none"/>
+
+    <!-- Red & White Ribbon (Pita Merah Putih) -->
+    <g>
+        <path d="M32 82 Q64 87 96 82 L98 88 Q64 93 30 88 Z" fill="#EF4444" stroke="#B91C1C" stroke-width="0.5"/>
+        <path d="M30 88 Q64 93 98 88 L96 94 Q64 99 32 94 Z" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="0.5"/>
+    </g>
+
+    <!-- School Banner Ribbon on Bottom -->
+    <path d="M22 96 Q64 103 106 96 L108 110 Q64 117 20 110 Z" fill="#064E3B" stroke="url(#goldBorder)" stroke-width="2"/>
+    <text x="64" y="106" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="7.5" font-weight="900" fill="#FDE68A" text-anchor="middle" letter-spacing="0.5">SDN CINANGGERANG I</text>
+
+    <!-- Star of Excellence at Top -->
+    <polygon points="64,6 66,12 72,12 67,16 69,22 64,18 59,22 61,16 56,12 62,12" fill="url(#goldBorder)"/>
+</svg>

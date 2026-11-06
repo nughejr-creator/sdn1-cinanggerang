@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {{-- SEO & Metadata Sekolah Resmi --}}
+    <title>@yield('title', 'SD Negeri Cinanggerang I | Portal Resmi & E-PKKS Digital')</title>
+    <meta name="description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang. Pusat informasi profil, layanan PPDB Online, dan Portofolio Digital E-PKKS.')">
+    <meta name="keywords" content="SDN Cinanggerang 1, SD Negeri Cinanggerang I, Pamulihan, Sumedang, PPDB Sumedang, E-PKKS, Sekolah Dasar Negeri">
+    <meta name="author" content="SD Negeri Cinanggerang I">
+    <link rel="canonical" href="@yield('canonical_url', url()->current())">
+
+    {{-- Open Graph / WhatsApp Preview Meta --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="SD Negeri Cinanggerang I (NPSN: 20208801) - Sumedang">
+    <meta property="og:description" content="Mewujudkan Peserta Didik yang Berakhlak Mulia, Cerdas, Terampil, Mandiri, dan Berwawasan Lingkungan.">
+    <meta property="og:image" content="{{ !empty($profile?->logo) ? asset('storage/' . $profile->logo) : asset('images/logo-sekolah-default.png') }}">
+
+    {{-- Favicon Browser Tab (Logo Resmi SDN Cinanggerang I) --}}
+    @php
+        $officialFavicon = asset('images/logo-official.png');
+    @endphp
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ $officialFavicon }}?v=5">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ $officialFavicon }}?v=5">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=5">
+    <link rel="apple-touch-icon" href="{{ $officialFavicon }}?v=5">
+
+    {{-- Google Font: Plus Jakarta Sans --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {{-- Tailwind CSS & Plugins via CDN --}}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#065F46', // Deep Emerald
+                            900: '#064E3B', // Brand Core Green
+                            950: '#022c22', // Darkest Forest
+                        },
+                        sumedang: {
+                            teal: '#0F4C5C',
+                            amber: '#F59E0B',
+                            gold: '#D97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    {{-- Alpine.js (Core & Plugins) --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        .bg-canvas {
+            background-color: #fbfdfc;
+            background-image: radial-gradient(#dcfce7 0.75px, transparent 0.75px);
+            background-size: 24px 24px;
+        }
+
+        /* Perataan Halaman Teks (Align Left, Center, Right, Justify) */
+        align-left, [align-left] { display: block; text-align: left !important; }
+        align-center, [align-center] { display: block; text-align: center !important; }
+        align-right, [align-right] { display: block; text-align: right !important; }
+        align-justify, [align-justify] { display: block; text-align: justify !important; text-justify: inter-word !important; }
+    </style>
+
+    <script>
+        // Custom Elements untuk tag perataan teks Trix
+        ['align-left', 'align-center', 'align-right', 'align-justify'].forEach(tag => {
+            if (window.customElements && !customElements.get(tag)) {
+                try { customElements.define(tag, class extends HTMLElement {}); } catch(e) {}
+            }
+        });
+    </script>
+
+    {{-- Schema JSON-LD (SEO Satuan Pendidikan Lokal) --}}
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'ElementarySchool',
+        'name' => 'SD Negeri Cinanggerang I',
+        'identifier' => $profile?->npsn ?? '20208801',
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => 'Jln. Desa Cinanggerang RT 03 / RW 04',
+            'addressLocality' => 'Pamulihan',
+            'addressRegion' => 'Sumedang, Jawa Barat',
+            'postalCode' => '45362',
+            'addressCountry' => 'ID'
+        ],
+        'geo' => [
+            '@type' => 'GeoCoordinates',
+            'latitude' => (float) ($profile?->latitude ?? -6.89437395),
+            'longitude' => (float) ($profile?->longitude ?? 107.87197894)
+        ],
+        'telephone' => $profile?->telepon ?? '081321021585',
+        'email' => $profile?->email ?? 'sdncinanggerang1@gmail.com'
+    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+    </script>
+</head>
+<body class="font-sans antialiased text-gray-800 bg-canvas selection:bg-sumedang-amber selection:text-white">
+
+    {{-- Navbar Komponen --}}
+    @include('components.frontend.navbar')
+
+    {{-- Konten Utama Halaman --}}
+    <main>
+        @yield('content')
+    </main>
+
+    {{-- Footer Komponen --}}
+    @include('components.frontend.footer')
+
+    @stack('scripts')
+</body>
+</html>
