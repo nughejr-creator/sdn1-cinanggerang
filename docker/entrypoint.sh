@@ -9,6 +9,8 @@ fi
 
 echo "==> Menyiapkan direktori storage & symlink..."
 mkdir -p /var/www/html/storage/app/public
+mkdir -p /var/www/html/storage/app/private/livewire-tmp
+mkdir -p /var/www/html/storage/app/livewire-tmp
 mkdir -p /var/www/html/storage/framework/cache/data
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views

@@ -88,7 +88,6 @@ class TeacherResource extends Resource
                             ->label('Foto Profil Guru')
                             ->image()
                             ->disk('public')
-                            ->visibility('public')
                             ->directory('teachers')
                             ->columnSpanFull(),
                         Forms\Components\Toggle::make('is_active')
