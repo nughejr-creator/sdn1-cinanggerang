@@ -48,10 +48,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Salin file dependensi PHP terlebih dahulu agar layer cache optimal
-COPY composer.json composer.lock ./
+COPY composer.json ./
 
 # Install dependensi PHP tanpa paket development
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+RUN composer update --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
 
 # Salin seluruh kode proyek ke dalam kontainer
 COPY . .
