@@ -18,6 +18,10 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 php artisan storage:link --force || true
 
+echo "==> Mendaftarkan paket & aset Filament..."
+php artisan package:discover --ansi || true
+php artisan filament:upgrade || true
+
 echo "==> Menjalankan migrasi basis data..."
 php artisan migrate --force || true
 

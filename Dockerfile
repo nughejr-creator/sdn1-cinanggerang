@@ -59,8 +59,8 @@ COPY . .
 # Salin aset frontend hasil compile dari Tahap 1
 COPY --from=node-builder /app/public/build ./public/build
 
-# Jalankan dump-autoload akhir
-RUN composer dump-autoload --optimize --no-dev
+# Jalankan dump-autoload akhir tanpa menjalankan script database selama build image
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 # Konfigurasi Nginx
 COPY docker/nginx.conf /etc/nginx/sites-available/default
