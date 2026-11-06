@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SchoolHoliday;
 use App\Models\SchoolProfile;
 use App\Models\Teacher;
 use App\Models\TeacherAttendance;
@@ -109,8 +110,10 @@ class AttendanceController extends Controller
         $maxRadius = (int) ($profile?->radius_absen_meter ?? 100);
 
         $todayAttendance = null;
+        $today = now()->setTimezone('Asia/Jakarta')->toDateString();
+        $todayHoliday = SchoolHoliday::isHoliday($today);
+
         if ($teacher) {
-            $today = now()->setTimezone('Asia/Jakarta')->toDateString();
             $todayAttendance = TeacherAttendance::where('teacher_id', $teacher->id)
                 ->whereDate('tanggal', $today)
                 ->first();
@@ -123,7 +126,8 @@ class AttendanceController extends Controller
             'schoolLat',
             'schoolLng',
             'maxRadius',
-            'todayAttendance'
+            'todayAttendance',
+            'todayHoliday'
         ));
     }
 

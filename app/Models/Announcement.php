@@ -25,4 +25,9 @@ class Announcement extends Model
         }
         return null;
     }
+
+    public function getDetailUrlAttribute(): string
+    {
+        return route('pengumuman.detail', $this->id);
+    }
 }

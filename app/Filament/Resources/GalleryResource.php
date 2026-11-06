@@ -56,6 +56,12 @@ class GalleryResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('foto')
+                    ->label('Foto')
+                    ->circular()
+                    ->stacked()
+                    ->limit(3)
+                    ->limitedRemainingText(),
                 Tables\Columns\TextColumn::make('judul_kegiatan')
                     ->label('Nama Kegiatan')
                     ->searchable()
@@ -64,9 +70,9 @@ class GalleryResource extends Resource
                     ->label('Tanggal')
                     ->date('d M Y')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('foto')
+                Tables\Columns\TextColumn::make('foto_count')
                     ->label('Jumlah Foto')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? count($state) . ' Foto' : '0 Foto')
+                    ->state(fn ($record) => is_array($record->foto) ? count($record->foto) . ' Foto' : '0 Foto')
                     ->badge()
                     ->color('info'),
             ])

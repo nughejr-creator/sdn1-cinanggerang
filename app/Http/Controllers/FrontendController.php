@@ -140,18 +140,90 @@ class FrontendController extends Controller
         $profile = SchoolProfile::first();
         $posts = Post::where('status', 'Publish')
             ->latest('published_at')
-            ->paginate(6);
+            ->paginate(9);
 
         $announcements = Announcement::where('is_active', true)
-            ->latest()
-            ->take(5)
+            ->latest('tanggal_mulai')
             ->get();
 
         return view('frontend.warta', compact('profile', 'posts', 'announcements'));
     }
 
     /**
-     * Halaman Dokumentasi Kegiatan (Video TikTok & Arsip Google Drive)
+     * Halaman Detail Lengkap Berita & Artikel Sekolah
+     */
+    public function wartaDetail(string $slug): View
+    {
+        if (app()->environment('local')) {
+            array_map('unlink', glob(storage_path('framework/views/*.php')));
+        }
+        $profile = SchoolProfile::first();
+
+        $post = Post::where('slug', $slug)
+            ->orWhere('id', $slug)
+            ->firstOrFail();
+
+        // Rekomendasi berita terkait lainnya
+        $relatedPosts = Post::where('status', 'Publish')
+            ->where('id', '!=', $post->id)
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        $announcements = Announcement::where('is_active', true)
+            ->latest('tanggal_mulai')
+            ->take(4)
+            ->get();
+
+        return view('frontend.warta-detail', compact('profile', 'post', 'relatedPosts', 'announcements'));
+    }
+
+    /**
+     * Halaman Seluruh Pengumuman Kedinasan Resmi
+     */
+    public function pengumuman(): View
+    {
+        $profile = SchoolProfile::first();
+        $announcements = Announcement::where('is_active', true)
+            ->latest('tanggal_mulai')
+            ->paginate(10);
+
+        $recentPosts = Post::where('status', 'Publish')
+            ->latest('published_at')
+            ->take(4)
+            ->get();
+
+        return view('frontend.pengumuman-index', compact('profile', 'announcements', 'recentPosts'));
+    }
+
+    /**
+     * Halaman Detail Surat / Pengumuman Kedinasan
+     */
+    public function pengumumanDetail($id): View
+    {
+        if (app()->environment('local')) {
+            array_map('unlink', glob(storage_path('framework/views/*.php')));
+        }
+        $profile = SchoolProfile::first();
+
+        $announcement = Announcement::findOrFail($id);
+
+        $otherAnnouncements = Announcement::where('is_active', true)
+            ->where('id', '!=', $announcement->id)
+            ->latest('tanggal_mulai')
+            ->take(5)
+            ->get();
+
+        $recentPosts = Post::where('status', 'Publish')
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        return view('frontend.pengumuman-detail', compact('profile', 'announcement', 'otherAnnouncements', 'recentPosts'));
+    }
+
+    /**
+     * Halaman Dokumentasi Kegiatan (Galeri Foto Kegiatan Siswa, Video TikTok & Arsip Google Drive)
      */
     public function dokumentasi(): View
     {
@@ -161,9 +233,14 @@ class FrontendController extends Controller
             (new \Database\Seeders\VideoGallerySeeder())->run();
         }
 
+        // Ambil seluruh dokumentasi album foto kegiatan siswa
+        $galleries = \App\Models\Gallery::latest('tanggal_kegiatan')
+            ->latest('id')
+            ->get();
+
         $videos = VideoGallery::latest('id')->get();
 
-        return view('frontend.dokumentasi', compact('profile', 'videos'));
+        return view('frontend.dokumentasi', compact('profile', 'videos', 'galleries'));
     }
 
     /**

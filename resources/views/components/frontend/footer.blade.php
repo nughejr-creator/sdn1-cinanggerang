@@ -54,6 +54,7 @@
                     <li><a href="{{ route('rombel') }}" class="hover:text-sumedang-amber transition">Rombongan Belajar</a></li>
                     <li><a href="{{ route('siswa') }}" class="hover:text-sumedang-amber transition">Daftar Siswa & NISN</a></li>
                     <li><a href="{{ route('warta') }}" class="hover:text-sumedang-amber transition">Warta & Berita</a></li>
+                    <li><a href="{{ route('pengumuman') }}" class="hover:text-sumedang-amber transition">Pengumuman Kedinasan</a></li>
                     <li><a href="{{ route('dokumentasi') }}" class="hover:text-sumedang-amber transition">Galeri & Video</a></li>
                     <li><a href="{{ route('pkks') }}" class="hover:text-sumedang-amber transition">E-PKKS Digital</a></li>
                     <li><a href="{{ route('ppdb') }}" class="hover:text-sumedang-gold font-semibold text-sumedang-amber transition">PPDB Online</a></li>

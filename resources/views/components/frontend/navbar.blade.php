@@ -186,7 +186,7 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('warta') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition">
+                        <a href="{{ route('pengumuman') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition {{ request()->routeIs('pengumuman') || request()->routeIs('pengumuman.detail') ? 'bg-forest-50 dark:bg-forest-800' : '' }}">
                             <span class="text-base">📢</span>
                             <div>
                                 <p class="font-bold text-gray-900 dark:text-white text-xs">Pengumuman</p>
@@ -364,7 +364,7 @@
                 <a @click="mobileOpen = false" href="{{ route('warta') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">
                     📝 Berita & Artikel Sekolah
                 </a>
-                <a @click="mobileOpen = false" href="{{ route('warta') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">
+                <a @click="mobileOpen = false" href="{{ route('pengumuman') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800 {{ request()->routeIs('pengumuman') ? 'text-forest-800 dark:text-emerald-300 font-bold' : '' }}">
                     📢 Pengumuman Kedinasan
                 </a>
                 <a @click="mobileOpen = false" href="{{ route('dokumentasi') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">

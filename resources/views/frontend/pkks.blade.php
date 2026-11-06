@@ -202,7 +202,12 @@
                             @if(!empty($headmaster?->photo_url))
                                 <img src="{{ $headmaster->photo_url }}"
                                      alt="{{ $headmaster->name }}"
-                                     class="w-full h-full object-cover object-top">
+                                     class="w-full h-full object-cover object-top"
+                                     onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                                <div class="hidden w-full h-full bg-gradient-to-br from-forest-800 to-forest-950 flex flex-col items-center justify-center text-center p-4">
+                                    <span class="text-4xl sm:text-5xl font-black text-sumedang-amber">AY</span>
+                                    <span class="text-[10px] text-emerald-300 font-bold uppercase mt-1 tracking-wider">Kepala Sekolah</span>
+                                </div>
                             @else
                                 <div class="w-full h-full bg-gradient-to-br from-forest-800 to-forest-950 flex flex-col items-center justify-center text-center p-4">
                                     <span class="text-4xl sm:text-5xl font-black text-sumedang-amber">AY</span>

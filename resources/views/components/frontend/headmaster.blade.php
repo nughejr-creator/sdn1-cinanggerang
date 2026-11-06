@@ -9,7 +9,16 @@
                         @if(!empty($profile?->foto_kepala_sekolah_url))
                             <img src="{{ $profile->foto_kepala_sekolah_url }}"
                                  alt="Kepala Sekolah SDN Cinanggerang I"
-                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">
+                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <div class="hidden w-full h-full bg-gradient-to-b from-forest-800 to-forest-950 flex flex-col items-center justify-center p-6 text-center text-white">
+                                <div class="w-20 h-20 rounded-full bg-forest-700/60 flex items-center justify-center text-sumedang-amber mb-3 border border-forest-600">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                </div>
+                                <p class="text-xs font-semibold text-gray-300">Kepala Sekolah</p>
+                                <p class="text-sm font-bold text-sumedang-amber mt-1">Aep Yayat, S.Pd</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5">NIP. 197206102014111001</p>
+                            </div>
                         @else
                             {{-- Placeholder foto formal berwibawa --}}
                             <div class="w-full h-full bg-gradient-to-b from-forest-800 to-forest-950 flex flex-col items-center justify-center p-6 text-center text-white">

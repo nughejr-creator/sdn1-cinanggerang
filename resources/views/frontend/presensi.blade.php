@@ -77,6 +77,22 @@
         {{-- Body Kartu Presensi --}}
         <div class="p-5 sm:p-6 space-y-4">
 
+            {{-- Notifikasi Hari Libur Resmi (Jika Hari Ini Ditetapkan Libur) --}}
+            @if(isset($todayHoliday) && $todayHoliday)
+                <div class="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 dark:border-amber-700/60 dark:from-amber-950/40 dark:to-orange-950/40 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-start gap-2.5 shadow-sm">
+                    <span class="text-xl shrink-0">🏖️</span>
+                    <div class="flex-1">
+                        <div class="font-extrabold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                            <span>HARI INI LIBUR SEKOLAH</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] bg-amber-200 text-amber-900 font-bold uppercase">{{ $todayHoliday->type }}</span>
+                        </div>
+                        <p class="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5 leading-snug">
+                            <span class="font-bold">{{ $todayHoliday->name }}</span>. Guru dan Tenaga Kependidikan tidak diwajibkan melakukan presensi. Presensi tetap dibuka bagi GTK yang bertugas piket atau dinas luar.
+                        </p>
+                    </div>
+                </div>
+            @endif
+
             {{-- Alert Notifikasi Hasil Presensi / Error --}}
             <div x-show="alertMessage" x-cloak
                  :class="alertType === 'success' ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-rose-50 border-rose-300 text-rose-900'"

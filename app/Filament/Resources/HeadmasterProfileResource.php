@@ -123,6 +123,11 @@ class HeadmasterProfileResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('photo_url')
+                    ->label('Foto')
+                    ->circular()
+                    ->defaultImageUrl(asset('images/headmaster-default.png')),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Kepala Sekolah')
                     ->fontFamily('bold')

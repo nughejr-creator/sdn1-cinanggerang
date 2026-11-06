@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\SchoolHoliday;
 use App\Models\SchoolProfile;
 use App\Models\Teacher;
 use App\Models\TeacherAttendance;
@@ -30,14 +31,22 @@ class MonitoringPresensiGuru extends Page
 
     public function mount(): void
     {
-        $this->selectedDate = now()->toDateString();
-        $this->selectedMonth = (int) now()->format('m');
-        $this->selectedYear = (int) now()->format('Y');
+        $this->selectedDate = now()->setTimezone('Asia/Jakarta')->toDateString();
+        $this->selectedMonth = (int) now()->setTimezone('Asia/Jakarta')->format('m');
+        $this->selectedYear = (int) now()->setTimezone('Asia/Jakarta')->format('Y');
     }
 
     public function setTab(string $tab): void
     {
         $this->activeTab = $tab;
+    }
+
+    /**
+     * Cek apakah tanggal harian terpilih merupakan hari libur resmi
+     */
+    public function getSelectedDateHolidayProperty(): ?SchoolHoliday
+    {
+        return SchoolHoliday::isHoliday($this->selectedDate);
     }
 
     /**
@@ -55,6 +64,7 @@ class MonitoringPresensiGuru extends Page
                 'teacher' => $teacher,
                 'record' => $record,
                 'status' => $record?->status ?? 'Belum Presensi',
+                'attendance_type' => $record?->attendance_type ?? 'Reguler',
                 'jam_masuk' => $record?->jam_masuk ?? '-',
                 'jam_pulang' => $record?->jam_pulang ?? '-',
                 'jarak_meter' => $record?->jarak_meter,
@@ -64,6 +74,7 @@ class MonitoringPresensiGuru extends Page
                 'metode' => $record?->metode ?? '-',
                 'keterangan' => $record?->keterangan ?? '-',
                 'foto_bukti' => $record?->foto_bukti,
+                'foto_bukti_url' => $record?->foto_bukti_url,
             ];
         });
     }
@@ -75,10 +86,18 @@ class MonitoringPresensiGuru extends Page
     {
         $daily = $this->dailyAttendance;
         $total = $daily->count();
-        $hadir = $daily->whereIn('status', ['Hadir Tepat Waktu', 'Hadir Terlambat'])->count();
-        $tepatWaktu = $daily->where('status', 'Hadir Tepat Waktu')->count();
-        $terlambat = $daily->where('status', 'Hadir Terlambat')->count();
-        $izinSakit = $daily->whereIn('status', ['Sakit (SKD)', 'Izin Resmi', 'Dinas Luar / Pelatihan', 'Cuti'])->count();
+        $hadir = $daily->filter(function ($item) {
+            $s = strtolower($item->status);
+            return str_contains($s, 'tepat') || str_contains($s, 'terlambat') || str_contains($s, 'telat') || str_contains($s, 'dinas');
+        })->count();
+
+        $tepatWaktu = $daily->filter(fn ($item) => str_contains(strtolower($item->status), 'tepat'))->count();
+        $terlambat = $daily->filter(fn ($item) => str_contains(strtolower($item->status), 'terlambat') || str_contains(strtolower($item->status), 'telat'))->count();
+        $dinasLuar = $daily->filter(fn ($item) => str_contains(strtolower($item->status), 'dinas'))->count();
+        $izinSakit = $daily->filter(function ($item) {
+            $s = strtolower($item->status);
+            return str_contains($s, 'sakit') || str_contains($s, 'izin') || str_contains($s, 'cuti');
+        })->count();
         $belum = $daily->where('status', 'Belum Presensi')->count();
 
         return [
@@ -86,6 +105,7 @@ class MonitoringPresensiGuru extends Page
             'hadir' => $hadir,
             'tepat_waktu' => $tepatWaktu,
             'terlambat' => $terlambat,
+            'dinas_luar' => $dinasLuar,
             'izin_sakit' => $izinSakit,
             'belum' => $belum,
             'persen' => $total > 0 ? round(($hadir / $total) * 100) : 0,
@@ -93,7 +113,7 @@ class MonitoringPresensiGuru extends Page
     }
 
     /**
-     * Mengambil rekapitulasi presensi bulanan seluruh guru
+     * Mengambil rekapitulasi presensi bulanan seluruh guru dengan formula akurat & pengurangan hari libur resmi
      */
     public function getMonthlyRecapProperty(): Collection
     {
@@ -104,41 +124,52 @@ class MonitoringPresensiGuru extends Page
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
 
-        // Hitung estimasi hari efektif kerja (Senin - Jumat/Sabtu)
-        $effectiveDays = 0;
+        // 1. Hitung hari efektif kerja (Hari kalender dikurangi hari Minggu)
+        $nonSundayDays = 0;
         $temp = $startOfMonth->copy();
         while ($temp <= $endOfMonth) {
-            if (! in_array($temp->dayOfWeek, [Carbon::SUNDAY])) {
-                $effectiveDays++;
+            if ($temp->dayOfWeek !== Carbon::SUNDAY) {
+                $nonSundayDays++;
             }
             $temp->addDay();
         }
 
-        return $teachers->map(function ($teacher) use ($month, $year, $effectiveDays) {
+        // 2. Kurangi dengan hari libur nasional / cuti bersama / libur sekolah yang terdaftar
+        $holidaysCount = SchoolHoliday::countHolidaysBetween($startOfMonth, $endOfMonth);
+        $effectiveDays = max(1, $nonSundayDays - $holidaysCount);
+
+        return $teachers->map(function ($teacher) use ($startOfMonth, $endOfMonth, $effectiveDays, $holidaysCount) {
+            // Ambil seluruh rekor presensi guru pada bulan dan tahun terpilih
             $records = TeacherAttendance::where('teacher_id', $teacher->id)
-                ->whereMonth('tanggal', $month)
-                ->whereYear('tanggal', $year)
+                ->whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
                 ->get();
 
-            $tepat = $records->where('status', 'Hadir Tepat Waktu')->count();
-            $telat = $records->where('status', 'Hadir Terlambat')->count();
-            $sakit = $records->where('status', 'Sakit (SKD)')->count();
-            $izin = $records->where('status', 'Izin Resmi')->count();
-            $dinas = $records->where('status', 'Dinas Luar / Pelatihan')->count();
-            $alpa = $records->where('status', 'Tanpa Keterangan (Alpa)')->count();
-            $totalHadir = $tepat + $telat;
+            // Klasifikasi kehadiran fleksibel & akurat
+            $tepat = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'tepat'))->count();
+            $telat = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'terlambat') || str_contains(strtolower($r->status), 'telat'))->count();
+            $dinas = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'dinas') || ($r->attendance_type === 'Dinas Luar'))->count();
+            $sakit = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'sakit'))->count();
+            $izin = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'izin'))->count();
+            $cuti = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'cuti'))->count();
+            $alpa = $records->filter(fn ($r) => str_contains(strtolower($r->status), 'alpa') || str_contains(strtolower($r->status), 'tanpa keterangan'))->count();
 
+            // Total Hadir resmi = Hadir Tepat + Hadir Terlambat + Dinas Luar (Dinas Luar bertugas resmi)
+            $totalHadir = $tepat + $telat + $dinas;
+
+            // Persentase kehadiran terhadap target hari efektif
             $persentase = $effectiveDays > 0 ? min(100, round(($totalHadir / $effectiveDays) * 100, 1)) : 0;
 
             return (object) [
                 'teacher' => $teacher,
                 'tepat' => $tepat,
                 'telat' => $telat,
+                'dinas' => $dinas,
                 'sakit' => $sakit,
                 'izin' => $izin,
-                'dinas' => $dinas,
+                'cuti' => $cuti,
                 'alpa' => $alpa,
                 'total_hadir' => $totalHadir,
+                'hari_libur' => $holidaysCount,
                 'hari_efektif' => $effectiveDays,
                 'persentase' => $persentase,
             ];

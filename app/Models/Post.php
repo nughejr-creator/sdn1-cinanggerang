@@ -23,4 +23,9 @@ class Post extends Model
         }
         return null;
     }
+
+    public function getDetailUrlAttribute(): string
+    {
+        return route('warta.detail', $this->slug ?: $this->id);
+    }
 }

@@ -50,13 +50,37 @@ class HeadmasterProfile extends Model
     public function getPhotoUrlAttribute(): ?string
     {
         $path = $this->photo_path ?? $this->photo;
-        if (!empty($path)) {
+
+        // Jika path diisi berkas nyata yang bukan seeder bawaan 'headmaster/aep-yayat.png'
+        if (!empty($path) && $path !== 'headmaster/aep-yayat.png') {
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                return $path;
+            }
             try {
                 return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
             } catch (\Throwable $e) {
                 return asset('storage/' . $path);
             }
         }
+
+        // Fallback 1: Ambil dari Foto Resmi Kepala Sekolah di Profil Sekolah
+        try {
+            $schoolProfile = SchoolProfile::first();
+            if (!empty($schoolProfile?->foto_kepala_sekolah_url)) {
+                return $schoolProfile->foto_kepala_sekolah_url;
+            }
+        } catch (\Throwable $e) {}
+
+        // Fallback 2: Ambil dari Data GTK Guru (Bpk. Aep Yayat, S.Pd.SD)
+        try {
+            $teacher = Teacher::where('jabatan', 'like', '%Kepala%')
+                ->orWhere('nama', 'like', '%Aep Yayat%')
+                ->first();
+            if (!empty($teacher?->foto_url)) {
+                return $teacher->foto_url;
+            }
+        } catch (\Throwable $e) {}
+
         return null;
     }
 }

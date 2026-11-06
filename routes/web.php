@@ -108,6 +108,36 @@ try {
         });
     }
 
+    // Pastikan tabel pengaturan hari libur sekolah tersedia
+    if (!\Illuminate\Support\Facades\Schema::hasTable('school_holidays')) {
+        \Illuminate\Support\Facades\Schema::create('school_holidays', function ($table) {
+            $table->id();
+            $table->string('name');
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->string('type', 60)->default('Hari Libur Nasional');
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+    }
+
+    // Pastikan tabel galleries untuk dokumentasi foto kegiatan tersedia dan kolom foto bertipe LONGTEXT
+    if (!\Illuminate\Support\Facades\Schema::hasTable('galleries')) {
+        \Illuminate\Support\Facades\Schema::create('galleries', function ($table) {
+            $table->id();
+            $table->string('judul_kegiatan');
+            $table->date('tanggal_kegiatan')->nullable();
+            $table->text('deskripsi')->nullable();
+            $table->longText('foto')->nullable();
+            $table->timestamps();
+        });
+    } else {
+        try {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE galleries MODIFY COLUMN foto LONGTEXT NULL");
+        } catch (\Throwable $e) {}
+    }
+
     // Sinkronisasi logo resmi sekolah ke favicon dan fallback images
     if (\Illuminate\Support\Facades\Schema::hasTable('school_profiles')) {
         $p = SchoolProfile::first();
@@ -179,6 +209,10 @@ Route::get('/guru', [FrontendController::class, 'guru'])->name('guru');
 Route::get('/rombel', [FrontendController::class, 'rombel'])->name('rombel');
 Route::get('/siswa', [FrontendController::class, 'siswa'])->name('siswa');
 Route::get('/warta', [FrontendController::class, 'warta'])->name('warta');
+Route::get('/warta/{slug}', [FrontendController::class, 'wartaDetail'])->name('warta.detail');
+Route::get('/berita/{slug}', fn ($slug) => redirect()->route('warta.detail', $slug));
+Route::get('/pengumuman', [FrontendController::class, 'pengumuman'])->name('pengumuman');
+Route::get('/pengumuman/{id}', [FrontendController::class, 'pengumumanDetail'])->name('pengumuman.detail');
 Route::get('/dokumentasi', [FrontendController::class, 'dokumentasi'])->name('dokumentasi');
 Route::get('/e-pkks', [PkksController::class, 'index'])->name('pkks');
 Route::post('/e-pkks/verify-pin', [PkksController::class, 'verifyPin'])->name('pkks.verify-pin');
