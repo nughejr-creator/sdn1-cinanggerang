@@ -125,6 +125,13 @@ try {
 
 // Route khusus favicon.ico agar selalu mengembalikan logo resmi SDN Cinanggerang 1
 Route::get('/favicon.ico', function () {
+    try {
+        $profile = \App\Models\SchoolProfile::first();
+        if ($profile && !empty($profile->favicon)) {
+            return redirect($profile->favicon_url);
+        }
+    } catch (\Throwable $e) {}
+
     $path = public_path('images/logo-official.png');
     if (file_exists($path)) {
         return response()->file($path, [
@@ -135,14 +142,14 @@ Route::get('/favicon.ico', function () {
     return response()->file(public_path('favicon.ico'));
 });
 
-// Fallback akses berkas Cloudflare R2 / S3 jika tidak ada di storage lokal kontainer
+// Fallback akses berkas Cloudflare R2 / S3 jika dipanggil melalui path storage lokal
 Route::get('/storage/{path}', function ($path) {
     $localFile = public_path('storage/' . $path);
     if (file_exists($localFile) && !is_dir($localFile)) {
         return response()->file($localFile);
     }
     if (env('AWS_URL')) {
-        return redirect(rtrim(env('AWS_URL'), '/') . '/' . $path);
+        return redirect(rtrim(env('AWS_URL'), '/') . '/' . ltrim($path, '/'));
     }
     abort(404);
 })->where('path', '.*');

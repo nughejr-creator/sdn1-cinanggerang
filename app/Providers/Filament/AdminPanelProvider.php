@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('SDN Cinanggerang I')
             ->brandLogo(fn () => view('filament.components.brand-logo'))
             ->brandLogoHeight('2.5rem')
-            ->favicon(fn () => !empty(\App\Models\SchoolProfile::first()?->logo) ? asset('storage/' . \App\Models\SchoolProfile::first()->logo) : asset('images/logo-sd.svg'))
+            ->favicon(fn () => \App\Models\SchoolProfile::first()?->favicon_url ?? asset('images/logo-official.png'))
             ->colors([
                 'primary' => [
                     50 => '#f0fdf4',

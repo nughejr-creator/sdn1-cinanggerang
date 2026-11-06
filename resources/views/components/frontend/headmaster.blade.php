@@ -6,8 +6,8 @@
             <div class="lg:col-span-4 flex justify-center">
                 <div class="relative w-full max-w-[260px] sm:max-w-[280px]">
                     <div class="relative rounded-2xl overflow-hidden shadow-md border-2 border-amber-400 bg-forest-950 aspect-[4/5] group">
-                        @if(!empty($profile?->foto_kepala_sekolah))
-                            <img src="{{ asset('storage/' . $profile->foto_kepala_sekolah) }}"
+                        @if(!empty($profile?->foto_kepala_sekolah_url))
+                            <img src="{{ $profile->foto_kepala_sekolah_url }}"
                                  alt="Kepala Sekolah SDN Cinanggerang I"
                                  class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">
                         @else

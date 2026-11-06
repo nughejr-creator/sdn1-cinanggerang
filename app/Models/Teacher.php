@@ -24,4 +24,16 @@ class Teacher extends Model
     {
         return $this->hasMany(TeacherAttendance::class);
     }
+
+    public function getFotoUrlAttribute(): ?string
+    {
+        if (!empty($this->foto)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->foto);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->foto);
+            }
+        }
+        return null;
+    }
 }

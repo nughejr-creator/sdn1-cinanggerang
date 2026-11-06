@@ -1,8 +1,8 @@
 <section id="beranda" class="relative overflow-hidden bg-forest-950 text-white min-h-[460px] lg:min-h-[500px] flex items-center">
     {{-- Background Image dengan Overlay Gradient --}}
     <div class="absolute inset-0 z-0">
-        @if(!empty($profile?->foto_bangunan) || !empty($profile?->banner_hero))
-            <img src="{{ asset('storage/' . ($profile->banner_hero ?? $profile->foto_bangunan)) }}"
+        @if(!empty($profile?->banner_hero_url))
+            <img src="{{ $profile->banner_hero_url }}"
                  alt="Gedung SDN Cinanggerang I"
                  class="w-full h-full object-cover object-center filter brightness-[0.38] scale-105 animate-pulse duration-[10000ms]">
         @else

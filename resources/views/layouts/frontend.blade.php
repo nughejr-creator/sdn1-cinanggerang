@@ -17,16 +17,15 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="SD Negeri Cinanggerang I (NPSN: 20208801) - Sumedang">
     <meta property="og:description" content="Mewujudkan Peserta Didik yang Berakhlak Mulia, Cerdas, Terampil, Mandiri, dan Berwawasan Lingkungan.">
-    <meta property="og:image" content="{{ !empty($profile?->logo) ? asset('storage/' . $profile->logo) : asset('images/logo-sekolah-default.png') }}">
+    <meta property="og:image" content="{{ $profile?->logo_url ?? asset('images/logo-official.png') }}">
 
     {{-- Favicon Browser Tab (Logo Resmi SDN Cinanggerang I) --}}
     @php
-        $officialFavicon = asset('images/logo-official.png');
+        $officialFavicon = $profile?->favicon_url ?? asset('images/logo-official.png');
     @endphp
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ $officialFavicon }}?v=5">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ $officialFavicon }}?v=5">
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=5">
-    <link rel="apple-touch-icon" href="{{ $officialFavicon }}?v=5">
+    <link rel="icon" type="image/png" href="{{ $officialFavicon }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $officialFavicon }}">
+    <link rel="apple-touch-icon" href="{{ $officialFavicon }}">
 
     {{-- Google Font: Plus Jakarta Sans --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

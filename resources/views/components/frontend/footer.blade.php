@@ -5,16 +5,10 @@
             {{-- Kolom 1: Profil Sekolah & Legalitas (4 Kolom) --}}
             <div class="lg:col-span-4 space-y-4">
                 <div class="flex items-center gap-3">
-                    @if(!empty($profile?->logo))
-                        <img src="{{ asset('storage/' . $profile->logo) }}"
-                             alt="Logo SDN Cinanggerang I"
-                             class="h-12 w-auto object-contain"
-                             onerror="this.onerror=null; this.src='{{ asset('images/logo-official.png') }}';">
-                    @else
-                        <img src="{{ asset('images/logo-official.png') }}"
-                             alt="Logo SDN Cinanggerang I"
-                             class="h-12 w-auto object-contain">
-                    @endif
+                    <img src="{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
+                         alt="Logo SDN Cinanggerang I"
+                         class="h-12 w-auto object-contain"
+                         onerror="this.onerror=null; this.src='{{ asset('images/logo-official.png') }}';">
                     <div>
                         <h3 class="font-extrabold text-lg text-white leading-tight">SD NEGERI CINANGGERANG I</h3>
                         <p class="text-xs text-emerald-400 font-semibold">NPSN: {{ $profile?->npsn ?? '20208801' }}</p>
@@ -31,31 +25,19 @@
                     <div class="flex flex-wrap items-center gap-2.5">
                         {{-- Logo Tut Wuri Handayani --}}
                         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-forest-900/80 border border-forest-800 shadow-sm">
-                            @if(!empty($profile?->logo_tutwuri))
-                                <img src="{{ asset('storage/' . $profile->logo_tutwuri) }}"
-                                     alt="Tut Wuri Handayani"
-                                     class="h-6 w-auto object-contain"
-                                     onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg';">
-                            @else
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg"
-                                     alt="Tut Wuri Handayani"
-                                     class="h-6 w-auto object-contain">
-                            @endif
+                            <img src="{{ $profile?->logo_tutwuri_url ?? 'https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg' }}"
+                                 alt="Tut Wuri Handayani"
+                                 class="h-6 w-auto object-contain"
+                                 onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/9/9c/Logo_of_Ministry_of_Education_and_Culture_of_Republic_of_Indonesia.svg';">
                             <span class="text-[11px] font-medium text-gray-200">Kemendikdasmen RI</span>
                         </div>
 
                         {{-- Logo Pemkab Sumedang --}}
                         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-forest-900/80 border border-forest-800 shadow-sm">
-                            @if(!empty($profile?->logo_pemda))
-                                <img src="{{ asset('storage/' . $profile->logo_pemda) }}"
-                                     alt="Pemerintah Kabupaten Sumedang"
-                                     class="h-6 w-auto object-contain"
-                                     onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Lambang_Kabupaten_Sumedang.png/240px-Lambang_Kabupaten_Sumedang.png';">
-                            @else
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Lambang_Kabupaten_Sumedang.png/240px-Lambang_Kabupaten_Sumedang.png"
-                                     alt="Pemerintah Kabupaten Sumedang"
-                                     class="h-6 w-auto object-contain">
-                            @endif
+                            <img src="{{ $profile?->logo_pemda_url ?? 'https://upload.wikimedia.org/wikipedia/commons/5/52/Lambang_Kabupaten_Sumedang.png' }}"
+                                 alt="Pemerintah Kabupaten Sumedang"
+                                 class="h-6 w-auto object-contain"
+                                 onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/5/52/Lambang_Kabupaten_Sumedang.png';">
                             <span class="text-[11px] font-medium text-gray-200">Disdik Kab. Sumedang</span>
                         </div>
                     </div>

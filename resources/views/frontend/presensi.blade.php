@@ -34,8 +34,8 @@
             {{-- Profil Guru yang Login --}}
             <div class="flex items-center gap-3.5 pt-1">
                 <div class="w-12 h-12 rounded-2xl bg-forest-800 border-2 border-sumedang-amber/70 flex items-center justify-center text-sumedang-amber font-extrabold text-lg shadow-md shrink-0 overflow-hidden">
-                    @if(!empty($teacher?->foto) && file_exists(public_path('storage/' . $teacher->foto)))
-                        <img src="{{ asset('storage/' . $teacher->foto) }}" alt="{{ $teacher->nama }}" class="w-full h-full object-cover">
+                    @if(!empty($teacher?->foto_url))
+                        <img src="{{ $teacher->foto_url }}" alt="{{ $teacher->nama }}" class="w-full h-full object-cover">
                     @else
                         <span>{{ strtoupper(substr($teacher?->nama ?? $user->name, 0, 2)) }}</span>
                     @endif

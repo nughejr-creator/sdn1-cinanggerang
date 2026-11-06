@@ -20,8 +20,8 @@
             <article class="bg-white dark:bg-forest-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-forest-800 shadow-sm hover:shadow-md transition-all flex flex-col group">
                 {{-- Thumbnail Berita --}}
                 <div class="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-forest-800 relative">
-                    @if(!empty($post->thumbnail))
-                        <img src="{{ asset('storage/' . $post->thumbnail) }}"
+                    @if(!empty($post->thumbnail_url))
+                        <img src="{{ $post->thumbnail_url }}"
                              alt="{{ $post->judul }}"
                              loading="lazy"
                              decoding="async"

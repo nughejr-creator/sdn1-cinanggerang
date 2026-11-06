@@ -1,13 +1,14 @@
 @php
     $profile = \App\Models\SchoolProfile::first();
-    $schoolLogo = !empty($profile?->logo) 
-        ? asset('storage/' . $profile->logo) 
-        : asset('images/logo-sd.svg');
+    $schoolLogo = $profile?->logo_url ?? asset('images/logo-official.png');
 @endphp
 
 <div class="flex items-center gap-2.5 py-1">
     <div class="w-9 h-9 rounded-xl bg-white p-1 border border-amber-400 shadow flex items-center justify-center shrink-0 overflow-hidden">
-        <img src="{{ $schoolLogo }}" alt="Logo {{ $profile?->name ?? 'SDN Cinanggerang I' }}" class="w-full h-full object-contain">
+        <img src="{{ $schoolLogo }}" 
+             alt="Logo {{ $profile?->name ?? 'SDN Cinanggerang I' }}" 
+             class="w-full h-full object-contain"
+             onerror="this.onerror=null; this.src='{{ asset('images/logo-official.png') }}';">
     </div>
     <div class="flex flex-col text-left">
         <span class="text-xs font-semibold text-white tracking-wide leading-tight" style="color: #ffffff !important;">

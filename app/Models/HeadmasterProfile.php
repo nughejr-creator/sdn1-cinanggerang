@@ -46,4 +46,17 @@ class HeadmasterProfile extends Model
     {
         return $this->histories()->where('type', 'education');
     }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        $path = $this->photo_path ?? $this->photo;
+        if (!empty($path)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $path);
+            }
+        }
+        return null;
+    }
 }

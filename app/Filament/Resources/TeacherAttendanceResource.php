@@ -77,7 +77,6 @@ class TeacherAttendanceResource extends Resource
                             ->label('Foto Bukti (Selfie / Surat Izin / Surat Tugas)')
                             ->image()
                             ->disk('public')
-                            ->visibility('public')
                             ->directory('attendances')
                             ->columnSpan(2),
 
@@ -114,7 +113,6 @@ class TeacherAttendanceResource extends Resource
                         Forms\Components\FileUpload::make('duty_proof_file')
                             ->label('Berkas Surat Tugas / Foto Kegiatan')
                             ->disk('public')
-                            ->visibility('public')
                             ->directory('presensi_dinas_luar')
                             ->openable()
                             ->downloadable(),

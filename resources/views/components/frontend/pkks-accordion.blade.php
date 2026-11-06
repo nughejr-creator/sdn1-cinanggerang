@@ -83,7 +83,7 @@
                                         </span>
                                         <p class="font-bold text-white truncate text-xs">{{ $evidence->title }}</p>
                                     </div>
-                                    <a href="{{ $evidence->external_url ?? route('pkks') }}" target="_blank"
+                                    <a href="{{ $evidence->external_url ?? $evidence->file_url ?? route('pkks') }}" target="_blank"
                                        class="px-2.5 py-1 bg-forest-800 hover:bg-forest-700 text-sumedang-amber font-bold text-[10px] rounded-lg border border-sumedang-amber/30 transition flex items-center gap-1 shrink-0">
                                         <span>Buka</span>
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>

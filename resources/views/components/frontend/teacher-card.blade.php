@@ -22,8 +22,8 @@
 
                     {{-- Foto Guru --}}
                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-forest-800 border-2 border-emerald-500/40 mb-3.5 relative group-hover:scale-105 transition-transform">
-                        @if(!empty($teacher->foto))
-                            <img src="{{ asset('storage/' . $teacher->foto) }}"
+                        @if(!empty($teacher->foto_url))
+                            <img src="{{ $teacher->foto_url }}"
                                  alt="{{ $teacher->nama }}"
                                  loading="lazy"
                                  decoding="async"

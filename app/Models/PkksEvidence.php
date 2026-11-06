@@ -51,4 +51,16 @@ class PkksEvidence extends Model
 
         return $url;
     }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        if (!empty($this->file_path)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->file_path);
+            }
+        }
+        return null;
+    }
 }

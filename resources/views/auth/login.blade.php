@@ -1,8 +1,6 @@
 @php
     $profile = \App\Models\SchoolProfile::first();
-    $schoolLogo = !empty($profile?->logo) 
-        ? asset('storage/' . $profile->logo) 
-        : asset('images/logo-sd.svg');
+    $schoolLogo = $profile?->logo_url ?? asset('images/logo-official.png');
 @endphp
 
 {{-- Single Root Element for Livewire 3 --}}
@@ -42,7 +40,8 @@
             <div class="h-16 w-auto max-h-16 mb-2.5 flex items-center justify-center">
                 <img src="{{ $schoolLogo }}"
                      alt="Logo {{ $profile?->name ?? 'SDN Cinanggerang I' }}"
-                     class="h-16 w-auto max-h-16 object-contain drop-shadow">
+                     class="h-16 w-auto max-h-16 object-contain drop-shadow"
+                     onerror="this.onerror=null; this.src='{{ asset('images/logo-official.png') }}';">
             </div>
 
             <h1 class="text-lg font-bold text-slate-800 tracking-wide leading-tight">

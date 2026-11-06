@@ -19,4 +19,40 @@ class TeacherAttendance extends Model
     {
         return $this->belongsTo(Teacher::class);
     }
+
+    public function getFotoBuktiUrlAttribute(): ?string
+    {
+        if (!empty($this->foto_bukti)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->foto_bukti);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->foto_bukti);
+            }
+        }
+        return null;
+    }
+
+    public function getFotoPulangUrlAttribute(): ?string
+    {
+        if (!empty($this->foto_pulang)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->foto_pulang);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->foto_pulang);
+            }
+        }
+        return null;
+    }
+
+    public function getDutyProofUrlAttribute(): ?string
+    {
+        if (!empty($this->duty_proof_file)) {
+            try {
+                return \Illuminate\Support\Facades\Storage::disk('public')->url($this->duty_proof_file);
+            } catch (\Throwable $e) {
+                return asset('storage/' . $this->duty_proof_file);
+            }
+        }
+        return null;
+    }
 }
