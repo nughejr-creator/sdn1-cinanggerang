@@ -179,22 +179,21 @@ try {
         );
     }
 
-    // Pastikan tabel learning_materials untuk E-Learning & Perangkat Ajar Guru tersedia
-    if (!\Illuminate\Support\Facades\Schema::hasTable('learning_materials')) {
-        \Illuminate\Support\Facades\Schema::create('learning_materials', function ($table) {
-            $table->id();
-            $table->string('judul');
-            $table->string('mata_pelajaran', 100);
-            $table->string('kelas_fase', 100);
-            $table->string('jenis_perangkat', 100)->default('Modul Ajar');
-            $table->string('file_dokumen')->nullable();
-            $table->string('link_eksternal')->nullable();
-            $table->text('deskripsi')->nullable();
-            $table->foreignId('teacher_id')->nullable();
-            $table->foreignId('user_id')->nullable();
-            $table->string('status', 30)->default('Publish');
-            $table->timestamps();
-        });
+    // Bersihkan file dan tabel duplikat LearningMaterial agar menu E-Learning tetap tunggal & rapi
+    $dupResource = app_path('Filament/Resources/LearningMaterialResource.php');
+    if (file_exists($dupResource)) {
+        @unlink(app_path('Filament/Resources/LearningMaterialResource/Pages/ListLearningMaterials.php'));
+        @unlink(app_path('Filament/Resources/LearningMaterialResource/Pages/CreateLearningMaterial.php'));
+        @unlink(app_path('Filament/Resources/LearningMaterialResource/Pages/EditLearningMaterial.php'));
+        @rmdir(app_path('Filament/Resources/LearningMaterialResource/Pages'));
+        @unlink(app_path('Filament/Resources/LearningMaterialResource.php'));
+        @rmdir(app_path('Filament/Resources/LearningMaterialResource'));
+        @unlink(app_path('Models/LearningMaterial.php'));
+    }
+    if (\Illuminate\Support\Facades\Schema::hasTable('learning_materials')) {
+        try {
+            \Illuminate\Support\Facades\Schema::dropIfExists('learning_materials');
+        } catch (\Throwable $e) {}
     }
 
     // Pastikan skema tabel pengguna (users) & akun kepala sekolah tersedia

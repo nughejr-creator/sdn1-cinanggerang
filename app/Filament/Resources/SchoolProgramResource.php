@@ -21,6 +21,11 @@ class SchoolProgramResource extends Resource
     protected static ?string $pluralModelLabel = 'Program Kegiatan Sekolah';
     protected static ?int $navigationSort = 5;
 
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

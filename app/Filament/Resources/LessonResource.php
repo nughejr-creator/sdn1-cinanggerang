@@ -19,9 +19,9 @@ class LessonResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
     protected static ?string $navigationGroup = 'E-Learning (Pembelajaran)';
-    protected static ?string $navigationLabel = 'Materi Belajar';
+    protected static ?string $navigationLabel = 'Materi Belajar Siswa';
     protected static ?string $modelLabel = 'Materi Belajar';
-    protected static ?string $pluralModelLabel = 'Materi Pembelajaran';
+    protected static ?string $pluralModelLabel = 'Materi Pembelajaran Siswa';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -42,6 +42,7 @@ class LessonResource extends Resource
                         Forms\Components\Select::make('teacher_id')
                             ->label('Guru Pengampu')
                             ->relationship('teacher', 'nama')
+                            ->default(fn () => auth()->user()?->teacher_id)
                             ->searchable(),
                         Forms\Components\TextInput::make('judul')
                             ->label('Judul Materi Pembelajaran')

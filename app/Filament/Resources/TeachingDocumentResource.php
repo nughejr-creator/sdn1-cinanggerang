@@ -32,6 +32,7 @@ class TeachingDocumentResource extends Resource
                         Forms\Components\Select::make('teacher_id')
                             ->label('Nama Guru Penyusun')
                             ->relationship('teacher', 'nama')
+                            ->default(fn () => auth()->user()?->teacher_id)
                             ->searchable()
                             ->required(),
                         Forms\Components\Select::make('tingkat_kelas')
@@ -118,6 +119,7 @@ class TeachingDocumentResource extends Resource
                     ]),
 
                 Forms\Components\Section::make('Telaah & Supervisi Kepala Sekolah (Indikator PKKS No. 9)')
+                    ->description('Penilaian kesesuaian dokumen perangkat ajar kurikulum merdeka oleh Kepala Sekolah')
                     ->columns(2)
                     ->schema([
                         Forms\Components\Select::make('status_telaah')
@@ -128,10 +130,13 @@ class TeachingDocumentResource extends Resource
                                 'Perlu Perbaikan / Revisi' => 'Perlu Perbaikan / Revisi',
                             ])
                             ->default('Draf / Belum Ditelaah')
+                            ->disabled(fn () => auth()->user()?->role === 'Guru')
+                            ->helperText(fn () => auth()->user()?->role === 'Guru' ? 'Status telaah diisi oleh Kepala Sekolah saat supervisi.' : null)
                             ->required(),
                         Forms\Components\Textarea::make('catatan_kepala_sekolah')
                             ->label('Catatan Hasil Telaah Kepala Sekolah')
                             ->placeholder('Catatan umpan balik perbaikan dari Bpk. Kepala Sekolah Aep Yayat saat supervisi perangkat.')
+                            ->disabled(fn () => auth()->user()?->role === 'Guru')
                             ->columnSpanFull(),
                     ]),
             ]);
