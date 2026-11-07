@@ -23,7 +23,7 @@ class TeacherAttendanceResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
     }
 
     public static function form(Form $form): Form

@@ -21,6 +21,11 @@ class PpdbApplicantResource extends Resource
     protected static ?string $pluralModelLabel = 'Daftar Calon Siswa PPDB';
     protected static ?int $navigationSort = 1;
 
+    public static function canViewAny(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

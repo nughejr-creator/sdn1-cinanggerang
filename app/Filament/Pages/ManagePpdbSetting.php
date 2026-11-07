@@ -20,6 +20,11 @@ class ManagePpdbSetting extends Page implements HasForms
     protected static ?string $title = 'Sakelar Kontrol & Pengaturan PPDB';
     protected static ?int $navigationSort = 2;
 
+    public static function canAccess(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     protected static string $view = 'filament.pages.manage-ppdb-setting';
 
     public ?array $data = [];

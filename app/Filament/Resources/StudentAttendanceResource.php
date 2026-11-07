@@ -23,6 +23,11 @@ class StudentAttendanceResource extends Resource
     protected static ?string $pluralModelLabel = 'Presensi Siswa per Rombel';
     protected static ?int $navigationSort = 2;
 
+    public static function canViewAny(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

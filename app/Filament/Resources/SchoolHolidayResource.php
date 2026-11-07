@@ -21,6 +21,11 @@ class SchoolHolidayResource extends Resource
     protected static ?string $pluralModelLabel = 'Daftar Hari Libur Sekolah';
     protected static ?int $navigationSort = 2;
 
+    public static function canViewAny(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -18,6 +18,11 @@ class MonitoringPresensiGuru extends Page
     protected static ?string $title = 'Monitoring & Rekap Presensi Guru';
     protected static ?int $navigationSort = 3;
 
+    public static function canAccess(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     protected static string $view = 'filament.pages.monitoring-presensi-guru';
 
     public string $activeTab = 'harian'; // 'harian' atau 'bulanan'

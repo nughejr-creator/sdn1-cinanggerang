@@ -89,7 +89,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canManageAttendance(): bool
     {
-        return $this->is_active && in_array($this->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+        return $this->is_active && in_array($this->role, ['Admin', 'Kepala Sekolah']);
     }
 
     public function canManageSchoolSettings(): bool

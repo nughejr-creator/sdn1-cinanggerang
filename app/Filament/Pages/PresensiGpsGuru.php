@@ -17,6 +17,11 @@ class PresensiGpsGuru extends Page
     protected static ?string $title = 'Presensi GPS Mandiri Guru (Geofencing)';
     protected static ?int $navigationSort = 0;
 
+    public static function canAccess(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah']);
+    }
+
     protected static string $view = 'filament.pages.presensi-gps-guru';
 
     public ?int $selectedTeacherId = null;

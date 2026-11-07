@@ -210,7 +210,10 @@ try {
             }
         });
 
-        // Pastikan akun Kepala Sekolah tersedia jika belum ada untuk memudahkan pengujian peran
+        // Normalisasi role pengguna agar guru non-admin berstatus 'Guru'
+        \App\Models\User::whereNotIn('role', ['Admin', 'Kepala Sekolah'])->update(['role' => 'Guru']);
+
+        // Pastikan akun Kepala Sekolah tersedia jika belum ada untuk pengujian peran
         $ksTeacher = \App\Models\Teacher::where('nama', 'like', '%Aep Yayat%')->first();
         if ($ksTeacher && !\App\Models\User::where('role', 'Kepala Sekolah')->exists()) {
             \App\Models\User::firstOrCreate(
