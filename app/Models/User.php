@@ -60,6 +60,40 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return (bool) $this->is_active;
+        if (!$this->is_active) {
+            return false;
+        }
+
+        return in_array($this->role, ['Admin', 'Kepala Sekolah', 'Guru', 'Asisten Admin']);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'Admin';
+    }
+
+    public function isKepalaSekolah(): bool
+    {
+        return $this->role === 'Kepala Sekolah';
+    }
+
+    public function isGuru(): bool
+    {
+        return $this->role === 'Guru';
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->is_active && $this->role === 'Admin';
+    }
+
+    public function canManageAttendance(): bool
+    {
+        return $this->is_active && in_array($this->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+    }
+
+    public function canManageSchoolSettings(): bool
+    {
+        return $this->is_active && in_array($this->role, ['Admin', 'Kepala Sekolah']);
     }
 }

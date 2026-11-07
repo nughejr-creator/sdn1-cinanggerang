@@ -179,6 +179,54 @@ try {
         );
     }
 
+    // Pastikan tabel learning_materials untuk E-Learning & Perangkat Ajar Guru tersedia
+    if (!\Illuminate\Support\Facades\Schema::hasTable('learning_materials')) {
+        \Illuminate\Support\Facades\Schema::create('learning_materials', function ($table) {
+            $table->id();
+            $table->string('judul');
+            $table->string('mata_pelajaran', 100);
+            $table->string('kelas_fase', 100);
+            $table->string('jenis_perangkat', 100)->default('Modul Ajar');
+            $table->string('file_dokumen')->nullable();
+            $table->string('link_eksternal')->nullable();
+            $table->text('deskripsi')->nullable();
+            $table->foreignId('teacher_id')->nullable();
+            $table->foreignId('user_id')->nullable();
+            $table->string('status', 30)->default('Publish');
+            $table->timestamps();
+        });
+    }
+
+    // Pastikan skema tabel pengguna (users) & akun kepala sekolah tersedia
+    if (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+        \Illuminate\Support\Facades\Schema::table('users', function ($table) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'role')) {
+                $table->string('role', 40)->default('Guru');
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'teacher_id')) {
+                $table->foreignId('teacher_id')->nullable();
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'is_active')) {
+                $table->boolean('is_active')->default(true);
+            }
+        });
+
+        // Pastikan akun Kepala Sekolah tersedia jika belum ada untuk memudahkan pengujian peran
+        $ksTeacher = \App\Models\Teacher::where('nama', 'like', '%Aep Yayat%')->first();
+        if ($ksTeacher && !\App\Models\User::where('role', 'Kepala Sekolah')->exists()) {
+            \App\Models\User::firstOrCreate(
+                ['email' => 'kepsek@sdncinanggerang1.sch.id'],
+                [
+                    'name' => 'Aep Yayat, S.Pd (Kepala Sekolah)',
+                    'password' => \Illuminate\Support\Facades\Hash::make('kepsek12345'),
+                    'role' => 'Kepala Sekolah',
+                    'teacher_id' => $ksTeacher->id,
+                    'is_active' => true,
+                ]
+            );
+        }
+    }
+
     // Pastikan minimal 2 berita tayang agar grid 2 kolom di beranda seimbang
     if (\Illuminate\Support\Facades\Schema::hasTable('posts')) {
         \App\Models\Post::firstOrCreate(

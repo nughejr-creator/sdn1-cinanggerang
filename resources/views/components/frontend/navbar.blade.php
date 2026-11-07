@@ -141,19 +141,11 @@
                          x-transition:leave-end="opacity-0 translate-y-1"
                          class="absolute left-0 mt-1 w-56 bg-white dark:bg-forest-900 rounded-2xl shadow-xl border border-gray-100 dark:border-forest-800 py-2 z-50">
 
-                        <a href="{{ url('/admin/teaching-documents') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition">
+                        <a href="{{ url('/admin/learning-materials') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition">
                             <span class="text-base">📁</span>
                             <div>
-                                <p class="font-bold text-gray-900 dark:text-white text-xs">Bank Perangkat Ajar</p>
-                                <p class="text-[10px] text-gray-400">Modul ajar, ATP & silabus guru</p>
-                            </div>
-                        </a>
-
-                        <a href="{{ url('/admin/lessons') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition">
-                            <span class="text-base">📖</span>
-                            <div>
-                                <p class="font-bold text-gray-900 dark:text-white text-xs">Materi Belajar</p>
-                                <p class="text-[10px] text-gray-400">Materi pembelajaran per rombel</p>
+                                <p class="font-bold text-gray-900 dark:text-white text-xs">Perangkat & Materi Ajar</p>
+                                <p class="text-[10px] text-gray-400">Modul ajar kurikulum merdeka & LKPD</p>
                             </div>
                         </a>
                     </div>
@@ -343,11 +335,8 @@
                 <svg class="w-4 h-4 text-gray-400 transform transition-transform" :class="mobileAccordion === 'elearning' ? 'rotate-180 text-forest-800' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
             <div x-show="mobileAccordion === 'elearning'" x-cloak class="pl-6 pr-2 py-2 space-y-1.5 bg-forest-50/50 dark:bg-forest-900/30 rounded-lg my-1">
-                <a @click="mobileOpen = false" href="{{ url('/admin/teaching-documents') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">
-                    📁 Bank Perangkat Ajar & Modul
-                </a>
-                <a @click="mobileOpen = false" href="{{ url('/admin/lessons') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">
-                    📖 Materi Belajar Siswa
+                <a @click="mobileOpen = false" href="{{ url('/admin/learning-materials') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">
+                    📁 Perangkat & Materi Ajar Guru
                 </a>
             </div>
         </div>

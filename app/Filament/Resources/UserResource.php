@@ -22,6 +22,26 @@ class UserResource extends Resource
     protected static ?string $pluralModelLabel = 'Pengguna & Hak Akses';
     protected static ?int $navigationSort = 2;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->role === 'Admin';
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->role === 'Admin';
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->role === 'Admin';
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->role === 'Admin';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -56,10 +76,10 @@ class UserResource extends Resource
                         Forms\Components\Select::make('role')
                             ->label('Peran / Hak Akses (Role)')
                             ->options([
-                                'Admin' => 'Super Admin (Kontrol Penuh)',
-                                'Kepala Sekolah' => 'Kepala Sekolah (Monitoring & Supervisi)',
+                                'Admin' => 'Super Admin (Kontrol Penuh Sistem)',
+                                'Kepala Sekolah' => 'Kepala Sekolah (Monitoring, Supervisi & Cetak Presensi)',
                                 'Asisten Admin' => 'Asisten Admin / Operator Sekolah',
-                                'Guru' => 'Guru (Akses Perangkat Ajar & Pembelajaran)',
+                                'Guru' => 'Guru (Kelola E-Learning, Perangkat Ajar & Publikasi Kegiatan)',
                             ])
                             ->default('Asisten Admin')
                             ->required()

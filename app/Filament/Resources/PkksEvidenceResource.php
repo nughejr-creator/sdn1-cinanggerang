@@ -22,6 +22,11 @@ class PkksEvidenceResource extends Resource
     protected static ?string $pluralModelLabel = 'Arsip Bukti Fisik PKKS';
     protected static ?int $navigationSort = 3;
 
+    public static function canViewAny(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form

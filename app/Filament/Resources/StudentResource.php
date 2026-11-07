@@ -22,6 +22,21 @@ class StudentResource extends Resource
     protected static ?string $pluralModelLabel = 'Daftar Siswa';
     protected static ?int $navigationSort = 3;
 
+    public static function canCreate(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->role === 'Admin';
+    }
+
     public static function form(Form $form): Form
     {
         return $form

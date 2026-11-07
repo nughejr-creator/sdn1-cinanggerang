@@ -22,6 +22,11 @@ class PkksIndicatorResource extends Resource
     protected static ?string $pluralModelLabel = 'Daftar 12 Indikator PKKS';
     protected static ?int $navigationSort = 2;
 
+    public static function canViewAny(): bool
+    {
+        return in_array(auth()->user()?->role, ['Admin', 'Kepala Sekolah', 'Asisten Admin']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
