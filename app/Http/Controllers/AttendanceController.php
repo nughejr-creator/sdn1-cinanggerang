@@ -113,11 +113,39 @@ class AttendanceController extends Controller
         $today = now()->setTimezone('Asia/Jakarta')->toDateString();
         $todayHoliday = SchoolHoliday::isHoliday($today);
 
+        // Rekapitulasi Presensi Bulanan Guru yang Sedang Login
+        $now = now()->setTimezone('Asia/Jakarta');
+        $currentMonth = $now->month;
+        $currentYear = $now->year;
+        $monthName = $now->translatedFormat('F Y');
+
+        $monthlyAttendances = collect();
         if ($teacher) {
             $todayAttendance = TeacherAttendance::where('teacher_id', $teacher->id)
                 ->whereDate('tanggal', $today)
                 ->first();
+
+            $monthlyAttendances = TeacherAttendance::where('teacher_id', $teacher->id)
+                ->whereYear('tanggal', $currentYear)
+                ->whereMonth('tanggal', $currentMonth)
+                ->get();
         }
+
+        $monthlyRecap = [
+            'month_name' => $monthName,
+            'total_recorded' => $monthlyAttendances->count(),
+            'hadir_tepat' => $monthlyAttendances->where('status', 'Hadir Tepat Waktu')->count(),
+            'hadir_terlambat' => $monthlyAttendances->where('status', 'Hadir Terlambat')->count(),
+            'total_hadir' => $monthlyAttendances->whereIn('status', ['Hadir Tepat Waktu', 'Hadir Terlambat'])->count(),
+            'dinas_luar' => $monthlyAttendances->whereIn('status', ['Dinas Luar', 'Dinas Luar / Pelatihan'])->count(),
+            'sakit' => $monthlyAttendances->where('status', 'Sakit (SKD)')->count(),
+            'izin' => $monthlyAttendances->where('status', 'Izin Resmi')->count(),
+            'alpa' => $monthlyAttendances->where('status', 'Tanpa Keterangan (Alpa)')->count(),
+        ];
+        $kehadiranEfektif = $monthlyRecap['total_hadir'] + $monthlyRecap['dinas_luar'];
+        $monthlyRecap['persentase'] = $monthlyRecap['total_recorded'] > 0 
+            ? round(($kehadiranEfektif / $monthlyRecap['total_recorded']) * 100) 
+            : 100;
 
         return view('frontend.presensi', compact(
             'profile',
@@ -127,7 +155,8 @@ class AttendanceController extends Controller
             'schoolLng',
             'maxRadius',
             'todayAttendance',
-            'todayHoliday'
+            'todayHoliday',
+            'monthlyRecap'
         ));
     }
 
@@ -145,25 +174,29 @@ class AttendanceController extends Controller
 
         $this->ensureSchema();
 
-        // Validasi input presensi fleksibel (mendukung Reguler & Dinas Luar)
+        $isIzinOrSakit = in_array($request->attendance_type, ['Sakit', 'Izin']);
+
+        // Validasi input presensi fleksibel (mendukung Reguler, Dinas Luar, Sakit, & Izin)
         $request->validate([
-            'attendance_type'    => 'required|in:Reguler,Dinas Luar',
+            'attendance_type'    => 'required|in:Reguler,Dinas Luar,Sakit,Izin',
             'action_type'        => 'nullable|in:in,out,masuk,pulang',
             'tipe'               => 'nullable|in:in,out,masuk,pulang',
-            'latitude'           => 'required|numeric',
-            'longitude'          => 'required|numeric',
-            'selfie_image'       => 'required_without:foto_selfie|nullable|string',
-            'foto_selfie'        => 'required_without:selfie_image|nullable|string',
+            'latitude'           => 'nullable|numeric',
+            'longitude'          => 'nullable|numeric',
+            'selfie_image'       => $isIzinOrSakit ? 'nullable|string' : 'required_without:foto_selfie|nullable|string',
+            'foto_selfie'        => $isIzinOrSakit ? 'nullable|string' : 'required_without:selfie_image|nullable|string',
             'duty_location_name' => 'required_if:attendance_type,Dinas Luar|nullable|string|max:255',
-            'duty_description'   => 'required_if:attendance_type,Dinas Luar|nullable|string',
-            'duty_proof_type'    => 'required_if:attendance_type,Dinas Luar|nullable|in:Surat Tugas / Undangan,Foto Kegiatan di Lokasi',
-            'duty_proof_file'    => 'required_if:attendance_type,Dinas Luar|nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
+            'duty_description'   => $isIzinOrSakit ? 'required|string' : 'required_if:attendance_type,Dinas Luar|nullable|string',
+            'duty_proof_type'    => 'nullable|string',
+            'duty_proof_file'    => ($isIzinOrSakit ? 'required|' : 'required_if:attendance_type,Dinas Luar|') . 'nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
         ], [
+            'duty_proof_file.required' => 'Wajib melampirkan berkas bukti dokumen (Surat Dokter untuk Sakit, atau Surat Permohonan Izin).',
             'duty_proof_file.required_if' => 'Untuk presensi dinas luar, wajib melampirkan berkas surat tugas atau foto dokumentasi di lokasi kegiatan.',
             'duty_location_name.required_if' => 'Nama lokasi/instansi dinas luar wajib diisi.',
+            'duty_description.required' => 'Keterangan alasan sakit atau keperluan izin wajib diisi.',
             'duty_description.required_if' => 'Keterangan agenda kegiatan dinas luar wajib diisi.',
             'duty_proof_type.required_if' => 'Pilih jenis bukti validasi dinas luar.',
-            'duty_proof_file.max' => 'Ukuran berkas bukti dinas luar maksimal 10 MB.',
+            'duty_proof_file.max' => 'Ukuran berkas bukti maksimal 10 MB.',
             'duty_proof_file.mimes' => 'Format berkas bukti harus berupa PDF, JPG, JPEG, WEBP, atau PNG.',
             'selfie_image.required_without' => 'Swafoto (selfie) wajah wajib diambil sebelum merekam presensi.',
             'foto_selfie.required_without' => 'Swafoto (selfie) wajah wajib diambil sebelum merekam presensi.',
@@ -218,9 +251,9 @@ class AttendanceController extends Controller
         $selfieBase64 = $request->input('selfie_image') ?: $request->input('foto_selfie');
         $photoPath = $this->storeBase64Selfie($selfieBase64, $teacher->id, $tipe);
 
-        // Penanganan Berkas Bukti Dinas Luar (Dikompresi Otomatis jika Foto/Gambar)
+        // Penanganan Berkas Bukti (Dinas Luar, Sakit SKD, atau Izin Resmi)
         $dutyProofPath = null;
-        if ($attendanceType === 'Dinas Luar' && $request->hasFile('duty_proof_file')) {
+        if (in_array($attendanceType, ['Dinas Luar', 'Sakit', 'Izin']) && $request->hasFile('duty_proof_file')) {
             $file = $request->file('duty_proof_file');
             $mime = $file->getMimeType() ?: '';
 
@@ -246,8 +279,9 @@ class AttendanceController extends Controller
                             $sourceImage = $resized;
                         }
 
-                        $fileName = 'proof_' . $teacher->id . '_' . date('Ymd_His') . '.jpg';
-                        $dutyProofPath = 'presensi_dinas_luar/' . $fileName;
+                        $prefix = strtolower($attendanceType);
+                        $fileName = $prefix . '_proof_' . $teacher->id . '_' . date('Ymd_His') . '.jpg';
+                        $dutyProofPath = 'attendances_proofs/' . $fileName;
 
                         ob_start();
                         imagejpeg($sourceImage, null, 72);
@@ -256,13 +290,13 @@ class AttendanceController extends Controller
 
                         Storage::disk('public')->put($dutyProofPath, $compressedData);
                     } else {
-                        $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+                        $dutyProofPath = $file->store('attendances_proofs', 'public');
                     }
                 } catch (\Throwable $e) {
-                    $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+                    $dutyProofPath = $file->store('attendances_proofs', 'public');
                 }
             } else {
-                $dutyProofPath = $file->store('presensi_dinas_luar', 'public');
+                $dutyProofPath = $file->store('attendances_proofs', 'public');
             }
         }
 
@@ -274,6 +308,44 @@ class AttendanceController extends Controller
         $record = TeacherAttendance::where('teacher_id', $teacher->id)
             ->whereDate('tanggal', $tanggalHariIni)
             ->first();
+
+        // JIKA PENGAJUAN SAKIT (SKD) ATAU IZIN RESMI
+        if ($isIzinOrSakit) {
+            $statusLabel = ($attendanceType === 'Sakit') ? 'Sakit (SKD)' : 'Izin Resmi';
+            $proofTypeLabel = ($attendanceType === 'Sakit') ? 'Surat Keterangan Dokter (SKD)' : 'Surat Permohonan Izin';
+
+            $data = [
+                'teacher_id' => $teacher->id,
+                'tanggal' => $tanggalHariIni,
+                'jam_masuk' => $jamSekarang,
+                'jam_pulang' => '12:00:00', // Status sah satu hari penuh
+                'status' => $statusLabel,
+                'attendance_type' => $attendanceType,
+                'duty_proof_type' => $proofTypeLabel,
+                'duty_proof_file' => $dutyProofPath,
+                'duty_description' => $request->duty_description,
+                'duty_location_name' => ($attendanceType === 'Sakit') ? 'Rumah / Fasilitas Kesehatan' : ($request->duty_location_name ?: 'Tempat Izin'),
+                'metode' => 'Presensi Mandiri Web',
+                'foto_bukti' => $dutyProofPath ?: $photoPath,
+                'latitude' => $lat ?: $schoolLat,
+                'longitude' => $lng ?: $schoolLng,
+                'jarak_meter' => $distance,
+                'is_in_radius' => true,
+                'is_in_radius_pulang' => true,
+                'keterangan' => "Pengajuan Mandiri {$statusLabel}: {$request->duty_description}",
+            ];
+
+            if ($record) {
+                $record->update($data);
+            } else {
+                $record = TeacherAttendance::create($data);
+            }
+
+            $labelSukses = "Laporan {$statusLabel} Anda berhasil dikirim ke sekolah beserta berkas bukti dukung!";
+            return $request->wantsJson()
+                ? response()->json(['success' => true, 'message' => $labelSukses, 'distance' => $distance, 'record' => $record])
+                : redirect()->route('presensi.index')->with('success', $labelSukses);
+        }
 
         if ($tipe === 'masuk') {
             if ($record && $record->jam_masuk) {
@@ -335,6 +407,14 @@ class AttendanceController extends Controller
                     : back()->with('error', $msg);
             }
 
+            // Batas minimal presensi pulang adalah setelah pukul 10:00 WIB
+            if ($jamHi < '10:00') {
+                $msg = 'Presensi Pulang belum dibuka! Presensi pulang baru dapat dilakukan setelah pukul 10:00 WIB (Waktu server saat ini: ' . $jamHi . ' WIB).';
+                return $request->wantsJson() 
+                    ? response()->json(['success' => false, 'message' => $msg], 422) 
+                    : back()->with('error', $msg);
+            }
+
             $pulangTepatWaktu = ($jamHi >= '12:00');
             $ketPulang = $pulangTepatWaktu ? 'Pulang Tepat Waktu (≥ 12:00)' : 'Pulang Lebih Awal (< 12:00)';
 
@@ -358,25 +438,30 @@ class AttendanceController extends Controller
                 'latitude_pulang' => $lat,
                 'longitude_pulang' => $lng,
                 'jarak_pulang_meter' => $distance,
-                'is_in_radius_pulang' => true,
-                'keterangan' => ($record->keterangan ? $record->keterangan . ' | ' : '') . $ketPulang . " (Jarak: {$distance} m)",
+                'is_in_radius_pulang' => ($attendanceType === 'Dinas Luar' ? true : $isInRadius),
             ];
 
-            // Jika waktu pulang dinas luar melampirkan berkas baru
-            if ($dutyProofPath) {
-                $updateData['duty_proof_file'] = $dutyProofPath;
-                $updateData['duty_proof_type'] = $request->duty_proof_type;
-                $updateData['duty_location_name'] = $request->duty_location_name;
-                $updateData['duty_description'] = $request->duty_description;
+            // Jika presensi pulang dengan status Dinas Luar (baik dari pagi DL atau siang ditugaskan DL)
+            if ($attendanceType === 'Dinas Luar') {
                 $updateData['attendance_type'] = 'Dinas Luar';
                 $updateData['status'] = $this->resolveDinasLuarStatus();
+                $updateData['duty_location_name'] = $request->duty_location_name ?: $record->duty_location_name;
+                $updateData['duty_description'] = $request->duty_description ?: $record->duty_description;
+                $updateData['duty_proof_type'] = $request->duty_proof_type ?: $record->duty_proof_type;
+                if ($dutyProofPath) {
+                    $updateData['duty_proof_file'] = $dutyProofPath;
+                }
+                $ketDl = "Pulang Dinas Luar di: {$request->duty_location_name} ({$ketPulang})";
+                $updateData['keterangan'] = $record->keterangan ? ($record->keterangan . ' | ' . $ketDl) : $ketDl;
+            } else {
+                $updateData['keterangan'] = ($record->keterangan ? $record->keterangan . ' | ' : '') . $ketPulang . " (Jarak: {$distance} m)";
             }
 
             $record->update($updateData);
             $record->refresh();
 
             $labelSukses = ($attendanceType === 'Dinas Luar')
-                ? "Presensi Pulang DINAS LUAR berhasil direkam pukul {$jamHi} WIB ({$ketPulang})!"
+                ? "Presensi Pulang DINAS LUAR di '{$request->duty_location_name}' berhasil direkam pukul {$jamHi} WIB ({$ketPulang})!"
                 : "Presensi Pulang berhasil direkam pukul {$jamHi} WIB ({$ketPulang}) pada jarak {$distance} meter!";
 
             return $request->wantsJson()

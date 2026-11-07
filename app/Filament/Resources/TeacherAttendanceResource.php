@@ -96,6 +96,8 @@ class TeacherAttendanceResource extends Resource
                             ->options([
                                 'Reguler' => 'Reguler (Di Lingkungan Sekolah)',
                                 'Dinas Luar' => 'Dinas Luar (Bypass Geofencing)',
+                                'Sakit' => 'Sakit (Bypass Geofencing & Lampiran SKD)',
+                                'Izin' => 'Izin Resmi (Bypass Geofencing & Surat Permohonan)',
                             ])
                             ->default('Reguler'),
 
@@ -143,8 +145,18 @@ class TeacherAttendanceResource extends Resource
                 Tables\Columns\TextColumn::make('attendance_type')
                     ->label('Mode')
                     ->badge()
-                    ->color(fn ($state) => $state === 'Dinas Luar' ? 'info' : 'gray')
-                    ->icon(fn ($state) => $state === 'Dinas Luar' ? 'heroicon-m-briefcase' : 'heroicon-m-map-pin'),
+                    ->color(fn ($state) => match ($state) {
+                        'Dinas Luar' => 'info',
+                        'Sakit' => 'purple',
+                        'Izin' => 'warning',
+                        default => 'gray',
+                    })
+                    ->icon(fn ($state) => match ($state) {
+                        'Dinas Luar' => 'heroicon-m-briefcase',
+                        'Sakit' => 'heroicon-m-heart',
+                        'Izin' => 'heroicon-m-document-text',
+                        default => 'heroicon-m-map-pin',
+                    }),
 
                 Tables\Columns\TextColumn::make('jam_masuk')
                     ->label('Absen Datang')
@@ -165,8 +177,10 @@ class TeacherAttendanceResource extends Resource
                     ->badge()
                     ->colors([
                         'success' => 'Hadir Tepat Waktu',
-                        'warning' => fn ($state) => in_array($state, ['Hadir Terlambat', 'Izin Resmi']),
-                        'info' => fn ($state) => in_array($state, ['Dinas Luar', 'Dinas Luar / Pelatihan', 'Sakit (SKD)']),
+                        'warning' => 'Hadir Terlambat',
+                        'info' => fn ($state) => in_array($state, ['Dinas Luar', 'Dinas Luar / Pelatihan']),
+                        'purple' => 'Sakit (SKD)',
+                        'amber' => 'Izin Resmi',
                         'danger' => 'Tanpa Keterangan (Alpa)',
                     ]),
 
@@ -174,8 +188,8 @@ class TeacherAttendanceResource extends Resource
                     ->label('Jarak GPS')
                     ->formatStateUsing(fn ($state) => $state !== null ? "{$state} meter" : '-')
                     ->badge()
-                    ->color(fn ($record) => $record?->attendance_type === 'Dinas Luar' ? 'info' : (($record?->is_in_radius ?? true) ? 'success' : 'danger'))
-                    ->description(fn ($record) => $record?->attendance_type === 'Dinas Luar' ? 'Dinas Luar (Bypass)' : (($record?->is_in_radius ?? true) ? 'Dalam Zona' : 'Luar Zona')),
+                    ->color(fn ($record) => in_array($record?->attendance_type, ['Dinas Luar', 'Sakit', 'Izin']) ? 'info' : (($record?->is_in_radius ?? true) ? 'success' : 'danger'))
+                    ->description(fn ($record) => in_array($record?->attendance_type, ['Dinas Luar', 'Sakit', 'Izin']) ? ($record->attendance_type . ' (Bypass)') : (($record?->is_in_radius ?? true) ? 'Dalam Zona' : 'Luar Zona')),
 
                 Tables\Columns\TextColumn::make('metode')
                     ->label('Metode')
@@ -194,12 +208,92 @@ class TeacherAttendanceResource extends Resource
                     ->placeholder('-'),
             ])
             ->defaultSort('tanggal', 'desc')
+            ->headerActions([
+                Tables\Actions\Action::make('rekapBulanan')
+                    ->label('Rekap Bulanan GTK')
+                    ->icon('heroicon-o-chart-bar-square')
+                    ->color('success')
+                    ->form([
+                        Forms\Components\Grid::make(2)->schema([
+                            Forms\Components\Select::make('bulan')
+                                ->label('Pilih Bulan')
+                                ->options([
+                                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                                ])
+                                ->default(now()->month)
+                                ->required(),
+                            Forms\Components\Select::make('tahun')
+                                ->label('Pilih Tahun')
+                                ->options([
+                                    now()->subYear()->year => now()->subYear()->year,
+                                    now()->year => now()->year,
+                                    now()->addYear()->year => now()->addYear()->year,
+                                ])
+                                ->default(now()->year)
+                                ->required(),
+                        ]),
+                    ])
+                    ->modalHeading('Rekapitulasi Kehadiran Bulanan Seluruh GTK')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->modalContent(function (array $data = []): \Illuminate\Contracts\View\View {
+                        $bulan = (int) ($data['bulan'] ?? now()->month);
+                        $tahun = (int) ($data['tahun'] ?? now()->year);
+                        $namaBulan = [
+                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                        ][$bulan] ?? 'Bulan ' . $bulan;
+                        $periodLabel = "{$namaBulan} {$tahun}";
+
+                        $teachers = \App\Models\Teacher::where('is_active', true)->orderBy('nama')->get();
+                        $attendances = TeacherAttendance::whereYear('tanggal', $tahun)
+                            ->whereMonth('tanggal', $bulan)
+                            ->get();
+
+                        $teachersRecap = $teachers->map(function ($t) use ($attendances) {
+                            $userAtts = $attendances->where('teacher_id', $t->id);
+                            $hadirTepat = $userAtts->where('status', 'Hadir Tepat Waktu')->count();
+                            $hadirTerlambat = $userAtts->where('status', 'Hadir Terlambat')->count();
+                            $dinasLuar = $userAtts->whereIn('status', ['Dinas Luar', 'Dinas Luar / Pelatihan'])->count();
+                            $sakit = $userAtts->where('status', 'Sakit (SKD)')->count();
+                            $izin = $userAtts->where('status', 'Izin Resmi')->count();
+                            $alpa = $userAtts->where('status', 'Tanpa Keterangan (Alpa)')->count();
+                            $totalHari = $userAtts->count();
+
+                            $efektif = $hadirTepat + $hadirTerlambat + $dinasLuar;
+                            $persentase = $totalHari > 0 ? round(($efektif / $totalHari) * 100) : 100;
+
+                            return [
+                                'nama' => $t->nama,
+                                'jabatan' => $t->jabatan,
+                                'hadir_tepat' => $hadirTepat,
+                                'hadir_terlambat' => $hadirTerlambat,
+                                'dinas_luar' => $dinasLuar,
+                                'sakit' => $sakit,
+                                'izin' => $izin,
+                                'alpa' => $alpa,
+                                'total_hari' => $totalHari,
+                                'persentase' => $persentase,
+                            ];
+                        });
+
+                        return view('filament.modals.attendance-monthly-recap', [
+                            'periodLabel' => $periodLabel,
+                            'teachersRecap' => $teachersRecap,
+                        ]);
+                    }),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('attendance_type')
                     ->label('Mode Presensi')
                     ->options([
                         'Reguler' => 'Reguler (Di Sekolah)',
                         'Dinas Luar' => 'Dinas Luar (DL)',
+                        'Sakit' => 'Sakit (SKD)',
+                        'Izin' => 'Izin Resmi',
                     ]),
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
@@ -211,6 +305,27 @@ class TeacherAttendanceResource extends Resource
                         'Dinas Luar / Pelatihan' => 'Dinas Luar / Pelatihan',
                         'Tanpa Keterangan (Alpa)' => 'Alpa',
                     ]),
+                Tables\Filters\Filter::make('bulan')
+                    ->form([
+                        Forms\Components\Grid::make(2)->schema([
+                            Forms\Components\Select::make('bulan')
+                                ->label('Bulan')
+                                ->options([
+                                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                                ]),
+                            Forms\Components\TextInput::make('tahun')
+                                ->label('Tahun')
+                                ->numeric()
+                                ->default(now()->year),
+                        ]),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['bulan'] ?? null, fn ($q, $bln) => $q->whereMonth('tanggal', $bln))
+                            ->when($data['tahun'] ?? null, fn ($q, $thn) => $q->whereYear('tanggal', $thn));
+                    }),
                 Tables\Filters\Filter::make('hari_ini')
                     ->label('Presensi Hari Ini')
                     ->query(fn ($query) => $query->whereDate('tanggal', today())),
@@ -220,8 +335,8 @@ class TeacherAttendanceResource extends Resource
                     ->label('Lihat Bukti')
                     ->icon('heroicon-o-document-magnifying-glass')
                     ->color('info')
-                    ->visible(fn ($record) => $record->attendance_type === 'Dinas Luar' || !empty($record->duty_proof_file))
-                    ->modalHeading(fn ($record) => "Bukti Tugas: " . ($record->teacher?->nama ?? 'GTK'))
+                    ->visible(fn ($record) => in_array($record->attendance_type, ['Dinas Luar', 'Sakit', 'Izin']) || !empty($record->duty_proof_file))
+                    ->modalHeading(fn ($record) => "Bukti Dukung: " . ($record->teacher?->nama ?? 'GTK') . " (" . $record->status . ")")
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
                     ->modalContent(fn ($record) => view('filament.modals.attendance-proof', ['record' => $record])),
