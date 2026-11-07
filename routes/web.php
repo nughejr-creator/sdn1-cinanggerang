@@ -295,6 +295,7 @@ Route::get('/ppdb/berhasil/{registration_number}', [PpdbController::class, 'succ
 Route::post('/ppdb/cek-status', [PpdbController::class, 'checkStatus'])->name('ppdb.check-status');
 Route::get('/ppdb/cetak-kelulusan/{registration_number}', [PpdbController::class, 'printKelulusan'])->name('ppdb.print-kelulusan');
 
-// Rute Presensi GPS Guru Digital
+// Rute Presensi GPS Guru Digital & Laporan Cetak Kedinasan
 Route::get('/presensi', [AttendanceController::class, 'index'])->name('presensi.index');
 Route::post('/presensi', [AttendanceController::class, 'store'])->name('presensi.store');
+Route::get('/admin/presensi/cetak-rekap', [AttendanceController::class, 'printRecap'])->name('admin.presensi.cetak-rekap');

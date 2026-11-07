@@ -283,6 +283,8 @@ class TeacherAttendanceResource extends Resource
                         return view('filament.modals.attendance-monthly-recap', [
                             'periodLabel' => $periodLabel,
                             'teachersRecap' => $teachersRecap,
+                            'bulan' => $bulan,
+                            'tahun' => $tahun,
                         ]);
                     }),
             ])

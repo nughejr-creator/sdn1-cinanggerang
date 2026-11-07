@@ -522,4 +522,57 @@ class AttendanceController extends Controller
             return null;
         }
     }
+
+    /**
+     * Cetak Lembar Rekapitulasi Presensi Bulanan GTK (Format Dinas Cetak Fisik / PDF)
+     */
+    public function printRecap(Request $request)
+    {
+        $bulan = (int) ($request->query('bulan') ?? now()->month);
+        $tahun = (int) ($request->query('tahun') ?? now()->year);
+
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ][$bulan] ?? 'Bulan ' . $bulan;
+        $periodLabel = "{$namaBulan} {$tahun}";
+
+        $profile = SchoolProfile::first();
+        $teachers = Teacher::where('is_active', true)->orderBy('nama')->get();
+        $attendances = TeacherAttendance::whereYear('tanggal', $tahun)
+            ->whereMonth('tanggal', $bulan)
+            ->get();
+
+        $teachersRecap = $teachers->map(function ($t) use ($attendances) {
+            $userAtts = $attendances->where('teacher_id', $t->id);
+            $hadirTepat = $userAtts->where('status', 'Hadir Tepat Waktu')->count();
+            $hadirTerlambat = $userAtts->where('status', 'Hadir Terlambat')->count();
+            $dinasLuar = $userAtts->whereIn('status', ['Dinas Luar', 'Dinas Luar / Pelatihan'])->count();
+            $sakit = $userAtts->where('status', 'Sakit (SKD)')->count();
+            $izin = $userAtts->where('status', 'Izin Resmi')->count();
+            $alpa = $userAtts->where('status', 'Tanpa Keterangan (Alpa)')->count();
+            $totalHari = $userAtts->count();
+
+            $efektif = $hadirTepat + $hadirTerlambat + $dinasLuar;
+            $persentase = $totalHari > 0 ? round(($efektif / $totalHari) * 100) : 100;
+
+            return [
+                'id' => $t->id,
+                'nama' => $t->nama,
+                'nip' => $t->nip ?? '-',
+                'jabatan' => $t->jabatan ?? 'Guru',
+                'hadir_tepat' => $hadirTepat,
+                'hadir_terlambat' => $hadirTerlambat,
+                'dinas_luar' => $dinasLuar,
+                'sakit' => $sakit,
+                'izin' => $izin,
+                'alpa' => $alpa,
+                'total_hari' => $totalHari,
+                'persentase' => $persentase,
+            ];
+        });
+
+        return view('print.attendance-recap', compact('profile', 'teachersRecap', 'bulan', 'tahun', 'periodLabel'));
+    }
 }
