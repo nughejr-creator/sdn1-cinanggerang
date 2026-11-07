@@ -170,20 +170,51 @@ class FrontendController extends Controller
     }
 
     /**
-     * Halaman Warta, Berita & Pengumuman Sekolah
+     * Halaman Warta, Berita & Pengumuman Sekolah (dengan Filter Program Kegiatan)
      */
-    public function warta(): View
+    public function warta(Request $request): View
     {
         $profile = SchoolProfile::first();
-        $posts = Post::where('status', 'Publish')
-            ->latest('published_at')
-            ->paginate(9);
+        
+        $selectedCategory = $request->query('kategori_program'); // ekstrakurikuler, kokurikuler, pembiasaan
+        $selectedProgram = $request->query('program');
+
+        $query = Post::with('program')->where('status', 'Publish');
+
+        if ($selectedCategory && in_array($selectedCategory, ['ekstrakurikuler', 'kokurikuler', 'pembiasaan'])) {
+            $query->where(function ($q) use ($selectedCategory) {
+                $q->where('program_category', $selectedCategory)
+                  ->orWhereHas('program', fn ($p) => $p->where('category', $selectedCategory));
+            });
+        }
+
+        if ($selectedProgram) {
+            $query->where(function ($q) use ($selectedProgram) {
+                $q->where('program_id', $selectedProgram)
+                  ->orWhereHas('program', fn ($p) => $p->where('name', $selectedProgram));
+            });
+        }
+
+        $posts = $query->latest('published_at')->paginate(9)->withQueryString();
+
+        $programs = \App\Models\SchoolProgram::where('is_active', true)
+            ->withCount('posts')
+            ->orderBy('category')
+            ->orderBy('name')
+            ->get();
 
         $announcements = Announcement::where('is_active', true)
             ->latest('tanggal_mulai')
             ->get();
 
-        return view('frontend.warta', compact('profile', 'posts', 'announcements'));
+        return view('frontend.warta', compact(
+            'profile',
+            'posts',
+            'announcements',
+            'programs',
+            'selectedCategory',
+            'selectedProgram'
+        ));
     }
 
     /**

@@ -25,6 +25,11 @@ class Post extends Model
         return null;
     }
 
+    public function program(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(SchoolProgram::class, 'program_id');
+    }
+
     public function getDetailUrlAttribute(): string
     {
         return route('warta.detail', $this->slug ?: $this->id);

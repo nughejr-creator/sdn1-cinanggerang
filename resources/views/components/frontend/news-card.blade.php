@@ -9,8 +9,17 @@
             </h2>
             <p class="text-xs sm:text-sm text-gray-500 mt-1">Publikasi kegiatan akademik, ekstrakurikuler, dan prestasi SDN Cinanggerang I</p>
         </div>
-        <div class="text-xs font-semibold text-forest-800 dark:text-emerald-300 flex items-center gap-1">
-            <span>Menampilkan {{ $posts->count() }} Warta Terbaru</span>
+        <div class="text-xs font-semibold text-forest-800 dark:text-emerald-300 flex flex-wrap items-center gap-2">
+            @if(!empty($selectedCategory) || !empty($selectedProgram))
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-forest-800 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-forest-700">
+                    Filter: <strong>{{ ucfirst($selectedCategory ?? 'Semua') }}</strong>
+                </span>
+                <a href="{{ route('warta') }}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition">
+                    ✕ Reset Filter
+                </a>
+            @else
+                <span>Menampilkan {{ $posts->count() }} Warta Terbaru</span>
+            @endif
         </div>
     </div>
 
@@ -32,9 +41,20 @@
                         </div>
                     @endif
 
-                    <span class="absolute top-3 left-3 px-2.5 py-1 bg-forest-950/80 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg uppercase tracking-wider border border-white/10">
-                        {{ $post->kategori }}
-                    </span>
+                    @php
+                        $progCategory = $post->program_category ?: $post->program?->category;
+                        $progName = $post->program?->name;
+                    @endphp
+
+                    @if($progName)
+                        <span class="absolute top-3 left-3 px-2.5 py-1 backdrop-blur-md text-white text-[10px] font-extrabold rounded-lg uppercase tracking-wider shadow-sm border border-white/20 {{ $progCategory === 'ekstrakurikuler' ? 'bg-amber-600/90' : ($progCategory === 'kokurikuler' ? 'bg-emerald-600/90' : 'bg-sky-600/90') }}">
+                            [{{ $progCategory === 'ekstrakurikuler' ? 'Ekstra' : ucfirst($progCategory) }}] {{ $progName }}
+                        </span>
+                    @else
+                        <span class="absolute top-3 left-3 px-2.5 py-1 bg-forest-950/80 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg uppercase tracking-wider border border-white/10">
+                            {{ $post->kategori }}
+                        </span>
+                    @endif
                 </a>
 
                 {{-- Konten Ringkas & Tautan Detail --}}

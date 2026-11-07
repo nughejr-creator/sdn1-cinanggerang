@@ -77,6 +77,58 @@ class PostResource extends Resource
                             ->helperText('Aktifkan agar artikel ini menjadi sorotan utama di kolom Warta Beranda (maksimal 2 artikel).')
                             ->default(false),
                     ]),
+
+                Forms\Components\Section::make('Program Kegiatan Sekolah (Opsional)')
+                    ->description('Hubungkan postingan ini dengan kegiatan Ekstrakurikuler, Kokurikuler, atau Pembiasaan')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\Select::make('program_category')
+                            ->label('Kategori Program')
+                            ->options([
+                                'ekstrakurikuler' => 'Ekstrakurikuler (Pramuka, Olahraga, Seni, dll)',
+                                'kokurikuler' => 'Kokurikuler (G7KAIH, Ramah Lingkungan, Zero Waste, dll)',
+                                'pembiasaan' => 'Pembiasaan (Sholat Dhuha, Senam, Literasi, dll)',
+                            ])
+                            ->placeholder('Pilih kategori kegiatan...')
+                            ->live()
+                            ->afterStateUpdated(fn (callable $set) => $set('program_id', null)),
+
+                        Forms\Components\Select::make('program_id')
+                            ->label('Nama Kegiatan')
+                            ->relationship('program', 'name', function (\Illuminate\Database\Eloquent\Builder $query, callable $get) {
+                                $category = $get('program_category');
+                                return $query->when($category, fn ($q) => $q->where('category', $category))
+                                             ->where('is_active', true)
+                                             ->orderBy('name');
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Pilih atau cari kegiatan...')
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nama Kegiatan Baru')
+                                    ->required()
+                                    ->placeholder('Contoh: Robotik / Tari Jaipong'),
+                                Forms\Components\Select::make('category')
+                                    ->label('Kategori Kegiatan')
+                                    ->options([
+                                        'ekstrakurikuler' => 'Ekstrakurikuler',
+                                        'kokurikuler' => 'Kokurikuler',
+                                        'pembiasaan' => 'Pembiasaan',
+                                    ])
+                                    ->default(fn (callable $get) => $get('../../program_category') ?: 'ekstrakurikuler')
+                                    ->required(),
+                                Forms\Components\Textarea::make('description')
+                                    ->label('Deskripsi Singkat')
+                                    ->rows(2),
+                            ])
+                            ->createOptionAction(function ($action) {
+                                return $action
+                                    ->modalHeading('Tambah Program Kegiatan Baru')
+                                    ->modalSubmitActionLabel('Simpan & Pilih Langsung');
+                            })
+                            ->helperText('Klik tanda "+" untuk mendaftarkan kegiatan baru tanpa keluar dari form.'),
+                    ]),
             ]);
     }
 
@@ -96,6 +148,17 @@ class PostResource extends Resource
                     ->label('Kategori')
                     ->badge()
                     ->color('primary'),
+                Tables\Columns\TextColumn::make('program.name')
+                    ->label('Program Kegiatan')
+                    ->badge()
+                    ->color(fn ($record) => match ($record->program_category ?: $record->program?->category) {
+                        'ekstrakurikuler' => 'warning',
+                        'kokurikuler' => 'success',
+                        'pembiasaan' => 'info',
+                        default => 'gray',
+                    })
+                    ->placeholder('-')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -117,6 +180,16 @@ class PostResource extends Resource
                         'Prestasi Siswa' => 'Prestasi Siswa',
                         'Artikel Pendidikan' => 'Artikel Pendidikan',
                     ]),
+                Tables\Filters\SelectFilter::make('program_category')
+                    ->label('Kategori Program')
+                    ->options([
+                        'ekstrakurikuler' => 'Ekstrakurikuler',
+                        'kokurikuler' => 'Kokurikuler',
+                        'pembiasaan' => 'Pembiasaan',
+                    ]),
+                Tables\Filters\SelectFilter::make('program_id')
+                    ->label('Nama Program')
+                    ->relationship('program', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

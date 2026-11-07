@@ -227,6 +227,63 @@ try {
         }
     }
 
+    // Pastikan skema tabel program kegiatan sekolah (Ekstrakurikuler, Kokurikuler, Pembiasaan) tersedia
+    if (!\Illuminate\Support\Facades\Schema::hasTable('school_programs')) {
+        \Illuminate\Support\Facades\Schema::create('school_programs', function ($table) {
+            $table->id();
+            $table->string('name');
+            $table->string('category', 40); // ekstrakurikuler, kokurikuler, pembiasaan
+            $table->text('description')->nullable();
+            $table->foreignId('created_by')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            $table->index('category');
+        });
+    }
+
+    // Pastikan kolom program_id & program_category di tabel posts tersedia
+    if (\Illuminate\Support\Facades\Schema::hasTable('posts')) {
+        \Illuminate\Support\Facades\Schema::table('posts', function ($table) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'program_id')) {
+                $table->foreignId('program_id')->nullable();
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('posts', 'program_category')) {
+                $table->string('program_category', 40)->nullable();
+            }
+        });
+    }
+
+    // Seed Data Awal 10 Program Kegiatan Sekolah Resmi SDN Cinanggerang I
+    if (\Illuminate\Support\Facades\Schema::hasTable('school_programs')) {
+        $initialPrograms = [
+            // 1. Ekstrakurikuler
+            ['name' => 'Pramuka', 'category' => 'ekstrakurikuler', 'description' => 'Praja Muda Karana - Pembinaan kepanduan, kemandirian, kedisiplinan dan kepemimpinan siswa.'],
+            ['name' => 'Olahraga', 'category' => 'ekstrakurikuler', 'description' => 'Pengembangan bakat dan prestasi atletik, sepak bola, bola voli, dan bulutangkis.'],
+            ['name' => 'Seni', 'category' => 'ekstrakurikuler', 'description' => 'Pengembangan kreativitas seni rupa, seni musik, dan tari tradisional khas Sunda.'],
+            ['name' => 'Kewirausahaan', 'category' => 'ekstrakurikuler', 'description' => 'Pendidikan kewirausahaan sejak dini, market day, dan karya kreativitas siswa.'],
+
+            // 2. Kokurikuler
+            ['name' => 'G7KAIH', 'category' => 'kokurikuler', 'description' => 'Gerakan 7 Kebaikan Anak Indonesia Hebat - Pembiasaan budi pekerti luhur dan nilai Pancasila.'],
+            ['name' => 'Sekolah Ramah Lingkungan', 'category' => 'kokurikuler', 'description' => 'Program Adiwiyata, penghijauan pekarangan sekolah, dan taman kelas asri.'],
+            ['name' => 'Zero Waste', 'category' => 'kokurikuler', 'description' => 'Gerakan bebas sampah plastik, pemilahan sampah organik/anorganik, dan daur ulang.'],
+
+            // 3. Pembiasaan
+            ['name' => 'Sholat Dhuha', 'category' => 'pembiasaan', 'description' => 'Pembiasaan sholat dhuha bersama untuk menumbuhkan nilai spiritual dan religiusitas siswa.'],
+            ['name' => 'Senam', 'category' => 'pembiasaan', 'description' => 'Senam kesegaran jasmani ceria rutin setiap pagi untuk kesehatan dan kebugaran jasmani.'],
+            ['name' => 'Literasi', 'category' => 'pembiasaan', 'description' => 'Gerakan literasi membaca buku 15 menit sebelum kegiatan belajar mengajar dimulai.'],
+        ];
+
+        foreach ($initialPrograms as $prog) {
+            \App\Models\SchoolProgram::firstOrCreate(
+                ['name' => $prog['name'], 'category' => $prog['category']],
+                [
+                    'description' => $prog['description'],
+                    'is_active' => true,
+                ]
+            );
+        }
+    }
+
     // Pastikan minimal 2 berita tayang agar grid 2 kolom di beranda seimbang
     if (\Illuminate\Support\Facades\Schema::hasTable('posts')) {
         \App\Models\Post::firstOrCreate(
