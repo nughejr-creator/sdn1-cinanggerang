@@ -44,6 +44,17 @@ class SchoolProfileResource extends Resource
                         Forms\Components\TextInput::make('npsn')
                             ->label('NPSN')
                             ->required(),
+                        Forms\Components\Select::make('akreditasi')
+                            ->label('Nilai Akreditasi Sekolah')
+                            ->options([
+                                'A' => 'A (Unggul)',
+                                'B' => 'B (Baik)',
+                                'C' => 'C (Cukup)',
+                                'Belum Terakreditasi' => 'Belum Terakreditasi',
+                            ])
+                            ->default('B')
+                            ->required()
+                            ->helperText('Nilai akreditasi resmi BAN-S/M yang terhubung otomatis ke kop laporan rekap presensi, PPDB, dan profil sekolah.'),
                         Forms\Components\TextInput::make('kepala_sekolah')
                             ->label('Nama Kepala Sekolah')
                             ->required(),
@@ -244,6 +255,10 @@ class SchoolProfileResource extends Resource
                 Tables\Columns\TextColumn::make('npsn')
                     ->label('NPSN')
                     ->badge(),
+                Tables\Columns\TextColumn::make('akreditasi')
+                    ->label('Akreditasi')
+                    ->badge()
+                    ->color('warning'),
                 Tables\Columns\TextColumn::make('kepala_sekolah')
                     ->label('Kepala Sekolah'),
                 Tables\Columns\TextColumn::make('telepon')

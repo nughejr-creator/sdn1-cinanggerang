@@ -499,7 +499,7 @@
                         🏅
                     </div>
                     <div>
-                        <div class="text-xl sm:text-2xl font-black text-white">Akreditasi B</div>
+                        <div class="text-xl sm:text-2xl font-black text-white">Akreditasi {{ $profile?->akreditasi ?? 'B' }}</div>
                         <p class="text-xs font-bold text-emerald-300">NPSN: {{ $profile?->npsn ?? '20208801' }}</p>
                         <span class="text-[10px] text-gray-300">SD Negeri Pamulihan</span>
                     </div>

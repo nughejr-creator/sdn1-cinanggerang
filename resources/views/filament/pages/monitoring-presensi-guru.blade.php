@@ -198,7 +198,7 @@
                         {{ $this->schoolProfile?->nama_sekolah ?? 'SD NEGERI CINANGGERANG I' }}
                     </div>
                     <div style="font-size: 8pt; color: #333333;">
-                        NPSN: {{ $this->schoolProfile?->npsn ?? '20208801' }} &bull; NSS: 101021008001 &bull; Akreditasi: B
+                        NPSN: {{ $this->schoolProfile?->npsn ?? '20208801' }} &bull; NSS: 101021008001 &bull; Akreditasi: {{ $this->schoolProfile?->akreditasi_label ?? ($this->schoolProfile?->akreditasi ?? 'B') }}
                     </div>
                     <div style="font-size: 8pt; color: #333333;">
                         {{ $this->schoolProfile?->alamat ?? 'Jalan Desa Cinanggerang RT 03/04, Desa Cinanggerang, Kec. Pamulihan, Kab. Sumedang 45365' }}

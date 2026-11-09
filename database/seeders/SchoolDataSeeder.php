@@ -21,6 +21,7 @@ class SchoolDataSeeder extends Seeder
                 'name' => 'SD Negeri Cinanggerang I',
                 'jenjang' => 'SD',
                 'status_sekolah' => 'Negeri',
+                'akreditasi' => 'B',
                 'alamat' => 'Jln. Desa Cinanggerang, RT 03 / RW 04',
                 'kelurahan' => 'Cinanggerang',
                 'kecamatan' => 'Kec. Pamulihan',

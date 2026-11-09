@@ -124,7 +124,7 @@
                     SD NEGERI CINANGGERANG I
                 </h2>
                 <p class="text-[10px] leading-tight text-gray-700 mt-1">
-                    NPSN: {{ $profile?->npsn ?? '20208801' }} | NSS: 101021004001 | Status Akreditasi: A (Unggul)
+                    NPSN: {{ $profile?->npsn ?? '20208801' }} | NSS: 101021004001 | Status Akreditasi: {{ $profile?->akreditasi_label ?? 'B' }}
                 </p>
                 <p class="text-[9.5px] leading-tight text-gray-600 italic">
                     {{ $profile?->alamat ?? 'Dusun Ciidras RT 02 RW 01 Desa Cinanggerang, Kec. Pamulihan, Kab. Sumedang 45365' }}

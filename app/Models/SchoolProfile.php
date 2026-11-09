@@ -14,6 +14,18 @@ class SchoolProfile extends Model
     ];
 
     /**
+     * Label Akreditasi Resmi (Misal: 'B (Baik)', 'A (Unggul)', dsb.)
+     */
+    public function getAkreditasiLabelAttribute(): string
+    {
+        $val = strtoupper(trim($this->akreditasi ?: 'B'));
+        if ($val === 'A') return 'A (Unggul)';
+        if ($val === 'B') return 'B (Baik)';
+        if ($val === 'C') return 'C (Cukup)';
+        return $this->akreditasi ?: 'B';
+    }
+
+    /**
      * Teks pengumuman berjalan (ticker) dengan fallback default
      */
     public function getTickerTextDisplayAttribute(): string
