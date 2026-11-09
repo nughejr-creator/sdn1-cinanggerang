@@ -32,20 +32,8 @@ class PresensiGpsGuru extends Page
 
     public function mount(): void
     {
-        $profile = SchoolProfile::first();
-        $this->schoolLat = (float) ($profile?->latitude ?? -6.89437395);
-        $this->schoolLng = (float) ($profile?->longitude ?? 107.87197894);
-        $this->maxRadius = (int) ($profile?->radius_absen_meter ?? 100);
-
-        // Jika user login tertaut ke data guru
-        if (Auth::user()?->teacher_id) {
-            $this->selectedTeacherId = Auth::user()->teacher_id;
-        } else {
-            // Ambil guru pertama sebagai default
-            $this->selectedTeacherId = Teacher::where('is_active', true)->first()?->id;
-        }
-
-        $this->loadTodayAttendance();
+        // Alihkan presensi mandiri ke portal presensi digital resmi yang dilengkapi verifikasi kamera selfie
+        redirect()->route('presensi.index');
     }
 
     public function loadTodayAttendance(): void

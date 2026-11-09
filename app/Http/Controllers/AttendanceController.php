@@ -181,15 +181,21 @@ class AttendanceController extends Controller
             'attendance_type'    => 'required|in:Reguler,Dinas Luar,Sakit,Izin',
             'action_type'        => 'nullable|in:in,out,masuk,pulang',
             'tipe'               => 'nullable|in:in,out,masuk,pulang',
-            'latitude'           => 'nullable|numeric',
-            'longitude'          => 'nullable|numeric',
-            'selfie_image'       => $isIzinOrSakit ? 'nullable|string' : 'required_without:foto_selfie|nullable|string',
-            'foto_selfie'        => $isIzinOrSakit ? 'nullable|string' : 'required_without:selfie_image|nullable|string',
+            'latitude'           => $isIzinOrSakit ? 'nullable|numeric' : 'required|numeric|not_in:0',
+            'longitude'          => $isIzinOrSakit ? 'nullable|numeric' : 'required|numeric|not_in:0',
+            'selfie_image'       => $isIzinOrSakit ? 'nullable|string' : 'required_without:foto_selfie|string',
+            'foto_selfie'        => $isIzinOrSakit ? 'nullable|string' : 'required_without:selfie_image|string',
             'duty_location_name' => 'required_if:attendance_type,Dinas Luar|nullable|string|max:255',
             'duty_description'   => $isIzinOrSakit ? 'required|string' : 'required_if:attendance_type,Dinas Luar|nullable|string',
             'duty_proof_type'    => 'nullable|string',
             'duty_proof_file'    => ($isIzinOrSakit ? 'required|' : 'required_if:attendance_type,Dinas Luar|') . 'nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
         ], [
+            'latitude.required' => 'Akses lokasi GPS wajib diaktifkan dan diizinkan.',
+            'latitude.not_in' => 'Koordinat GPS tidak valid. Pastikan GPS HP Anda aktif.',
+            'longitude.required' => 'Akses lokasi GPS wajib diaktifkan dan diizinkan.',
+            'longitude.not_in' => 'Koordinat GPS tidak valid. Pastikan GPS HP Anda aktif.',
+            'selfie_image.required_without' => 'Swafoto (selfie) wajah wajib diambil melalui kamera sebelum merekam presensi.',
+            'foto_selfie.required_without' => 'Swafoto (selfie) wajah wajib diambil melalui kamera sebelum merekam presensi.',
             'duty_proof_file.required' => 'Wajib melampirkan berkas bukti dokumen (Surat Dokter untuk Sakit, atau Surat Permohonan Izin).',
             'duty_proof_file.required_if' => 'Untuk presensi dinas luar, wajib melampirkan berkas surat tugas atau foto dokumentasi di lokasi kegiatan.',
             'duty_location_name.required_if' => 'Nama lokasi/instansi dinas luar wajib diisi.',
@@ -198,8 +204,6 @@ class AttendanceController extends Controller
             'duty_proof_type.required_if' => 'Pilih jenis bukti validasi dinas luar.',
             'duty_proof_file.max' => 'Ukuran berkas bukti maksimal 10 MB.',
             'duty_proof_file.mimes' => 'Format berkas bukti harus berupa PDF, JPG, JPEG, WEBP, atau PNG.',
-            'selfie_image.required_without' => 'Swafoto (selfie) wajah wajib diambil sebelum merekam presensi.',
-            'foto_selfie.required_without' => 'Swafoto (selfie) wajah wajib diambil sebelum merekam presensi.',
         ]);
 
         $user = Auth::user();
@@ -249,6 +253,17 @@ class AttendanceController extends Controller
 
         // Ambil Data Selfie Base64
         $selfieBase64 = $request->input('selfie_image') ?: $request->input('foto_selfie');
+
+        // Validasi mutlak foto selfie untuk Reguler dan Dinas Luar (Tidak boleh kosong atau dilewati)
+        if (!$isIzinOrSakit) {
+            if (empty($selfieBase64) || strlen($selfieBase64) < 200 || !str_contains($selfieBase64, 'data:image')) {
+                $msg = 'Presensi Ditolak! Swafoto (selfie) wajah melalui kamera wajib diambil dan tidak boleh kosong.';
+                return $request->wantsJson() 
+                    ? response()->json(['success' => false, 'message' => $msg], 422) 
+                    : back()->with('error', $msg);
+            }
+        }
+
         $photoPath = $this->storeBase64Selfie($selfieBase64, $teacher->id, $tipe);
 
         // Penanganan Berkas Bukti (Dinas Luar, Sakit SKD, atau Izin Resmi)

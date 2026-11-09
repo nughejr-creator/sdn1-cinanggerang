@@ -812,25 +812,51 @@
                         <span x-text="isSubmitting ? 'Merekam Presensi...' : (tipePresensi === 'Sakit' ? 'Kirim Laporan Sakit & Bukti SKD' : (tipePresensi === 'Izin' ? 'Kirim Permohonan Izin Resmi' : (actionType === 'out' && !isPulangTimeAllowed ? 'Presensi Pulang Baru Dibuka Pukul 10:00 WIB' : (tipePresensi === 'Dinas Luar' ? (actionType === 'in' ? 'Rekam Presensi Datang (Dinas Luar)' : 'Rekam Presensi Pulang (Dinas Luar)') : (actionType === 'in' ? 'Ambil Foto & Rekam Presensi Datang' : 'Ambil Foto & Rekam Presensi Pulang')))))"></span>
                     </button>
 
-                    {{-- Hint Syarat Tombol Aktif --}}
-                    <div class="text-[11px] text-gray-400 text-center mt-2">
-                        <template x-if="actionType === 'out' && !isPulangTimeAllowed && (tipePresensi === 'Reguler' || tipePresensi === 'Dinas Luar')">
-                            <span class="text-amber-700 dark:text-amber-400 font-semibold">⏳ Presensi kepulangan baru dapat dilakukan setelah pukul 10:00 WIB</span>
+                    {{-- Hint Syarat Tombol Aktif & Peringatan Gembok Kamera/GPS --}}
+                    <div class="text-[11px] text-gray-400 text-center mt-2 space-y-1.5">
+                        {{-- Peringatan Keras Kamera Mati / Belum Diizinkan --}}
+                        <template x-if="(tipePresensi === 'Reguler' || tipePresensi === 'Dinas Luar') && (!cameraActive && !snapshotData)">
+                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 font-bold text-xs">
+                                <span class="flex items-center gap-1.5 text-left">
+                                    <span class="text-base">📸</span>
+                                    <span>Kamera belum aktif! Wajib menyalakan kamera selfie.</span>
+                                </span>
+                                <button type="button" @click="startCamera()" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold shrink-0 shadow-sm transition">
+                                    Buka Kamera
+                                </button>
+                            </div>
                         </template>
-                        <template x-if="tipePresensi === 'Reguler' && !isInRadius && (actionType !== 'out' || isPulangTimeAllowed)">
-                            <span class="text-rose-600 font-medium">⚠️ Berada di luar radius sekolah (&gt; {{ $maxRadius }}m). Pilih mode "Dinas Luar" jika sedang bertugas.</span>
+
+                        {{-- Peringatan Keras Lokasi GPS Belum Diizinkan / Belum Terkunci --}}
+                        <template x-if="(tipePresensi === 'Reguler' || tipePresensi === 'Dinas Luar') && (gpsStatus !== 'ready' || !userLat || !userLng)">
+                            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/70 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 font-bold text-xs">
+                                <span class="flex items-center gap-1.5 text-left">
+                                    <span class="text-base">📍</span>
+                                    <span>Lokasi GPS belum terkunci! Pastikan izin lokasi aktif.</span>
+                                </span>
+                                <button type="button" @click="requestLocation()" class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold shrink-0 shadow-sm transition">
+                                    Segarkan GPS
+                                </button>
+                            </div>
+                        </template>
+
+                        <template x-if="actionType === 'out' && !isPulangTimeAllowed && (tipePresensi === 'Reguler' || tipePresensi === 'Dinas Luar')">
+                            <span class="text-amber-700 dark:text-amber-400 font-semibold block">⏳ Presensi kepulangan baru dapat dilakukan setelah pukul 10:00 WIB</span>
+                        </template>
+                        <template x-if="tipePresensi === 'Reguler' && gpsStatus === 'ready' && !isInRadius && (actionType !== 'out' || isPulangTimeAllowed)">
+                            <span class="text-rose-600 font-medium block">⚠️ Berada di luar radius sekolah (&gt; {{ $maxRadius }}m). Jarak Anda: <span x-text="Math.round(distance)"></span>m.</span>
                         </template>
                         <template x-if="tipePresensi === 'Dinas Luar' && (!dutyLocationName || !dutyDescription || !dutyProofFile) && (actionType !== 'out' || isPulangTimeAllowed)">
-                            <span class="text-indigo-600 font-medium">Lengkapi nama lokasi dinas, agenda, dan unggah berkas bukti tugas</span>
+                            <span class="text-indigo-600 font-medium block">Lengkapi nama lokasi dinas, agenda, dan unggah berkas bukti tugas</span>
                         </template>
                         <template x-if="tipePresensi === 'Sakit' && (!dutyDescription || !dutyProofFile)">
-                            <span class="text-purple-600 font-medium">Lengkapi keluhan/diagnosa dokter dan unggah berkas bukti SKD (Foto/PDF)</span>
+                            <span class="text-purple-600 font-medium block">Lengkapi keluhan/diagnosa dokter dan unggah berkas bukti SKD (Foto/PDF)</span>
                         </template>
                         <template x-if="tipePresensi === 'Izin' && (!dutyDescription || !dutyProofFile)">
-                            <span class="text-amber-600 font-medium">Lengkapi alasan izin dan unggah berkas surat permohonan izin (Foto/PDF)</span>
+                            <span class="text-amber-600 font-medium block">Lengkapi alasan izin dan unggah berkas surat permohonan izin (Foto/PDF)</span>
                         </template>
                         <template x-if="canSubmit">
-                            <span class="text-emerald-700 font-semibold">✓ Persyaratan lengkap, siap mengirim data presensi</span>
+                            <span class="text-emerald-700 dark:text-emerald-400 font-bold block">✓ Kamera & Lokasi GPS Terverifikasi! Siap merekam presensi.</span>
                         </template>
                     </div>
                 </div>
@@ -921,9 +947,9 @@ function presensiGpsApp(config) {
                 return false;
             }
 
-            // Validasi kamera/selfie untuk Reguler & Dinas Luar
-            const hasSelfie = this.cameraActive || this.snapshotData;
-            const hasGps = this.gpsStatus === 'ready';
+            // Validasi mutlak kamera/selfie untuk Reguler & Dinas Luar: Wajib kamera aktif atau snapshot valid
+            const hasSelfie = (this.cameraActive && this.videoStream !== null) || (this.snapshotData && this.snapshotData.length > 500);
+            const hasGps = (this.gpsStatus === 'ready' && this.userLat !== null && this.userLng !== null && this.userLat !== 0 && this.userLng !== 0);
 
             if (!hasSelfie || !hasGps) return false;
 
@@ -1189,6 +1215,11 @@ function presensiGpsApp(config) {
             const canvas = document.getElementById('snapshot-canvas');
             if (!video || !canvas) return null;
 
+            // Verifikasi video streaming aktif dan memiliki frame gambar valid
+            if (video.videoWidth === 0 || video.readyState < 2) {
+                return null;
+            }
+
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
             const ctx = canvas.getContext('2d');
@@ -1234,13 +1265,28 @@ function presensiGpsApp(config) {
             const isRegulerOrDinas = (this.tipePresensi === 'Reguler' || this.tipePresensi === 'Dinas Luar');
 
             if (isRegulerOrDinas || this.showOptionalSelfie) {
-                if (this.cameraActive || this.snapshotData) {
+                // Pastikan izin kamera aktif
+                if (!this.cameraActive && !this.snapshotData) {
+                    this.alertMessage = 'Presensi Ditolak! Izin kamera wajib diizinkan di browser perangkat Anda.';
+                    this.alertType = 'error';
+                    return;
+                }
+
+                if (this.snapshotData && this.snapshotData.length > 500) {
+                    selfieBase64 = this.snapshotData;
+                } else if (this.cameraActive) {
                     selfieBase64 = this.takeSnapshot();
                 }
             }
 
-            if (isRegulerOrDinas && !selfieBase64) {
-                this.alertMessage = 'Gagal merekam swafoto selfie. Silakan pastikan kamera menyala dan coba lagi.';
+            if (isRegulerOrDinas && (!selfieBase64 || selfieBase64.length < 500)) {
+                this.alertMessage = 'Gagal merekam swafoto wajah! Pastikan kamera depan aktif menyala dan wajah Anda terlihat jelas di layar.';
+                this.alertType = 'error';
+                return;
+            }
+
+            if (isRegulerOrDinas && (this.gpsStatus !== 'ready' || !this.userLat || !this.userLng || this.userLat === 0)) {
+                this.alertMessage = 'Presensi Ditolak! Akses lokasi GPS wajib diaktifkan dan diizinkan.';
                 this.alertType = 'error';
                 return;
             }
