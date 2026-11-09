@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 // Rute SEO & Pengindeksan Google (Sitemap XML & Robots.txt)
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/google7c21792a147ed13a.html', fn () => response('google-site-verification: google7c21792a147ed13a.html', 200)->header('Content-Type', 'text/html'));
 
 // Route khusus favicon.ico agar selalu mengembalikan logo resmi SDN Cinanggerang 1
 Route::get('/favicon.ico', function () {
