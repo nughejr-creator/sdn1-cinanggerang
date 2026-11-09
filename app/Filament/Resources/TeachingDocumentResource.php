@@ -49,7 +49,11 @@ class TeachingDocumentResource extends Resource
                         Forms\Components\Select::make('course_id')
                             ->label('Mata Pelajaran')
                             ->relationship('course', 'nama')
-                            ->required(),
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->placeholder('Pilih mata pelajaran atau pilih Semua Mapel')
+                            ->helperText('Pilih mapel spesifik, atau pilih "Semua Mata Pelajaran" jika berkas (seperti TP/ATP/Modul) memuat seluruh mapel satu kelas.'),
                         Forms\Components\TextInput::make('tahun_ajaran')
                             ->label('Tahun Ajaran')
                             ->default('2025/2026')
@@ -167,6 +171,9 @@ class TeachingDocumentResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('course.nama')
                     ->label('Mata Pelajaran')
+                    ->default('Semua Mata Pelajaran')
+                    ->badge()
+                    ->color(fn ($state) => str_contains($state ?? '', 'Semua') ? 'success' : 'gray')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status_telaah')
                     ->label('Status Telaah')

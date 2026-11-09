@@ -340,6 +340,7 @@ class SchoolDataSeeder extends Seeder
 
         // 5. Mata Pelajaran SD (E-Learning)
         $courses = [
+            ['nama' => 'Semua Mata Pelajaran (Tematik / Seluruh Mapel)', 'kode' => 'SEMUA', 'warna' => 'success'],
             ['nama' => 'Pendidikan Agama Islam & Budi Pekerti', 'kode' => 'PAI', 'warna' => 'success'],
             ['nama' => 'Pendidikan Pancasila', 'kode' => 'PPKN', 'warna' => 'danger'],
             ['nama' => 'Bahasa Indonesia', 'kode' => 'BIN', 'warna' => 'primary'],

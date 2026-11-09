@@ -311,12 +311,10 @@
 
                             {{-- Mata Pelajaran & Semester --}}
                             <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                @if($doc->course)
-                                    <span class="inline-flex items-center gap-1 font-semibold text-gray-700 dark:text-gray-300">
-                                        <span>📖</span> {{ $doc->course->nama }}
-                                    </span>
-                                    <span>•</span>
-                                @endif
+                                <span class="inline-flex items-center gap-1 font-semibold text-gray-700 dark:text-gray-300">
+                                    <span>📖</span> {{ $doc->course?->nama ?? 'Semua Mata Pelajaran' }}
+                                </span>
+                                <span>•</span>
                                 <span>Sem. {{ $doc->semester }}</span>
                                 <span>•</span>
                                 <span>T.A. {{ $doc->tahun_ajaran }}</span>
