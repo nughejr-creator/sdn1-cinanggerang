@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\PkksController;
 use App\Http\Controllers\PpdbController;
+use App\Http\Controllers\SitemapController;
 use App\Models\SchoolProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 | Web Routes - SDN Cinanggerang I (Clean URLs & SEO Friendly)
 |--------------------------------------------------------------------------
 */
+
+// Rute SEO & Pengindeksan Google (Sitemap XML & Robots.txt)
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // Route khusus favicon.ico agar selalu mengembalikan logo resmi SDN Cinanggerang 1
 Route::get('/favicon.ico', function () {

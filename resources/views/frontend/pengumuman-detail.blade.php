@@ -3,6 +3,39 @@
 @section('title', $announcement->judul . ' - Pengumuman Resmi SDN Cinanggerang I')
 @section('meta_description', Str::limit(strip_tags($announcement->isi), 150))
 @section('canonical_url', $announcement->detail_url)
+@section('og_type', 'article')
+@section('og_title', $announcement->judul)
+@section('og_image', $profile?->logo_url ?? asset('images/logo-official.png'))
+
+@push('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Notice",
+  "headline": "{{ addslashes($announcement->judul) }}",
+  "datePublished": "{{ $announcement->tanggal_mulai ? $announcement->tanggal_mulai->toAtomString() : $announcement->created_at->toAtomString() }}",
+  "dateModified": "{{ ($announcement->updated_at ?? now())->toAtomString() }}",
+  "author": {
+    "@type": "ElementarySchool",
+    "name": "SD Negeri Cinanggerang I",
+    "url": "{{ url('/') }}"
+  },
+  "publisher": {
+    "@type": "ElementarySchool",
+    "name": "SD Negeri Cinanggerang I",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
+    }
+  },
+  "description": "{{ addslashes(Str::limit(strip_tags($announcement->isi), 160)) }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ $announcement->detail_url }}"
+  }
+}
+</script>
+@endpush
 
 @section('content')
 <div class="bg-slate-50 dark:bg-forest-950 min-h-screen py-10">

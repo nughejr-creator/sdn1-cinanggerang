@@ -8,16 +8,74 @@
     {{-- SEO & Metadata Sekolah Resmi --}}
     <title>@yield('title', 'SD Negeri Cinanggerang I | Portal Resmi & E-PKKS Digital')</title>
     <meta name="description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang. Pusat informasi profil, layanan PPDB Online, dan Portofolio Digital E-PKKS.')">
-    <meta name="keywords" content="SDN Cinanggerang 1, SD Negeri Cinanggerang I, Pamulihan, Sumedang, PPDB Sumedang, E-PKKS, Sekolah Dasar Negeri">
+    <meta name="keywords" content="SDN Cinanggerang 1, SD Negeri Cinanggerang I, Pamulihan, Sumedang, PPDB Sumedang, E-PKKS, Sekolah Dasar Negeri, Akreditasi B">
     <meta name="author" content="SD Negeri Cinanggerang I">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
 
+    {{-- Petunjuk Pengindeksan Robot Mesin Pencari (Googlebot, Bing, dsb) --}}
+    <meta name="robots" content="@yield('meta_robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1')">
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
     {{-- Open Graph / WhatsApp Preview Meta --}}
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="SD Negeri Cinanggerang I (NPSN: 20208801) - Sumedang">
-    <meta property="og:description" content="Mewujudkan Peserta Didik yang Berakhlak Mulia, Cerdas, Terampil, Mandiri, dan Berwawasan Lingkungan.">
-    <meta property="og:image" content="{{ $profile?->logo_url ?? asset('images/logo-official.png') }}">
+    <meta property="og:site_name" content="SD Negeri Cinanggerang I">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:url" content="@yield('canonical_url', url()->current())">
+    <meta property="og:title" content="@yield('og_title', View::getSection('title', 'SD Negeri Cinanggerang I (NPSN: 20208801) - Sumedang'))">
+    <meta property="og:description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang. Pusat informasi profil, layanan PPDB Online, dan Portofolio Digital E-PKKS.')">
+    <meta property="og:image" content="@yield('og_image', $profile?->logo_url ?? asset('images/logo-official.png'))">
+
+    {{-- Twitter Card Preview Meta --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('og_title', View::getSection('title', 'SD Negeri Cinanggerang I | Portal Resmi & E-PKKS Digital'))">
+    <meta name="twitter:description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang.')">
+    <meta name="twitter:image" content="@yield('og_image', $profile?->logo_url ?? asset('images/logo-official.png'))">
+
+    {{-- JSON-LD Schema.org Structured Data untuk Google Search Console & Rich Snippet --}}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "ElementarySchool",
+          "@id": "{{ url('/#school') }}",
+          "name": "SD Negeri Cinanggerang I",
+          "alternateName": ["SDN Cinanggerang 1", "SDN Cinanggerang I Pamulihan"],
+          "url": "{{ url('/') }}",
+          "logo": "{{ $profile?->logo_url ?? asset('images/logo-official.png') }}",
+          "image": "{{ $profile?->foto_bangunan ? asset('storage/' . $profile->foto_bangunan) : ($profile?->logo_url ?? asset('images/logo-official.png')) }}",
+          "description": "Satuan Pendidikan Dasar Negeri di Kecamatan Pamulihan, Kabupaten Sumedang, Jawa Barat. Terakreditasi B.",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ $profile?->alamat ?? 'Jln. Desa Cinanggerang RT 03/04' }}",
+            "addressLocality": "Pamulihan",
+            "addressRegion": "Jawa Barat",
+            "postalCode": "45362",
+            "addressCountry": "ID"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": {{ $profile?->latitude ?? -6.89437395 }},
+            "longitude": {{ $profile?->longitude ?? 107.87197894 }}
+          },
+          "telephone": "{{ $profile?->telepon ?? '0813-2102-1585' }}",
+          "email": "{{ $profile?->email ?? 'sdncinanggerang1@gmail.com' }}"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ url('/#website') }}",
+          "url": "{{ url('/') }}",
+          "name": "Portal Resmi SD Negeri Cinanggerang I",
+          "publisher": {
+            "@id": "{{ url('/#school') }}"
+          },
+          "inLanguage": "id-ID"
+        }
+      ]
+    }
+    </script>
+    @stack('schema')
 
     {{-- Favicon Browser Tab (Logo Resmi SDN Cinanggerang I) --}}
     @php

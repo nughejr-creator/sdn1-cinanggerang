@@ -3,6 +3,40 @@
 @section('title', $post->judul . ' - SD Negeri Cinanggerang I')
 @section('meta_description', Str::limit(strip_tags($post->konten), 150))
 @section('canonical_url', $post->detail_url)
+@section('og_type', 'article')
+@section('og_title', $post->judul)
+@section('og_image', !empty($post->thumbnail_url) ? $post->thumbnail_url : ($profile?->logo_url ?? asset('images/logo-official.png')))
+
+@push('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{ addslashes($post->judul) }}",
+  "image": ["{{ !empty($post->thumbnail_url) ? $post->thumbnail_url : ($profile?->logo_url ?? asset('images/logo-official.png')) }}"],
+  "datePublished": "{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->toAtomString() : $post->created_at->toAtomString() }}",
+  "dateModified": "{{ ($post->updated_at ?? now())->toAtomString() }}",
+  "author": {
+    "@type": "Organization",
+    "name": "Humas SD Negeri Cinanggerang I",
+    "url": "{{ url('/') }}"
+  },
+  "publisher": {
+    "@type": "ElementarySchool",
+    "name": "SD Negeri Cinanggerang I",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
+    }
+  },
+  "description": "{{ addslashes(Str::limit(strip_tags($post->konten), 160)) }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ $post->detail_url }}"
+  }
+}
+</script>
+@endpush
 
 @section('content')
 <div class="bg-slate-50 dark:bg-forest-950 min-h-screen py-10">

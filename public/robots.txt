@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /livewire/
+Disallow: /presensi
+
+Sitemap: https://sdncinanggerang1.sch.id/sitemap.xml
+Sitemap: https://sdncinanggerang1.onrender.com/sitemap.xml

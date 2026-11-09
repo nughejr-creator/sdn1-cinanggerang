@@ -56,8 +56,10 @@
                     <li><a href="{{ route('warta') }}" class="hover:text-sumedang-amber transition">Warta & Berita</a></li>
                     <li><a href="{{ route('pengumuman') }}" class="hover:text-sumedang-amber transition">Pengumuman Kedinasan</a></li>
                     <li><a href="{{ route('dokumentasi') }}" class="hover:text-sumedang-amber transition">Galeri & Video</a></li>
+                    <li><a href="{{ route('perangkat-ajar') }}" class="hover:text-sumedang-amber transition">Bank Perangkat Ajar</a></li>
                     <li><a href="{{ route('pkks') }}" class="hover:text-sumedang-amber transition">E-PKKS Digital</a></li>
                     <li><a href="{{ route('ppdb') }}" class="hover:text-sumedang-gold font-semibold text-sumedang-amber transition">PPDB Online</a></li>
+                    <li><a href="{{ url('/sitemap.xml') }}" target="_blank" class="text-emerald-400 font-bold hover:underline transition">🗺️ Peta Situs (Sitemap XML)</a></li>
                 </ul>
             </div>
 
@@ -110,6 +112,8 @@
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
             <p>© {{ date('Y') }} <strong>SD Negeri Cinanggerang I</strong>. Hak Cipta Dilindungi Undang-Undang.</p>
             <div class="flex items-center gap-4">
+                <a href="{{ url('/sitemap.xml') }}" target="_blank" class="hover:text-sumedang-amber transition">Peta Situs (Sitemap)</a>
+                <span>•</span>
                 <a href="https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing" target="_blank" class="hover:text-sumedang-amber transition">📁 Arsip Foto Drive</a>
                 <span>•</span>
                 <a href="{{ url('/admin') }}" class="hover:text-sumedang-amber transition">Login Operator / Guru</a>
