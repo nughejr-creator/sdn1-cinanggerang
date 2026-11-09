@@ -430,8 +430,10 @@ class AttendanceController extends Controller
                     : back()->with('error', $msg);
             }
 
-            $pulangTepatWaktu = ($jamHi >= '12:00');
-            $ketPulang = $pulangTepatWaktu ? 'Pulang Tepat Waktu (≥ 12:00)' : 'Pulang Lebih Awal (< 12:00)';
+            $isFriday = \Carbon\Carbon::parse($tanggalHariIni)->isFriday();
+            $jamTargetPulang = $isFriday ? '11:00' : '12:00';
+            $pulangTepatWaktu = ($jamHi >= $jamTargetPulang);
+            $ketPulang = $pulangTepatWaktu ? "Pulang Tepat Waktu (≥ {$jamTargetPulang})" : "Pulang Lebih Awal (< {$jamTargetPulang})";
 
             if (!$record) {
                 // Jika belum absen masuk tapi langsung pulang

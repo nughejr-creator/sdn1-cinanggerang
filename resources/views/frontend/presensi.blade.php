@@ -389,6 +389,17 @@
             {{-- ======================================================== --}}
             <div x-show="!isActionLocked" x-cloak class="space-y-4">
 
+                {{-- Info Ketentuan Jam Pulang Tepat Waktu --}}
+                <div x-show="actionType === 'out' && (tipePresensi === 'Reguler' || tipePresensi === 'Dinas Luar')" x-cloak
+                     class="p-2.5 rounded-xl bg-slate-50 dark:bg-forest-900/40 border border-slate-200 dark:border-forest-800 text-[11px] text-gray-700 dark:text-gray-300 flex items-center justify-between gap-2 mb-2">
+                    <span class="flex items-center gap-1.5 font-semibold">
+                        <span>🕒</span> Patokan Pulang Tepat Waktu:
+                    </span>
+                    <span class="font-extrabold text-forest-800 dark:text-emerald-400 text-right">
+                        Jumat ≥ 11:00 WIB | Lainnya ≥ 12:00 WIB
+                    </span>
+                </div>
+
                 {{-- Banner Peringatan Waktu Pulang Belum Dibuka (< 10:00 WIB) --}}
                 <div x-show="actionType === 'out' && !isPulangTimeAllowed && (tipePresensi === 'Reguler' || tipePresensi === 'Dinas Luar')" x-cloak
                      class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border-2 border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-200 text-xs text-center space-y-1 mb-2">

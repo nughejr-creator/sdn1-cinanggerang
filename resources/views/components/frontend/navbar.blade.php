@@ -227,7 +227,7 @@
                             <span class="text-base">📍</span>
                             <div>
                                 <p class="font-bold text-gray-900 dark:text-white text-xs">Presensi GPS Guru</p>
-                                <p class="text-[10px] text-gray-400">Absen Datang (≤07:30) & Pulang (≥12:00)</p>
+                                <p class="text-[10px] text-gray-400">Absen Datang (≤07:30) & Pulang (Jumat ≥11:00 / Lainnya ≥12:00)</p>
                             </div>
                         </a>
 

@@ -40,7 +40,7 @@
                     <div class="flex justify-between py-1">
                         <span class="text-gray-500">Patokan Pulang</span>
                         <span class="text-xs font-bold text-blue-600 dark:text-blue-400">
-                            Mulai 12:00 WIB (Tepat Waktu)
+                            Jumat: ≥11:00 | Hari Lain: ≥12:00 WIB
                         </span>
                     </div>
                 </div>

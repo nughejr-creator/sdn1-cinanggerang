@@ -77,9 +77,11 @@ class PresensiGpsGuru extends Page
         // 1. Jika sudah ada presensi masuk tapi belum presensi pulang -> Catat Jam Pulang dengan Validasi GPS
         if ($existing) {
             if (! $existing->jam_pulang) {
+                $isFriday = now()->setTimezone('Asia/Jakarta')->isFriday();
+                $jamTargetPulang = $isFriday ? '11:00' : '12:00';
                 $jamPulang = now()->format('H:i:s');
-                $pulangTepatWaktu = now()->format('H:i') >= '12:00';
-                $keteranganPulang = $pulangTepatWaktu ? 'Pulang Tepat Waktu (>= 12:00)' : 'Pulang Lebih Awal (< 12:00)';
+                $pulangTepatWaktu = now()->format('H:i') >= $jamTargetPulang;
+                $keteranganPulang = $pulangTepatWaktu ? "Pulang Tepat Waktu (>= {$jamTargetPulang})" : "Pulang Lebih Awal (< {$jamTargetPulang})";
 
                 $existing->update([
                     'jam_pulang' => $jamPulang,
