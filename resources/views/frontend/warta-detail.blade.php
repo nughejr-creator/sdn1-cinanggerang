@@ -10,29 +10,29 @@
 @push('schema')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "NewsArticle",
+  "@@context": "https://schema.org",
+  "@@type": "NewsArticle",
   "headline": "{{ addslashes($post->judul) }}",
   "image": ["{{ !empty($post->thumbnail_url) ? $post->thumbnail_url : ($profile?->logo_url ?? asset('images/logo-official.png')) }}"],
   "datePublished": "{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->toAtomString() : $post->created_at->toAtomString() }}",
   "dateModified": "{{ ($post->updated_at ?? now())->toAtomString() }}",
   "author": {
-    "@type": "Organization",
+    "@@type": "Organization",
     "name": "Humas SD Negeri Cinanggerang I",
     "url": "{{ url('/') }}"
   },
   "publisher": {
-    "@type": "ElementarySchool",
+    "@@type": "ElementarySchool",
     "name": "SD Negeri Cinanggerang I",
     "logo": {
-      "@type": "ImageObject",
+      "@@type": "ImageObject",
       "url": "{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
     }
   },
   "description": "{{ addslashes(Str::limit(strip_tags($post->konten), 160)) }}",
   "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ $post->detail_url }}"
+    "@@type": "WebPage",
+    "@@id": "{{ $post->detail_url }}"
   }
 }
 </script>

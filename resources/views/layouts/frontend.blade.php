@@ -25,24 +25,24 @@
     <meta property="og:locale" content="id_ID">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:url" content="@yield('canonical_url', url()->current())">
-    <meta property="og:title" content="@yield('og_title', View::getSection('title', 'SD Negeri Cinanggerang I (NPSN: 20208801) - Sumedang'))">
+    <meta property="og:title" content="@yield('og_title', 'SD Negeri Cinanggerang I (NPSN: 20208801) - Sumedang')">
     <meta property="og:description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang. Pusat informasi profil, layanan PPDB Online, dan Portofolio Digital E-PKKS.')">
     <meta property="og:image" content="@yield('og_image', $profile?->logo_url ?? asset('images/logo-official.png'))">
 
     {{-- Twitter Card Preview Meta --}}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('og_title', View::getSection('title', 'SD Negeri Cinanggerang I | Portal Resmi & E-PKKS Digital'))">
+    <meta name="twitter:title" content="@yield('og_title', 'SD Negeri Cinanggerang I | Portal Resmi & E-PKKS Digital')">
     <meta name="twitter:description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang.')">
     <meta name="twitter:image" content="@yield('og_image', $profile?->logo_url ?? asset('images/logo-official.png'))">
 
     {{-- JSON-LD Schema.org Structured Data untuk Google Search Console & Rich Snippet --}}
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@graph": [
+      "@@context": "https://schema.org",
+      "@@graph": [
         {
-          "@type": "ElementarySchool",
-          "@id": "{{ url('/#school') }}",
+          "@@type": "ElementarySchool",
+          "@@id": "{{ url('/#school') }}",
           "name": "SD Negeri Cinanggerang I",
           "alternateName": ["SDN Cinanggerang 1", "SDN Cinanggerang I Pamulihan"],
           "url": "{{ url('/') }}",
@@ -50,7 +50,7 @@
           "image": "{{ $profile?->foto_bangunan ? asset('storage/' . $profile->foto_bangunan) : ($profile?->logo_url ?? asset('images/logo-official.png')) }}",
           "description": "Satuan Pendidikan Dasar Negeri di Kecamatan Pamulihan, Kabupaten Sumedang, Jawa Barat. Terakreditasi B.",
           "address": {
-            "@type": "PostalAddress",
+            "@@type": "PostalAddress",
             "streetAddress": "{{ $profile?->alamat ?? 'Jln. Desa Cinanggerang RT 03/04' }}",
             "addressLocality": "Pamulihan",
             "addressRegion": "Jawa Barat",
@@ -58,7 +58,7 @@
             "addressCountry": "ID"
           },
           "geo": {
-            "@type": "GeoCoordinates",
+            "@@type": "GeoCoordinates",
             "latitude": {{ $profile?->latitude ?? -6.89437395 }},
             "longitude": {{ $profile?->longitude ?? 107.87197894 }}
           },
@@ -66,12 +66,12 @@
           "email": "{{ $profile?->email ?? 'sdncinanggerang1@gmail.com' }}"
         },
         {
-          "@type": "WebSite",
-          "@id": "{{ url('/#website') }}",
+          "@@type": "WebSite",
+          "@@id": "{{ url('/#website') }}",
           "url": "{{ url('/') }}",
           "name": "Portal Resmi SD Negeri Cinanggerang I",
           "publisher": {
-            "@id": "{{ url('/#school') }}"
+            "@@id": "{{ url('/#school') }}"
           },
           "inLanguage": "id-ID"
         }
@@ -154,31 +154,6 @@
                 try { customElements.define(tag, class extends HTMLElement {}); } catch(e) {}
             }
         });
-    </script>
-
-    {{-- Schema JSON-LD (SEO Satuan Pendidikan Lokal) --}}
-    <script type="application/ld+json">
-    {!! json_encode([
-        '@context' => 'https://schema.org',
-        '@type' => 'ElementarySchool',
-        'name' => 'SD Negeri Cinanggerang I',
-        'identifier' => $profile?->npsn ?? '20208801',
-        'address' => [
-            '@type' => 'PostalAddress',
-            'streetAddress' => 'Jln. Desa Cinanggerang RT 03 / RW 04',
-            'addressLocality' => 'Pamulihan',
-            'addressRegion' => 'Sumedang, Jawa Barat',
-            'postalCode' => '45362',
-            'addressCountry' => 'ID'
-        ],
-        'geo' => [
-            '@type' => 'GeoCoordinates',
-            'latitude' => (float) ($profile?->latitude ?? -6.89437395),
-            'longitude' => (float) ($profile?->longitude ?? 107.87197894)
-        ],
-        'telephone' => $profile?->telepon ?? '081321021585',
-        'email' => $profile?->email ?? 'sdncinanggerang1@gmail.com'
-    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
     </script>
 </head>
 <body class="font-sans antialiased text-gray-800 bg-canvas selection:bg-sumedang-amber selection:text-white">

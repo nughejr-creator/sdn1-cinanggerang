@@ -10,28 +10,28 @@
 @push('schema')
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "Notice",
+  "@@context": "https://schema.org",
+  "@@type": "Notice",
   "headline": "{{ addslashes($announcement->judul) }}",
   "datePublished": "{{ $announcement->tanggal_mulai ? $announcement->tanggal_mulai->toAtomString() : $announcement->created_at->toAtomString() }}",
   "dateModified": "{{ ($announcement->updated_at ?? now())->toAtomString() }}",
   "author": {
-    "@type": "ElementarySchool",
+    "@@type": "ElementarySchool",
     "name": "SD Negeri Cinanggerang I",
     "url": "{{ url('/') }}"
   },
   "publisher": {
-    "@type": "ElementarySchool",
+    "@@type": "ElementarySchool",
     "name": "SD Negeri Cinanggerang I",
     "logo": {
-      "@type": "ImageObject",
+      "@@type": "ImageObject",
       "url": "{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
     }
   },
   "description": "{{ addslashes(Str::limit(strip_tags($announcement->isi), 160)) }}",
   "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ $announcement->detail_url }}"
+    "@@type": "WebPage",
+    "@@id": "{{ $announcement->detail_url }}"
   }
 }
 </script>
