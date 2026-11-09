@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Announcement;
+use App\Models\Course;
 use App\Models\PkksEvidence;
 use App\Models\PkksKomponen;
 use App\Models\Post;
@@ -10,6 +11,7 @@ use App\Models\SchoolProfile;
 use App\Models\Student;
 use App\Models\StudentClass;
 use App\Models\Teacher;
+use App\Models\TeachingDocument;
 use App\Models\VideoGallery;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -398,5 +400,102 @@ class FrontendController extends Controller
         $profile = SchoolProfile::first();
         $setting = \App\Models\PpdbSetting::getSetting();
         return view('frontend.ppdb', compact('profile', 'setting'));
+    }
+
+    /**
+     * Halaman Publik: Bank Perangkat Ajar & Modul Pembelajaran Kurikulum Merdeka
+     */
+    public function perangkatAjar(Request $request): View
+    {
+        $profile = SchoolProfile::first();
+
+        $selectedJenis = $request->query('jenis', $request->query('kategori', ''));
+        $selectedKelas = $request->query('kelas', '');
+        $selectedMapel = $request->query('mapel', '');
+        $search = trim($request->query('q', ''));
+
+        // Query berkas perangkat ajar yang dibagikan
+        $query = TeachingDocument::with(['teacher', 'course'])
+            ->where(function ($q) {
+                $q->where('is_shared', true)
+                  ->orWhereNull('is_shared');
+            });
+
+        // Filter Kategori Jenis Dokumen Cepat
+        if (!empty($selectedJenis) && $selectedJenis !== 'semua') {
+            $mappedJenis = match (strtolower($selectedJenis)) {
+                'tp', 'tujuan-pembelajaran' => 'Tujuan Pembelajaran (TP)',
+                'atp', 'alur-tujuan-pembelajaran' => 'Alur Tujuan Pembelajaran (ATP)',
+                'cp', 'capaian-pembelajaran' => 'Capaian Pembelajaran (CP)',
+                'modul-ajar', 'rpp' => 'Modul Ajar / RPP Merdeka',
+                'p5', 'proyek-p5' => 'Modul Kokurikuler / Proyek P5',
+                'prota', 'promes', 'prota-promes' => 'Program Tahunan (Prota) & Promes',
+                'lkpd' => 'Lembar Kerja Peserta Didik (LKPD)',
+                'asesmen', 'bank-soal', 'soal' => ['Kisi-kisi & Instrumen Asesmen', 'Bank Soal / Naskah Ujian'],
+                'kktp' => 'Kriteria Ketercapaian TP (KKTP)',
+                'media', 'presentasi', 'ppt' => 'Bahan Ajar / Media Presentasi',
+                default => $selectedJenis,
+            };
+
+            if (is_array($mappedJenis)) {
+                $query->whereIn('jenis_dokumen', $mappedJenis);
+            } else {
+                $query->where(function ($q) use ($mappedJenis) {
+                    $q->where('jenis_dokumen', $mappedJenis)
+                      ->orWhere('jenis_dokumen', 'like', "%{$mappedJenis}%");
+                });
+            }
+        }
+
+        // Filter Tingkat Kelas (1 - 6)
+        if (!empty($selectedKelas) && in_array((int) $selectedKelas, [1, 2, 3, 4, 5, 6])) {
+            $query->where('tingkat_kelas', (int) $selectedKelas);
+        }
+
+        // Filter Mata Pelajaran
+        if (!empty($selectedMapel)) {
+            $query->where('course_id', $selectedMapel);
+        }
+
+        // Filter Pencarian Teks
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul_perangkat', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%")
+                  ->orWhereHas('teacher', function ($tq) use ($search) {
+                      $tq->where('nama', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $documents = $query->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        // Hitung total berkas per kategori untuk badge dinamis di tombol
+        $categoryCounts = [
+            'total' => TeachingDocument::count(),
+            'tp' => TeachingDocument::where('jenis_dokumen', 'Tujuan Pembelajaran (TP)')->count(),
+            'atp' => TeachingDocument::where('jenis_dokumen', 'Alur Tujuan Pembelajaran (ATP)')->count(),
+            'cp' => TeachingDocument::where('jenis_dokumen', 'Capaian Pembelajaran (CP)')->count(),
+            'modul_ajar' => TeachingDocument::where('jenis_dokumen', 'Modul Ajar / RPP Merdeka')->count(),
+            'p5' => TeachingDocument::where('jenis_dokumen', 'Modul Kokurikuler / Proyek P5')->count(),
+            'prota_promes' => TeachingDocument::where('jenis_dokumen', 'Program Tahunan (Prota) & Promes')->count(),
+            'lkpd' => TeachingDocument::where('jenis_dokumen', 'Lembar Kerja Peserta Didik (LKPD)')->count(),
+            'asesmen' => TeachingDocument::whereIn('jenis_dokumen', ['Kisi-kisi & Instrumen Asesmen', 'Bank Soal / Naskah Ujian'])->count(),
+        ];
+
+        $courses = Course::orderBy('nama')->get();
+
+        return view('frontend.perangkat-ajar', compact(
+            'profile',
+            'documents',
+            'courses',
+            'selectedJenis',
+            'selectedKelas',
+            'selectedMapel',
+            'search',
+            'categoryCounts'
+        ));
     }
 }

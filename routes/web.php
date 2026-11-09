@@ -395,6 +395,10 @@ Route::post('/e-pkks/verify-pin', [PkksController::class, 'verifyPin'])->name('p
 Route::post('/e-pkks/lock-pin', [PkksController::class, 'lockPin'])->name('pkks.lock-pin');
 Route::get('/ppdb', [FrontendController::class, 'ppdb'])->name('ppdb');
 
+// Rute E-Learning & Bank Perangkat Ajar Kurikulum Merdeka (Akses Publik)
+Route::get('/perangkat-ajar', [FrontendController::class, 'perangkatAjar'])->name('perangkat-ajar');
+Route::get('/e-learning/perangkat-ajar', fn () => redirect()->route('perangkat-ajar'));
+
 // Rute Lengkap Layanan PPDB Online
 Route::get('/ppdb/daftar', [PpdbController::class, 'create'])->name('ppdb.register');
 Route::post('/ppdb/daftar', [PpdbController::class, 'store'])->name('ppdb.store');
