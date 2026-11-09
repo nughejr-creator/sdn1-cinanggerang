@@ -364,8 +364,8 @@
                     </div>
                     @if($this->monthlyRecap->first())
                         <div class="flex items-center gap-2 text-xs">
-                            <span class="px-2.5 py-1 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-lg font-semibold">
-                                📅 Hari Efektif: <strong class="text-emerald-600">{{ $this->monthlyRecap->first()->hari_efektif }}</strong> hari
+                            <span class="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-lg font-bold">
+                                📅 HE Acuan: {{ $this->monthlyRecap->first()->he_info }}
                             </span>
                             @if($this->monthlyRecap->first()->hari_libur > 0)
                                 <span class="px-2.5 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-lg font-semibold">
@@ -390,7 +390,9 @@
                                 <th class="p-2.5 text-center bg-purple-50/50 dark:bg-purple-950/20 text-purple-800 dark:text-purple-300" title="Izin">Izin (I)</th>
                                 <th class="p-2.5 text-center bg-rose-50/50 dark:bg-rose-950/20 text-rose-800 dark:text-rose-300" title="Alpa / Tanpa Keterangan">Alpa (A)</th>
                                 <th class="p-2.5 text-center font-bold bg-slate-100 dark:bg-slate-900">Total Hadir</th>
-                                <th class="p-2.5 text-center font-bold">Tingkat Disiplin (%)</th>
+                                <th class="p-2.5 text-center font-bold bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300">HE Acuan</th>
+                                <th class="p-2.5 text-center font-bold">% Kehadiran</th>
+                                <th class="p-2.5 text-center font-bold">Keterangan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -409,17 +411,34 @@
                                     <td class="p-2.5 text-center font-semibold text-purple-600">{{ $row->izin }}</td>
                                     <td class="p-2.5 text-center font-bold text-rose-600">{{ $row->alpa }}</td>
                                     <td class="p-2.5 text-center font-black text-gray-900 dark:text-white text-sm bg-slate-50/60 dark:bg-slate-900/60">
-                                        {{ $row->total_hadir }} <span class="text-[10px] font-normal text-gray-400">/ {{ $row->hari_efektif }}</span>
+                                        {{ $row->total_hadir }}
+                                    </td>
+                                    <td class="p-2.5 text-center font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/20">
+                                        {{ $row->hari_efektif }}
                                     </td>
                                     <td class="p-2.5 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <div class="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 print-hide-bar">
-                                                <div class="bg-emerald-600 h-2 rounded-full" style="width: {{ $row->persentase }}%"></div>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <div class="w-12 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 print-hide-bar">
+                                                <div class="bg-emerald-600 h-1.5 rounded-full" style="width: {{ $row->persentase }}%"></div>
                                             </div>
-                                            <span class="font-bold text-xs {{ $row->persentase >= 90 ? 'text-emerald-600' : ($row->persentase >= 75 ? 'text-amber-600' : 'text-rose-600') }}">
+                                            <span class="font-black text-xs text-gray-900 dark:text-gray-100">
                                                 {{ $row->persentase }}%
                                             </span>
                                         </div>
+                                    </td>
+                                    <td class="p-2.5 text-center">
+                                        @php
+                                            $predBadge = match($row->predikat) {
+                                                'Sangat Baik' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+                                                'Baik'        => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+                                                'Cukup'       => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+                                                'Buruk'       => 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+                                                default       => 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300',
+                                            };
+                                        @endphp
+                                        <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold {{ $predBadge }}">
+                                            {{ $row->predikat }}
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach

@@ -543,8 +543,11 @@ class AttendanceController extends Controller
      */
     public function printRecap(Request $request)
     {
-        $bulan = (int) ($request->query('bulan') ?? now()->month);
-        $tahun = (int) ($request->query('tahun') ?? now()->year);
+        $bulan = (int) ($request->query('bulan') ?? now()->setTimezone('Asia/Jakarta')->month);
+        $tahun = (int) ($request->query('tahun') ?? now()->setTimezone('Asia/Jakarta')->year);
+
+        $now = now()->setTimezone('Asia/Jakarta');
+        $isCurrentMonth = ($bulan === (int)$now->format('m') && $tahun === (int)$now->format('Y'));
 
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -553,24 +556,61 @@ class AttendanceController extends Controller
         ][$bulan] ?? 'Bulan ' . $bulan;
         $periodLabel = "{$namaBulan} {$tahun}";
 
+        $startOfMonth = \Carbon\Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        $endOfMonth = \Carbon\Carbon::create($tahun, $bulan, 1)->endOfMonth();
+
+        // Tentukan batas tanggal perhitungan Hari Efektif (HE):
+        // Jika mengecek bulan berjalan, batasnya adalah hari ini (tanggal berjalan)
+        // Jika mengecek bulan lampau/penuh, batasnya adalah akhir bulan tersebut
+        $cutoffDate = $isCurrentMonth ? min($now->copy()->endOfDay(), $endOfMonth) : $endOfMonth;
+
+        // Hitung hari kerja kalender (Senin - Sabtu, tanpa hari Minggu)
+        $nonSundayDays = 0;
+        $temp = $startOfMonth->copy();
+        while ($temp <= $cutoffDate) {
+            if ($temp->dayOfWeek !== \Carbon\Carbon::SUNDAY) {
+                $nonSundayDays++;
+            }
+            $temp->addDay();
+        }
+
+        // Kurangi dengan hari libur resmi sekolah yang terdaftar
+        $holidaysCount = SchoolHoliday::countHolidaysBetween($startOfMonth, $cutoffDate);
+        $hariEfektif = max(1, $nonSundayDays - $holidaysCount);
+
+        $heInfoLabel = $isCurrentMonth 
+            ? "{$hariEfektif} Hari (Dihitung s.d. {$now->translatedFormat('d F Y')} - Bulan Berjalan)"
+            : "{$hariEfektif} Hari (Total 1 Bulan Penuh)";
+
         $profile = SchoolProfile::first();
         $teachers = Teacher::where('is_active', true)->orderBy('nama')->get();
         $attendances = TeacherAttendance::whereYear('tanggal', $tahun)
             ->whereMonth('tanggal', $bulan)
             ->get();
 
-        $teachersRecap = $teachers->map(function ($t) use ($attendances) {
+        $teachersRecap = $teachers->map(function ($t) use ($attendances, $hariEfektif) {
             $userAtts = $attendances->where('teacher_id', $t->id);
-            $hadirTepat = $userAtts->where('status', 'Hadir Tepat Waktu')->count();
-            $hadirTerlambat = $userAtts->where('status', 'Hadir Terlambat')->count();
-            $dinasLuar = $userAtts->whereIn('status', ['Dinas Luar', 'Dinas Luar / Pelatihan'])->count();
-            $sakit = $userAtts->where('status', 'Sakit (SKD)')->count();
-            $izin = $userAtts->where('status', 'Izin Resmi')->count();
-            $alpa = $userAtts->where('status', 'Tanpa Keterangan (Alpa)')->count();
-            $totalHari = $userAtts->count();
+            $hadirTepat = $userAtts->filter(fn ($r) => str_contains(strtolower($r->status), 'tepat'))->count();
+            $hadirTerlambat = $userAtts->filter(fn ($r) => str_contains(strtolower($r->status), 'terlambat') || str_contains(strtolower($r->status), 'telat'))->count();
+            $dinasLuar = $userAtts->filter(fn ($r) => str_contains(strtolower($r->status), 'dinas') || ($r->attendance_type === 'Dinas Luar'))->count();
+            $sakit = $userAtts->filter(fn ($r) => str_contains(strtolower($r->status), 'sakit'))->count();
+            $izin = $userAtts->filter(fn ($r) => str_contains(strtolower($r->status), 'izin'))->count();
+            $alpa = $userAtts->filter(fn ($r) => str_contains(strtolower($r->status), 'alpa') || str_contains(strtolower($r->status), 'tanpa keterangan'))->count();
 
-            $efektif = $hadirTepat + $hadirTerlambat + $dinasLuar;
-            $persentase = $totalHari > 0 ? round(($efektif / $totalHari) * 100) : 100;
+            // Total Hadir resmi = Tepat + Terlambat + Dinas Luar
+            $totalHadir = $hadirTepat + $hadirTerlambat + $dinasLuar;
+            
+            // Persentase kehadiran terhadap Hari Efektif acuan
+            $persentase = $hariEfektif > 0 ? min(100, round(($totalHadir / $hariEfektif) * 100)) : 0;
+
+            // 5 Kriteria Predikat Kedinasan
+            $predikat = match (true) {
+                $persentase >= 90 => 'Sangat Baik',
+                $persentase >= 80 => 'Baik',
+                $persentase >= 70 => 'Cukup',
+                $persentase >= 50 => 'Buruk',
+                default           => 'Sangat Buruk',
+            };
 
             return [
                 'id' => $t->id,
@@ -583,11 +623,13 @@ class AttendanceController extends Controller
                 'sakit' => $sakit,
                 'izin' => $izin,
                 'alpa' => $alpa,
-                'total_hari' => $totalHari,
+                'total_hadir' => $totalHadir,
+                'hari_efektif' => $hariEfektif,
                 'persentase' => $persentase,
+                'predikat' => $predikat,
             ];
         });
 
-        return view('print.attendance-recap', compact('profile', 'teachersRecap', 'bulan', 'tahun', 'periodLabel'));
+        return view('print.attendance-recap', compact('profile', 'teachersRecap', 'bulan', 'tahun', 'periodLabel', 'hariEfektif', 'isCurrentMonth', 'heInfoLabel'));
     }
 }

@@ -150,7 +150,10 @@
             <p class="text-xs font-bold uppercase text-gray-800 mt-1">
                 PERIODE BULAN: {{ strtoupper($periodLabel) }}
             </p>
-            <p class="text-[10px] text-gray-600 italic">
+            <div class="inline-block px-3.5 py-1 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-900 font-bold text-[11px] mt-1.5 shadow-xs">
+                📌 {{ $heInfoLabel }}
+            </div>
+            <p class="text-[10px] text-gray-600 italic mt-1">
                 Data terverifikasi otomatis melalui Sistem Presensi GPS & Bukti Dukung Digital Mandiri
             </p>
         </div>
@@ -164,15 +167,16 @@
                         <th class="border border-gray-800 py-2 px-2 text-left">Nama Pendidik / Tenaga Kependidikan</th>
                         <th class="border border-gray-800 py-2 px-2 text-center w-28">NIP / NUPTK</th>
                         <th class="border border-gray-800 py-2 px-2 text-left w-24">Jabatan</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-9" title="Hadir Tepat Waktu">H</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-9" title="Hadir Terlambat">T</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-9" title="Dinas Luar">DL</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-9" title="Sakit">S</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-9" title="Izin">I</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-9" title="Alpa / Tanpa Keterangan">A</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-11">Total</th>
-                        <th class="border border-gray-800 py-2 px-1 text-center w-14">% Hadir</th>
-                        <th class="border border-gray-800 py-2 px-2 text-center w-20">Keterangan</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-8" title="Hadir Tepat Waktu">H</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-8" title="Hadir Terlambat">T</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-8" title="Dinas Luar">DL</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-8" title="Sakit">S</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-8" title="Izin">I</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-8" title="Alpa / Tanpa Keterangan">A</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-10 font-black">Total</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-9 bg-emerald-50 text-emerald-950 font-black" title="Hari Efektif Acuan">HE</th>
+                        <th class="border border-gray-800 py-2 px-1 text-center w-14 font-black">% Hadir</th>
+                        <th class="border border-gray-800 py-2 px-2 text-center w-24 font-black">Keterangan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -187,7 +191,7 @@
                             $totS += $t['sakit'];
                             $totI += $t['izin'];
                             $totA += $t['alpa'];
-                            $totSemua += $t['total_hari'];
+                            $totSemua += $t['total_hadir'];
                             $sumPersen += $t['persentase'];
                         @endphp
                         <tr class="{{ $loop->iteration % 2 == 0 ? 'bg-gray-50/50' : 'bg-white' }}">
@@ -207,23 +211,27 @@
                             <td class="border border-gray-700 py-1.5 px-1 text-center font-semibold text-purple-900">{{ $t['sakit'] }}</td>
                             <td class="border border-gray-700 py-1.5 px-1 text-center font-semibold text-orange-900">{{ $t['izin'] }}</td>
                             <td class="border border-gray-700 py-1.5 px-1 text-center font-semibold text-red-900">{{ $t['alpa'] }}</td>
-                            <td class="border border-gray-700 py-1.5 px-1 text-center font-bold text-gray-950">{{ $t['total_hari'] }}</td>
+                            <td class="border border-gray-700 py-1.5 px-1 text-center font-black text-gray-950">{{ $t['total_hadir'] }}</td>
+                            <td class="border border-gray-700 py-1.5 px-1 text-center font-bold text-emerald-800 bg-emerald-50/40">{{ $t['hari_efektif'] }}</td>
                             <td class="border border-gray-700 py-1.5 px-1 text-center font-bold text-gray-900">
                                 {{ $t['persentase'] }}%
                             </td>
-                            <td class="border border-gray-700 py-1.5 px-1 text-center text-[10px] text-gray-600">
-                                @if($t['persentase'] >= 90)
-                                    <span class="text-emerald-700 font-semibold">Sangat Baik</span>
-                                @elseif($t['persentase'] >= 75)
-                                    <span class="text-amber-700 font-semibold">Baik</span>
-                                @else
-                                    <span class="text-red-700 font-semibold">Kurang</span>
-                                @endif
+                            <td class="border border-gray-700 py-1.5 px-1 text-center text-[10px]">
+                                @php
+                                    $predColor = match($t['predikat']) {
+                                        'Sangat Baik' => 'text-emerald-700 font-black',
+                                        'Baik'        => 'text-blue-700 font-bold',
+                                        'Cukup'       => 'text-amber-700 font-bold',
+                                        'Buruk'       => 'text-orange-700 font-bold',
+                                        default       => 'text-rose-700 font-bold',
+                                    };
+                                @endphp
+                                <span class="{{ $predColor }}">{{ $t['predikat'] }}</span>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="13" class="border border-gray-700 py-6 text-center text-gray-500 italic">
+                            <td colspan="14" class="border border-gray-700 py-6 text-center text-gray-500 italic">
                                 Belum ada catatan presensi pada periode bulan {{ $periodLabel }}.
                             </td>
                         </tr>
@@ -241,27 +249,57 @@
                             <td class="border border-gray-800 py-2 px-1 text-center">{{ $totS }}</td>
                             <td class="border border-gray-800 py-2 px-1 text-center">{{ $totI }}</td>
                             <td class="border border-gray-800 py-2 px-1 text-center">{{ $totA }}</td>
-                            <td class="border border-gray-800 py-2 px-1 text-center">{{ $totSemua }}</td>
-                            <td class="border border-gray-800 py-2 px-1 text-center">
+                            <td class="border border-gray-800 py-2 px-1 text-center font-black">{{ $totSemua }}</td>
+                            <td class="border border-gray-800 py-2 px-1 text-center font-black text-emerald-900">{{ $hariEfektif }}</td>
+                            <td class="border border-gray-800 py-2 px-1 text-center font-black">
                                 {{ round($sumPersen / max(1, count($teachersRecap))) }}%
                             </td>
-                            <td class="border border-gray-800 py-2 px-1 text-center">-</td>
+                            <td class="border border-gray-800 py-2 px-1 text-center text-[10px] font-black">
+                                @php
+                                    $avgPersen = round($sumPersen / max(1, count($teachersRecap)));
+                                    $avgPred = match (true) {
+                                        $avgPersen >= 90 => 'Sangat Baik',
+                                        $avgPersen >= 80 => 'Baik',
+                                        $avgPersen >= 70 => 'Cukup',
+                                        $avgPersen >= 50 => 'Buruk',
+                                        default          => 'Sangat Buruk',
+                                    };
+                                    $avgColor = match($avgPred) {
+                                        'Sangat Baik' => 'text-emerald-700',
+                                        'Baik'        => 'text-blue-700',
+                                        'Cukup'       => 'text-amber-700',
+                                        'Buruk'       => 'text-orange-700',
+                                        default       => 'text-rose-700',
+                                    };
+                                @endphp
+                                <span class="{{ $avgColor }}">{{ $avgPred }}</span>
+                            </td>
                         </tr>
                     </tfoot>
                 @endif
             </table>
         </div>
 
-        {{-- 4. KETERANGAN KODE SINGKATAN --}}
-        <div class="mb-8 text-[10px] text-gray-700 leading-relaxed font-sans">
-            <span class="font-bold underline block mb-1">Keterangan Kolom:</span>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1">
+        {{-- 4. KETERANGAN KODE SINGKATAN & PEDOMAN PREDIKAT --}}
+        <div class="mb-8 text-[10px] text-gray-700 leading-relaxed font-sans border-t border-gray-300 pt-3">
+            <span class="font-bold underline block mb-1">Keterangan Kolom & Pedoman Predikat:</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 mb-2">
                 <div>• <strong>H</strong> : Hadir Tepat Waktu (Presensi GPS di sekolah)</div>
                 <div>• <strong>T</strong> : Hadir Terlambat (Datang setelah 07:30 WIB)</div>
-                <div>• <strong>DL</strong> : Dinas Luar (Surat Tugas / Berkas Dukung)</div>
-                <div>• <strong>S</strong> : Sakit (Surat Keterangan Dokter / Bukti)</div>
-                <div>• <strong>I</strong> : Izin Resmi (Bukti Undangan / Keterangan)</div>
+                <div>• <strong>DL</strong> : Dinas Luar (Surat Tugas / Bukti Sah)</div>
+                <div>• <strong>S</strong> : Sakit (Surat Dokter / Bukti SKD)</div>
+                <div>• <strong>I</strong> : Izin Resmi (Bukti Undangan / Surat)</div>
                 <div>• <strong>A</strong> : Tanpa Keterangan / Alpa</div>
+                <div>• <strong>Total</strong> : Total Hadir Resmi (H + T + DL)</div>
+                <div>• <strong>HE</strong> : {{ $heInfoLabel }}</div>
+            </div>
+            <div class="p-2 bg-gray-50 border border-gray-200 rounded text-[9.5px] text-gray-700">
+                <strong>Standar Kriteria Predikat:</strong> 
+                <span class="text-emerald-700 font-bold">Sangat Baik (≥90%)</span> • 
+                <span class="text-blue-700 font-bold">Baik (80% - 89%)</span> • 
+                <span class="text-amber-700 font-bold">Cukup (70% - 79%)</span> • 
+                <span class="text-orange-700 font-bold">Buruk (50% - 69%)</span> • 
+                <span class="text-rose-700 font-bold">Sangat Buruk (&lt;50%)</span>
             </div>
         </div>
 

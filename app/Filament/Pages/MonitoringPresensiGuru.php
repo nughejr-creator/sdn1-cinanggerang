@@ -126,13 +126,21 @@ class MonitoringPresensiGuru extends Page
         $year = $this->selectedYear;
         $teachers = Teacher::where('is_active', true)->orderBy('urutan')->get();
 
+        $now = now()->setTimezone('Asia/Jakarta');
+        $isCurrentMonth = ($month === (int)$now->format('m') && $year === (int)$now->format('Y'));
+
         $startOfMonth = Carbon::create($year, $month, 1)->startOfMonth();
         $endOfMonth = Carbon::create($year, $month, 1)->endOfMonth();
+
+        // Tentukan batas tanggal perhitungan Hari Efektif (HE):
+        // Jika bulan berjalan, hitung sampai hari ini (tanggal berjalan)
+        // Jika bulan lampau/selesai, hitung sampai akhir bulan
+        $cutoffDate = $isCurrentMonth ? min($now->copy()->endOfDay(), $endOfMonth) : $endOfMonth;
 
         // 1. Hitung hari efektif kerja (Hari kalender dikurangi hari Minggu)
         $nonSundayDays = 0;
         $temp = $startOfMonth->copy();
-        while ($temp <= $endOfMonth) {
+        while ($temp <= $cutoffDate) {
             if ($temp->dayOfWeek !== Carbon::SUNDAY) {
                 $nonSundayDays++;
             }
@@ -140,10 +148,10 @@ class MonitoringPresensiGuru extends Page
         }
 
         // 2. Kurangi dengan hari libur nasional / cuti bersama / libur sekolah yang terdaftar
-        $holidaysCount = SchoolHoliday::countHolidaysBetween($startOfMonth, $endOfMonth);
+        $holidaysCount = SchoolHoliday::countHolidaysBetween($startOfMonth, $cutoffDate);
         $effectiveDays = max(1, $nonSundayDays - $holidaysCount);
 
-        return $teachers->map(function ($teacher) use ($startOfMonth, $endOfMonth, $effectiveDays, $holidaysCount) {
+        return $teachers->map(function ($teacher) use ($startOfMonth, $endOfMonth, $effectiveDays, $holidaysCount, $isCurrentMonth, $now) {
             // Ambil seluruh rekor presensi guru pada bulan dan tahun terpilih
             $records = TeacherAttendance::where('teacher_id', $teacher->id)
                 ->whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
@@ -161,8 +169,17 @@ class MonitoringPresensiGuru extends Page
             // Total Hadir resmi = Hadir Tepat + Hadir Terlambat + Dinas Luar (Dinas Luar bertugas resmi)
             $totalHadir = $tepat + $telat + $dinas;
 
-            // Persentase kehadiran terhadap target hari efektif
-            $persentase = $effectiveDays > 0 ? min(100, round(($totalHadir / $effectiveDays) * 100, 1)) : 0;
+            // Persentase kehadiran terhadap target hari efektif acuan
+            $persentase = $effectiveDays > 0 ? min(100, round(($totalHadir / $effectiveDays) * 100)) : 0;
+
+            // 5 Kriteria Predikat Kedinasan
+            $predikat = match (true) {
+                $persentase >= 90 => 'Sangat Baik',
+                $persentase >= 80 => 'Baik',
+                $persentase >= 70 => 'Cukup',
+                $persentase >= 50 => 'Buruk',
+                default           => 'Sangat Buruk',
+            };
 
             return (object) [
                 'teacher' => $teacher,
@@ -176,7 +193,12 @@ class MonitoringPresensiGuru extends Page
                 'total_hadir' => $totalHadir,
                 'hari_libur' => $holidaysCount,
                 'hari_efektif' => $effectiveDays,
+                'is_current_month' => $isCurrentMonth,
+                'he_info' => $isCurrentMonth 
+                    ? "{$effectiveDays} Hari (s.d. " . $now->translatedFormat('d M Y') . ")"
+                    : "{$effectiveDays} Hari (Sebulan Penuh)",
                 'persentase' => $persentase,
+                'predikat' => $predikat,
             ];
         });
     }
