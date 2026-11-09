@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
+    {{-- Verifikasi Kepemilikan Resmi Google Search Console --}}
+    <meta name="google-site-verification" content="gXTboZ3WB5IUzjRY1-aYbAB2pNG9zR1kOfAcmXcljGo">
+
     {{-- SEO & Metadata Sekolah Resmi --}}
     <title>@yield('title', 'SD Negeri Cinanggerang I | Portal Resmi & E-PKKS Digital')</title>
     <meta name="description" content="@yield('meta_description', 'Portal Resmi SD Negeri Cinanggerang I, NPSN: 20208801, Kec. Pamulihan, Kab. Sumedang. Pusat informasi profil, layanan PPDB Online, dan Portofolio Digital E-PKKS.')">
