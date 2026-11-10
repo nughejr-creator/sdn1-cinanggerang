@@ -109,3 +109,13 @@ Route::get('/ppdb/cetak-kelulusan/{registration_number}', [PpdbController::class
 Route::get('/presensi', [AttendanceController::class, 'index'])->name('presensi.index');
 Route::post('/presensi', [AttendanceController::class, 'store'])->name('presensi.store');
 Route::get('/admin/presensi/cetak-rekap', [AttendanceController::class, 'printRecap'])->name('admin.presensi.cetak-rekap');
+
+// API Endpoint Sinkronisasi Web Service Dapodik (One-Click Sync dari Komputer Lokal)
+Route::post('/api/dapodik/sync-students', [App\Http\Controllers\Api\DapodikSyncController::class, 'sync'])->name('api.dapodik.sync');
+Route::get('/admin/dapodik/download-sync-tool', function () {
+    $path = base_path('sinkron_dapodik.bat');
+    if (file_exists($path)) {
+        return response()->download($path, 'sinkron_dapodik.bat');
+    }
+    abort(404);
+})->name('admin.dapodik.download-tool');
