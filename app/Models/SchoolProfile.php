@@ -14,6 +14,14 @@ class SchoolProfile extends Model
     ];
 
     /**
+     * Cek apakah modul E-PKKS Digital sedang aktif dibuka
+     */
+    public function isPkksActive(): bool
+    {
+        return ($this->pkks_status ?? 'active') === 'active';
+    }
+
+    /**
      * Label Akreditasi Resmi (Misal: 'B (Baik)', 'A (Unggul)', dsb.)
      */
     public function getAkreditasiLabelAttribute(): string

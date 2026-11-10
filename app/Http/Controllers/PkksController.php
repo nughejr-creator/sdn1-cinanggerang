@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HeadmasterProfile;
+use App\Models\PkksAssessorReview;
 use App\Models\PkksEvidence;
 use App\Models\PkksIndicator;
 use App\Models\PkksPeriod;
@@ -67,6 +68,12 @@ class PkksController extends Controller
 
         $profile = SchoolProfile::first();
 
+        // 0. Remote Toggle Status Periode E-PKKS (Standby Screen jika Nonaktif)
+        // Jika status inactive dan pengguna bukan admin yang sedang login, tampilkan layar informasi penutupan periode
+        if ($profile && !$profile->isPkksActive() && !auth()->check()) {
+            return view('frontend.pkks-standby', compact('profile'));
+        }
+
         // 1. Profil Kepala Sekolah & Riwayat
         $headmaster = HeadmasterProfile::where('is_active', true)
             ->with(['histories'])
@@ -124,6 +131,11 @@ class PkksController extends Controller
         $totalImages = $allEvidences->where('file_type', 'image')->count();
         $totalLinks = $allEvidences->where('file_type', 'link')->count();
 
+        // 5. Catatan & Rekomendasi Asesor Penilai
+        $assessorReviews = PkksAssessorReview::where('pkks_period_id', $activePeriod?->id)
+            ->latest()
+            ->get();
+
         $stats = [
             'total_indicators' => $totalIndicators,
             'fulfilled_indicators' => $fulfilledIndicators,
@@ -145,8 +157,46 @@ class PkksController extends Controller
             'isAssessorUnlocked',
             'stats',
             'periodsList',
-            'isArchivedView'
+            'isArchivedView',
+            'assessorReviews'
         ));
+    }
+
+    /**
+     * Simpan Catatan & Rekomendasi Asesor Penilai (Bottom Section)
+     */
+    public function storeReview(Request $request): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'assessor_name' => 'required|string|max:255',
+            'assessor_agency' => 'required|string|max:255',
+            'recommendation_status' => 'required|string|max:255',
+            'performance_review' => 'nullable|string|max:5000',
+            'follow_up_recommendation' => 'nullable|string|max:5000',
+            'pkks_period_id' => 'nullable|exists:pkks_periods,id',
+        ]);
+
+        $periodId = $validated['pkks_period_id'] ?? PkksPeriod::where('is_active', true)->latest('id')->value('id');
+
+        $review = PkksAssessorReview::create([
+            'pkks_period_id' => $periodId,
+            'assessor_name' => trim($validated['assessor_name']),
+            'assessor_agency' => trim($validated['assessor_agency']),
+            'recommendation_status' => trim($validated['recommendation_status']),
+            'performance_review' => $validated['performance_review'] ?? null,
+            'follow_up_recommendation' => $validated['follow_up_recommendation'] ?? null,
+            'ip_address' => $request->ip(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Catatan & Rekomendasi Asesor Penilai berhasil disimpan ke sistem.',
+                'data' => $review,
+            ]);
+        }
+
+        return back()->with('success_review', 'Catatan & Rekomendasi Asesor Penilai berhasil disimpan!');
     }
 
     /**

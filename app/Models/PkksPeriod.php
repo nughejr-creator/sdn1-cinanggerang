@@ -29,6 +29,14 @@ class PkksPeriod extends Model
         return $this->hasMany(PkksIndicator::class)->orderBy('indicator_number');
     }
 
+    /**
+     * Relasi ke Catatan & Rekomendasi Asesor
+     */
+    public function assessorReviews(): HasMany
+    {
+        return $this->hasMany(PkksAssessorReview::class, 'pkks_period_id')->latest();
+    }
+
     public function isArchived(): bool
     {
         return $this->status === 'archived' || !empty($this->archived_at);

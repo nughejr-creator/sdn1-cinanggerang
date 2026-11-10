@@ -8,26 +8,52 @@
 <div class="bg-slate-50 min-h-screen text-slate-800"
      x-data="{
         activeTab: 'all',
-        pdfModalOpen: false,
-        pdfUrl: '',
-        pdfTitle: '',
-        videoModalOpen: false,
-        videoUrl: '',
-        videoTitle: '',
+        previewModalOpen: false,
+        previewType: 'pdf',
+        previewUrl: '',
+        previewTitle: '',
+        previewDescription: '',
         pinModalOpen: false,
         pinInput: '',
         pinError: '',
         pinLoading: false,
 
-        openPdf(url, title) {
-            this.pdfUrl = url;
-            this.pdfTitle = title;
-            this.pdfModalOpen = true;
+        openPreview(type, url, title, description = '') {
+            this.previewTitle = title;
+            this.previewDescription = description;
+            let processedUrl = url;
+            let finalType = type;
+
+            // Konversi Tautan Google Drive menjadi Preview responsif
+            const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+            const openIdMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+            const folderMatch = url.match(/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/);
+
+            if (fileMatch && fileMatch[1]) {
+                processedUrl = `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
+                finalType = 'gdrive';
+            } else if (openIdMatch && openIdMatch[1]) {
+                processedUrl = `https://drive.google.com/file/d/${openIdMatch[1]}/preview`;
+                finalType = 'gdrive';
+            } else if (folderMatch && folderMatch[1]) {
+                processedUrl = `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#grid`;
+                finalType = 'gdrive';
+            } else if (type === 'image' || url.match(/\.(jpeg|jpg|png|gif|webp|svg)($|\?)/i)) {
+                finalType = 'image';
+            } else if (type === 'video' || url.match(/\.(mp4|webm|ogg)($|\?)/i)) {
+                finalType = 'video';
+            } else if (type === 'pdf' || url.match(/\.pdf($|\?)/i)) {
+                finalType = 'pdf';
+            }
+
+            this.previewType = finalType;
+            this.previewUrl = processedUrl;
+            this.previewModalOpen = true;
         },
-        openVideo(url, title) {
-            this.videoUrl = url;
-            this.videoTitle = title;
-            this.videoModalOpen = true;
+        closePreview() {
+            this.previewModalOpen = false;
+            this.previewUrl = '';
+            this.previewType = '';
         },
         async submitPin() {
             if (!this.pinInput) {
@@ -126,21 +152,8 @@
                     </p>
                 </div>
 
-                {{-- Status Asesor & Auth PIN Toggle & Admin Edit Shortcut --}}
+                {{-- Status Asesor & Auth PIN Toggle --}}
                 <div class="flex flex-wrap items-center gap-3">
-                    @auth
-                        <a href="{{ url('/admin/headmaster-profiles') }}"
-                           class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-forest-800 hover:bg-forest-700 text-sumedang-amber text-xs font-bold border border-sumedang-amber/40 shadow transition">
-                            <span>✏️ Mode Edit Admin</span>
-                        </a>
-                    @else
-                        <a href="{{ url('/admin') }}"
-                           class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-forest-800/80 hover:bg-forest-700 text-gray-300 hover:text-white text-xs font-semibold border border-forest-700 transition">
-                            <svg class="w-3.5 h-3.5 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-                            <span>Login Editor</span>
-                        </a>
-                    @endauth
-
                     @if($isAssessorUnlocked)
                         <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold">
                             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -254,16 +267,6 @@
                             <span>Pakta Integritas</span>
                         </a>
                     </div>
-
-                    @auth
-                        <div class="mt-3 text-center">
-                            <a href="{{ url('/admin/headmaster-profiles/' . ($headmaster?->id ?? 1) . '/edit') }}"
-                               target="_blank"
-                               class="text-[11px] text-sumedang-amber hover:text-white font-bold inline-flex items-center gap-1 transition">
-                                <span>✏️ Edit Profil & Riwayat Pimpinan di Panel Admin</span>
-                            </a>
-                        </div>
-                    @endauth
                 </div>
 
                 {{-- Kolom 2: Filosofi Kepemimpinan & Track Record (8 Kolom) --}}
@@ -548,24 +551,17 @@
                                 </div>
                             </div>
 
-                            {{-- Status Keterpenuhan Badge & Edit Shortcut --}}
+                            {{-- Status Keterpenuhan Badge --}}
                             <div class="flex items-center gap-2">
-                                @auth
-                                    <a href="{{ url('/admin/pkks-indicators/' . $ind->id . '/edit') }}"
-                                       target="_blank"
-                                       class="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-forest-900 text-slate-700 hover:text-white text-[11px] font-bold border border-slate-300 transition flex items-center gap-1 shadow-xs">
-                                        <span>✏️ Edit</span>
-                                    </a>
-                                @endauth
-
                                 @if($isArchivedView)
-                                    <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs font-black shadow-xs">
-                                        <span>🔒 TERARSIPKAN (TERVERIFIKASI)</span>
+                                    <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs font-black shadow-xs">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                        <span>STATUS: TERARSIPKAN (TERKUNCI)</span>
                                     </div>
                                 @else
-                                    <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-black shadow-xs">
-                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                        <span>STATUS: ADA</span>
+                                    <div class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-black shadow-xs">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span>STATUS: TERVERIFIKASI / ADA</span>
                                     </div>
                                 @endif
                             </div>
@@ -655,35 +651,17 @@
                                                     <span>Buka PIN Asesor</span>
                                                 </button>
 
-                                            {{-- Case 2: Dokumen Publik atau Akses Sudah Terbuka --}}
+                                            {{-- Case 2: Dokumen Publik atau Akses Sudah Terbuka (In-App Lightbox Modal) --}}
                                             @else
-                                                {{-- Jika Video --}}
-                                                @if($ev->file_type === 'video')
-                                                    <a href="{{ $ev->external_url }}"
-                                                       target="_blank"
-                                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-xs transition">
-                                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                                        <span>Tonton Video</span>
-                                                    </a>
-
-                                                {{-- Jika Dokumen PDF --}}
-                                                @elseif($ev->file_type === 'pdf')
-                                                    <a href="{{ $ev->external_url ?? $ev->file_url ?? 'https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing' }}"
-                                                       target="_blank"
-                                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-xs shadow-xs transition">
-                                                        <svg class="w-3.5 h-3.5 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                        <span>Buka Dokumen</span>
-                                                    </a>
-
-                                                {{-- Jika Foto / Link --}}
-                                                @else
-                                                    <a href="{{ $ev->external_url ?? $ev->file_url ?? 'https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing' }}"
-                                                       target="_blank"
-                                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                                        <span>Lihat Galeri</span>
-                                                    </a>
-                                                @endif
+                                                @php
+                                                    $fileTargetUrl = $ev->file_url ?: ($ev->external_url ?: 'https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing');
+                                                @endphp
+                                                <button type="button"
+                                                        @click="openPreview('{{ $ev->file_type }}', '{{ $fileTargetUrl }}', '{{ addslashes($ev->title) }}', '{{ addslashes($ev->description ?? '') }}')"
+                                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-xs shadow-sm transition hover:shadow-md hover:scale-105">
+                                                    <svg class="w-3.5 h-3.5 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                    <span>Buka Dokumen</span>
+                                                </button>
                                             @endif
                                         </div>
 
@@ -700,6 +678,282 @@
 
         </div>
 
+    </section>
+
+    {{-- SECTION 5: LEMBAR TELAAH & CATATAN ASESOR PENILAI (BOTTOM SECTION) --}}
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-4" id="catatan-asesor">
+        <div class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200/90 shadow-xl relative overflow-hidden"
+             x-data="{
+                assessorName: '{{ addslashes($stats['assessor_name'] ?? '') }}',
+                assessorAgency: 'Disdik Wilayah Pamulihan, Sumedang',
+                recommendationStatus: 'Sangat Baik / Terpenuhi Penuh',
+                performanceReview: '',
+                followUpRecommendation: '',
+                submitting: false,
+                submitSuccess: false,
+                errorMessage: '',
+
+                async submitReview() {
+                    if (!this.assessorName.trim()) {
+                        this.errorMessage = 'Mohon isi Nama Lengkap Asesor Penilai.';
+                        return;
+                    }
+                    if (!this.assessorAgency.trim()) {
+                        this.errorMessage = 'Mohon isi Instansi / Satuan Pengawas.';
+                        return;
+                    }
+
+                    this.submitting = true;
+                    this.errorMessage = '';
+                    this.submitSuccess = false;
+
+                    try {
+                        const res = await fetch('{{ route('pkks.store-review') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                assessor_name: this.assessorName,
+                                assessor_agency: this.assessorAgency,
+                                recommendation_status: this.recommendationStatus,
+                                performance_review: this.performanceReview,
+                                follow_up_recommendation: this.followUpRecommendation,
+                                pkks_period_id: {{ $activePeriod?->id ?? 1 }}
+                            })
+                        });
+
+                        const result = await res.json();
+                        if (res.ok && result.success) {
+                            this.submitSuccess = true;
+                            this.performanceReview = '';
+                            this.followUpRecommendation = '';
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1800);
+                        } else {
+                            this.errorMessage = result.message || 'Gagal menyimpan catatan penelaahan.';
+                        }
+                    } catch (e) {
+                        this.errorMessage = 'Terjadi kesalahan sambungan. Pastikan perangkat terhubung internet.';
+                    } finally {
+                        this.submitting = false;
+                    }
+                }
+             }">
+
+            {{-- Accent Top Bar --}}
+            <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-forest-900 via-emerald-600 to-sumedang-amber"></div>
+
+            {{-- Header Lembar Telaah --}}
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-8 border-b border-slate-100">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-forest-900 text-sumedang-amber flex items-center justify-center font-black text-xl shadow-md shrink-0">
+                        ✍️
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2.5 py-0.5 rounded-full bg-forest-100 text-forest-900 text-[10px] font-black uppercase tracking-wider">
+                                Lembar Telaah Asesmen
+                            </span>
+                            <span class="text-xs text-slate-400">• Periode Tahun {{ $activePeriod?->academic_year ?? '2026' }}</span>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-black text-forest-950 tracking-tight">
+                            Lembar Telaah &amp; Catatan Asesor Penilai
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                            Formulir resmi penelaahan instrumen bukti fisik, evaluasi kepemimpinan manajerial, serta rekomendasi tindak lanjut akreditasi.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="shrink-0 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Asesmen Terverifikasi</span>
+                    </span>
+                </div>
+            </div>
+
+            {{-- Notifikasi Visual Sukses Simpan --}}
+            <div x-show="submitSuccess" x-cloak
+                 x-transition
+                 class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-lg shrink-0">
+                    ✓
+                </div>
+                <div>
+                    <h5 class="text-sm font-bold">Catatan Asesor Berhasil Disimpan!</h5>
+                    <p class="text-xs text-emerald-700">Terima kasih atas penelaahan yang diberikan. Halaman akan menyegarkan data...</p>
+                </div>
+            </div>
+
+            {{-- Pesan Error Validasi --}}
+            <div x-show="errorMessage" x-cloak
+                 x-transition
+                 class="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 flex items-center gap-3 text-xs font-semibold"
+                 x-text="errorMessage"></div>
+
+            {{-- Formulir Masukan Asesor --}}
+            <form @submit.prevent="submitReview()" class="space-y-6">
+                {{-- Baris 1: Identitas Asesor --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Nama Lengkap Asesor Penilai <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               x-model="assessorName"
+                               required
+                               placeholder="Contoh: Dra. Hj. Siti Komariah, M.Pd"
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-forest-800 focus:border-forest-800 text-sm font-medium text-forest-950 placeholder:text-slate-400 transition bg-slate-50/50 focus:bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                            Instansi / Satuan Pengawas Pembina <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                               x-model="assessorAgency"
+                               required
+                               placeholder="Contoh: Pengawas SD Wilayah Pamulihan, Disdik Kab. Sumedang"
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-forest-800 focus:border-forest-800 text-sm font-medium text-forest-950 placeholder:text-slate-400 transition bg-slate-50/50 focus:bg-white">
+                    </div>
+                </div>
+
+                {{-- Baris 2: Radio Button Rekomendasi Kelayakan --}}
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                        Rekomendasi Kelayakan Kinerja & Eviden <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {{-- Opsi 1: Sangat Baik --}}
+                        <label class="relative flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition"
+                               :class="recommendationStatus === 'Sangat Baik / Terpenuhi Penuh' ? 'bg-emerald-50 border-emerald-500 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'">
+                            <input type="radio"
+                                   name="recommendation"
+                                   value="Sangat Baik / Terpenuhi Penuh"
+                                   x-model="recommendationStatus"
+                                   class="text-forest-900 focus:ring-forest-800">
+                            <div>
+                                <p class="text-xs font-bold text-forest-950">🌟 Sangat Baik</p>
+                                <p class="text-[10px] text-emerald-800">Eviden Terpenuhi Penuh</p>
+                            </div>
+                        </label>
+
+                        {{-- Opsi 2: Cukup --}}
+                        <label class="relative flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition"
+                               :class="recommendationStatus === 'Cukup / Perlu Perbaikan' ? 'bg-amber-50 border-amber-500 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'">
+                            <input type="radio"
+                                   name="recommendation"
+                                   value="Cukup / Perlu Perbaikan"
+                                   x-model="recommendationStatus"
+                                   class="text-amber-600 focus:ring-amber-500">
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">⚡ Cukup</p>
+                                <p class="text-[10px] text-amber-700">Perlu Penyempurnaan</p>
+                            </div>
+                        </label>
+
+                        {{-- Opsi 3: Kurang --}}
+                        <label class="relative flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition"
+                               :class="recommendationStatus === 'Kurang / Eviden Belum Memenuhi' ? 'bg-rose-50 border-rose-500 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'">
+                            <input type="radio"
+                                   name="recommendation"
+                                   value="Kurang / Eviden Belum Memenuhi"
+                                   x-model="recommendationStatus"
+                                   class="text-rose-600 focus:ring-rose-500">
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">⚠️ Kurang</p>
+                                <p class="text-[10px] text-rose-700">Belum Memenuhi Syarat</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- Baris 3: Textarea 1 - Ulasan Kinerja & Praktik Baik --}}
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        1. Ulasan Kinerja & Apresiasi Praktik Baik
+                    </label>
+                    <textarea x-model="performanceReview"
+                              rows="3"
+                              placeholder="Tuliskan catatan apresiasi atas praktik baik kepemimpinan manajerial, kedisiplinan GTK, dan inovasi pembelajaran yang berhasil ditunjukkan oleh sekolah..."
+                              class="w-full px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-forest-800 focus:border-forest-800 text-sm font-medium text-forest-950 placeholder:text-slate-400 transition bg-slate-50/50 focus:bg-white leading-relaxed"></textarea>
+                </div>
+
+                {{-- Baris 4: Textarea 2 - Rekomendasi / Tindak Lanjut Perbaikan --}}
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        2. Rekomendasi & Catatan Tindak Lanjut Perbaikan Dokumen
+                    </label>
+                    <textarea x-model="followUpRecommendation"
+                              rows="3"
+                              placeholder="Tuliskan rekomendasi pembinaan atau dokumen eviden yang perlu disempurnakan untuk persiapan akreditasi berkala berikutnya..."
+                              class="w-full px-4 py-3 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-forest-800 focus:border-forest-800 text-sm font-medium text-forest-950 placeholder:text-slate-400 transition bg-slate-50/50 focus:bg-white leading-relaxed"></textarea>
+                </div>
+
+                {{-- Tombol Simpan Aksi --}}
+                <div class="flex items-center justify-between pt-2">
+                    <p class="text-[11px] text-slate-400 italic">
+                        *Catatan ini akan tersimpan ke database rekam jejak penilaian E-PKKS sekolah.
+                    </p>
+
+                    <button type="submit"
+                            :disabled="submitting"
+                            class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-forest-900 hover:bg-forest-800 text-white font-extrabold text-xs shadow-lg shadow-forest-900/20 transition hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span x-show="!submitting">💾 Simpan Catatan Asesor</span>
+                        <span x-show="submitting">Menyimpan Catatan...</span>
+                        <svg class="w-4 h-4 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                </div>
+            </form>
+
+            {{-- DAFTAR CATATAN ASESOR YANG SUDAH TERSIMPAN --}}
+            @if(isset($assessorReviews) && $assessorReviews->count() > 0)
+                <div class="mt-12 pt-8 border-t border-slate-200">
+                    <h4 class="text-sm font-black uppercase tracking-wider text-forest-950 mb-4 flex items-center gap-2">
+                        <span>📜 Riwayat Telaah Asesor Tersimpan ({{ $assessorReviews->count() }})</span>
+                    </h4>
+
+                    <div class="space-y-4">
+                        @foreach($assessorReviews as $rev)
+                            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 text-xs">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-200">
+                                    <div>
+                                        <p class="font-extrabold text-forest-950 text-sm">{{ $rev->assessor_name }}</p>
+                                        <p class="text-slate-500 text-[11px]">{{ $rev->assessor_agency }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-1 rounded-full font-bold text-[10px] {{ str_contains($rev->recommendation_status, 'Sangat Baik') ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : (str_contains($rev->recommendation_status, 'Cukup') ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-rose-100 text-rose-800 border border-rose-300') }}">
+                                            {{ $rev->recommendation_status }}
+                                        </span>
+                                        <span class="text-slate-400 text-[10px]">{{ $rev->created_at->format('d M Y, H:i') }} WIB</span>
+                                    </div>
+                                </div>
+
+                                @if(!empty($rev->performance_review))
+                                    <div class="mb-2.5">
+                                        <p class="font-bold text-slate-700 text-[11px] mb-0.5">Ulasan Kinerja:</p>
+                                        <p class="text-slate-600 leading-relaxed">{{ $rev->performance_review }}</p>
+                                    </div>
+                                @endif
+
+                                @if(!empty($rev->follow_up_recommendation))
+                                    <div>
+                                        <p class="font-bold text-amber-800 text-[11px] mb-0.5">Rekomendasi Tindak Lanjut:</p>
+                                        <p class="text-slate-600 leading-relaxed">{{ $rev->follow_up_recommendation }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+        </div>
     </section>
 
     {{-- MODAL INPUT PIN ASESOR --}}
@@ -772,6 +1026,130 @@
                     <p class="text-[11px] text-slate-400">
                         *PIN resmi diterbitkan khusus untuk Tim Asesor Pengawas Pembina.
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- UNIVERSAL IN-APP LIGHTBOX & PREVIEW MODAL --}}
+    <div x-show="previewModalOpen" x-cloak
+         class="fixed inset-0 z-50 overflow-y-auto"
+         role="dialog" aria-modal="true"
+         @keydown.escape.window="closePreview()">
+        <div class="min-h-screen px-2 sm:px-4 text-center flex items-center justify-center py-4 sm:py-6">
+            {{-- Dark Semi-Transparent Backdrop with Blur --}}
+            <div x-show="previewModalOpen"
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"
+                 @click="closePreview()"></div>
+
+            {{-- Responsive Modal Card Container --}}
+            <div x-show="previewModalOpen"
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="relative inline-block w-full max-w-5xl h-[90vh] text-left bg-white dark:bg-forest-950 rounded-2xl sm:rounded-3xl shadow-2xl z-10 border border-slate-200 dark:border-forest-800 flex flex-col overflow-hidden">
+
+                {{-- Header Modal --}}
+                <div class="px-5 py-4 border-b border-slate-200 dark:border-forest-800 flex items-center justify-between bg-slate-50 dark:bg-forest-900/80 shrink-0">
+                    <div class="flex items-center gap-3 overflow-hidden pr-4">
+                        <span class="p-1.5 rounded-lg text-xs font-bold shrink-0"
+                              :class="{
+                                  'bg-red-100 text-red-700': previewType === 'pdf',
+                                  'bg-purple-100 text-purple-700': previewType === 'video',
+                                  'bg-sky-100 text-sky-700': previewType === 'image',
+                                  'bg-emerald-100 text-emerald-700': previewType === 'gdrive' || previewType === 'link'
+                              }">
+                            <span x-show="previewType === 'pdf'">📄 PDF</span>
+                            <span x-show="previewType === 'video'">🎥 VIDEO</span>
+                            <span x-show="previewType === 'image'">🖼️ FOTO</span>
+                            <span x-show="previewType === 'gdrive' || previewType === 'link'">☁️ DRIVE</span>
+                        </span>
+                        <div class="truncate">
+                            <h4 class="font-extrabold text-sm sm:text-base text-forest-950 dark:text-white truncate" x-text="previewTitle"></h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate" x-text="previewDescription || 'Dokumen Bukti Fisik E-PKKS Digital SDN Cinanggerang 1'"></p>
+                        </div>
+                    </div>
+
+                    {{-- Action Buttons: Buka di Tab Baru / Download + Tombol Tutup X --}}
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a :href="previewUrl"
+                           target="_blank"
+                           class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-forest-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition"
+                           title="Buka file asli di tab baru jika diperlukan">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            <span>Tab Baru</span>
+                        </a>
+
+                        <button type="button"
+                                @click="closePreview()"
+                                class="w-8 h-8 rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-forest-800 dark:hover:bg-forest-700 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-sm transition"
+                                title="Tutup (ESC)">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Modal Body Preview (Universal Handler) --}}
+                <div class="flex-1 w-full h-full bg-slate-900/5 relative overflow-hidden flex items-center justify-center">
+                    {{-- Google Drive Embed --}}
+                    <template x-if="previewType === 'gdrive'">
+                        <iframe :src="previewUrl"
+                                class="w-full h-full border-0"
+                                allow="autoplay; fullscreen"
+                                allowfullscreen></iframe>
+                    </template>
+
+                    {{-- PDF Viewer Embed --}}
+                    <template x-if="previewType === 'pdf'">
+                        <iframe :src="previewUrl"
+                                class="w-full h-full border-0"
+                                allow="fullscreen"
+                                allowfullscreen></iframe>
+                    </template>
+
+                    {{-- Image Viewer Responsif --}}
+                    <template x-if="previewType === 'image'">
+                        <div class="w-full h-full p-4 flex items-center justify-center overflow-auto bg-slate-950">
+                            <img :src="previewUrl"
+                                 :alt="previewTitle"
+                                 class="max-h-full max-w-full object-contain rounded-lg shadow-2xl">
+                        </div>
+                    </template>
+
+                    {{-- Video Viewer Pemutar HTML5 --}}
+                    <template x-if="previewType === 'video'">
+                        <div class="w-full h-full p-4 flex items-center justify-center bg-black">
+                            <video :src="previewUrl"
+                                   controls
+                                   autoplay
+                                   class="max-h-full max-w-full rounded-xl shadow-2xl">
+                                Browser Anda tidak mendukung pemutar video HTML5.
+                            </video>
+                        </div>
+                    </template>
+
+                    {{-- Fallback / Link Viewer --}}
+                    <template x-if="previewType === 'link'">
+                        <div class="p-8 text-center max-w-md">
+                            <span class="text-4xl mb-3 block">🔗</span>
+                            <h5 class="font-bold text-gray-800 dark:text-white text-base mb-2" x-text="previewTitle"></h5>
+                            <p class="text-xs text-gray-500 mb-5">Tautan dokumen dapat dibuka langsung melalui tombol di bawah.</p>
+                            <a :href="previewUrl" target="_blank"
+                               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-xs shadow-md transition">
+                                <span>Buka Tautan Eksternal</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </a>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>

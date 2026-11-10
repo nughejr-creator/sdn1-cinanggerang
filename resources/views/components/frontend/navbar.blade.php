@@ -1,3 +1,8 @@
+@php
+    $navProfile = $profile ?? \App\Models\SchoolProfile::first();
+    $isPkksActive = $navProfile ? $navProfile->isPkksActive() : true;
+@endphp
+
 {{-- TOPBAR INFORMASI RESMI & PRESENSI GPS --}}
 <div class="bg-forest-950 text-white text-[11px] py-1.5 border-b border-forest-900/60 hidden md:block">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
@@ -239,13 +244,29 @@
                             </div>
                         </a>
 
-                        <a href="{{ route('pkks') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition {{ request()->routeIs('pkks') ? 'bg-forest-50 dark:bg-forest-800' : '' }}">
-                            <span class="text-base">📊</span>
-                            <div>
-                                <p class="font-bold text-gray-900 dark:text-white text-xs">E-PKKS Digital</p>
-                                <p class="text-[10px] text-gray-400">12 Indikator Permendikdasmen 23/2026</p>
-                            </div>
-                        </a>
+                        @if($isPkksActive)
+                            <a href="{{ route('pkks') }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-forest-50 dark:hover:bg-forest-800 transition {{ request()->routeIs('pkks') ? 'bg-forest-50 dark:bg-forest-800' : '' }}">
+                                <span class="text-base">📊</span>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <p class="font-bold text-gray-900 dark:text-white text-xs">E-PKKS Digital</p>
+                                        <span class="px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[9px] font-black uppercase">Aktif</span>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400">12 Indikator Permendikdasmen 23/2026</p>
+                                </div>
+                            </a>
+                        @else
+                            <a href="{{ route('pkks') }}" class="flex items-start gap-2.5 px-4 py-2.5 bg-gray-50/70 dark:bg-forest-950/40 hover:bg-gray-100 dark:hover:bg-forest-900/40 transition">
+                                <span class="text-base opacity-60">🔒</span>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <p class="font-semibold text-gray-500 dark:text-gray-400 text-xs">E-PKKS Digital</p>
+                                        <span class="px-1.5 py-0.2 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 text-[9px] font-black uppercase">Tutup</span>
+                                    </div>
+                                    <p class="text-[10px] text-gray-400">Periode asesmen dinonaktifkan</p>
+                                </div>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -388,9 +409,17 @@
                 <a @click="mobileOpen = false" href="{{ url('/admin/student-attendances') }}" class="block py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-forest-800">
                     👥 Presensi Kehadiran Siswa
                 </a>
-                <a @click="mobileOpen = false" href="{{ route('pkks') }}" class="block py-1.5 text-xs font-bold text-forest-800 dark:text-emerald-400">
-                    📊 Portofolio E-PKKS Digital
-                </a>
+                @if($isPkksActive)
+                    <a @click="mobileOpen = false" href="{{ route('pkks') }}" class="flex items-center justify-between py-1.5 text-xs font-bold text-forest-800 dark:text-emerald-400">
+                        <span>📊 Portofolio E-PKKS Digital</span>
+                        <span class="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase">Aktif</span>
+                    </a>
+                @else
+                    <a @click="mobileOpen = false" href="{{ route('pkks') }}" class="flex items-center justify-between py-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                        <span class="flex items-center gap-1.5">🔒 Portofolio E-PKKS</span>
+                        <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[9px] font-black uppercase">Tutup</span>
+                    </a>
+                @endif
             </div>
         </div>
 

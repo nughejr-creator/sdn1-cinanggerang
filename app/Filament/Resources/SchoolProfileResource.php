@@ -55,6 +55,15 @@ class SchoolProfileResource extends Resource
                             ->default('B')
                             ->required()
                             ->helperText('Nilai akreditasi resmi BAN-S/M yang terhubung otomatis ke kop laporan rekap presensi, PPDB, dan profil sekolah.'),
+                        Forms\Components\Select::make('pkks_status')
+                            ->label('Status Akses Modul E-PKKS Digital')
+                            ->options([
+                                'active' => '🟢 Aktif (Portal Instrumen Dibuka)',
+                                'inactive' => '🔒 Nonaktif (Portal Ditutup / Standby Screen)',
+                            ])
+                            ->default('active')
+                            ->required()
+                            ->helperText('Kontrol akses global: jika nonaktif, menu e-PKKS di navbar akan bertanda Tutup dan diarahkan ke layar standby.'),
                         Forms\Components\TextInput::make('kepala_sekolah')
                             ->label('Nama Kepala Sekolah')
                             ->required(),
@@ -259,6 +268,11 @@ class SchoolProfileResource extends Resource
                     ->label('Akreditasi')
                     ->badge()
                     ->color('warning'),
+                Tables\Columns\TextColumn::make('pkks_status')
+                    ->label('Status E-PKKS')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state === 'active' ? 'Dibuka' : 'Ditutup')
+                    ->color(fn ($state) => $state === 'active' ? 'success' : 'danger'),
                 Tables\Columns\TextColumn::make('kepala_sekolah')
                     ->label('Kepala Sekolah'),
                 Tables\Columns\TextColumn::make('telepon')
