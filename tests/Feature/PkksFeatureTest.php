@@ -26,7 +26,8 @@ class PkksFeatureTest extends TestCase
             $profile->update(['pkks_status' => 'active']);
         }
 
-        $response = $this->get('/e-pkks');
+        // Buka dengan session asesor unlocked
+        $response = $this->withSession(['pkks_assessor_unlocked' => true])->get('/e-pkks');
         $response->assertStatus(200);
 
         // Tidak boleh ada tombol 'Mode Edit Admin' dan 'Login Editor'
@@ -34,8 +35,9 @@ class PkksFeatureTest extends TestCase
         $response->assertDontSee('Login Editor');
         $response->assertDontSee('✏️ Edit Profil & Riwayat Pimpinan di Panel Admin');
 
-        // Harus ada tombol Buka Dokumen dan Lembar Telaah Asesor
-        $response->assertSee('Buka Dokumen');
+        // Harus ada tombol Dokumen Eksekutif dan Lembar Telaah Asesor
+        $response->assertSee('Unduh CV (PDF)');
+        $response->assertSee('Pakta Integritas');
         $response->assertSee('Lembar Telaah & Catatan Asesor Penilai');
     }
 
@@ -98,5 +100,23 @@ class PkksFeatureTest extends TestCase
             'external_url' => 'https://drive.google.com/file/d/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG/view?usp=sharing',
         ]);
         $this->assertEquals('https://drive.google.com/file/d/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG/preview', $gdrive->embed_url);
+    }
+
+    public function test_headmaster_cv_and_integrity_pact_links_are_dynamic_on_pkks_page(): void
+    {
+        $headmaster = \App\Models\HeadmasterProfile::first();
+        if ($headmaster) {
+            $headmaster->update([
+                'cv_pdf_path' => 'https://drive.google.com/file/d/15S9CtAGN42zF5RQWovowb1oAJb1raSeq/view?usp=sharing',
+                'integrity_pact_path' => 'https://drive.google.com/file/d/TEST_PAKTA_INTEGRITAS_123/view?usp=sharing',
+            ]);
+        }
+
+        $response = $this->get('/e-pkks');
+        $response->assertStatus(200);
+        $response->assertSee('15S9CtAGN42zF5RQWovowb1oAJb1raSeq');
+        $response->assertSee('TEST_PAKTA_INTEGRITAS_123');
+        $response->assertSee('Unduh CV (PDF)');
+        $response->assertSee('Pakta Integritas');
     }
 }

@@ -45,6 +45,16 @@ class PkksController extends Controller
             }
         }
 
+        // 2b. Jalankan migrasi integrity_pact_path jika belum ada
+        if (Schema::hasTable('headmaster_profiles') && !Schema::hasColumn('headmaster_profiles', 'integrity_pact_path')) {
+            try {
+                $migPact = require database_path('migrations/2026_11_10_221044_add_integrity_pact_path_to_headmaster_profiles_table.php');
+                $migPact->up();
+            } catch (\Throwable $e) {
+                Artisan::call('migrate', ['--force' => true]);
+            }
+        }
+
         // 3. Jalankan seeder jika belum ada data periode atau indikator
         if (Schema::hasTable('pkks_indicators')) {
             if (PkksIndicator::count() < 12 || HeadmasterProfile::count() === 0) {

@@ -274,20 +274,24 @@
                         </div>
                     </div>
 
-                    {{-- Tombol Aksi Dokumen Eksekutif --}}
+                    {{-- Tombol Aksi Dokumen Eksekutif (CV & Pakta Integritas) --}}
+                    @php
+                        $cvUrl = $headmaster?->cv_pdf_path ?: 'https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing';
+                        $pactUrl = $headmaster?->integrity_pact_path ?: 'https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing';
+                    @endphp
                     <div class="mt-6 pt-5 border-t border-forest-800 flex flex-col sm:flex-row gap-2.5">
-                        <a href="https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing"
-                           target="_blank"
-                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold border border-emerald-500/30 transition shadow">
+                        <button type="button"
+                                @click="openPreview('pdf', '{{ $cvUrl }}', 'Curriculum Vitae (CV) - {{ addslashes($headmaster?->name ?? 'Kepala Sekolah') }}', 'Dokumen Portofolio & Riwayat Pengabdian Kepala SD Negeri Cinanggerang I')"
+                                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold border border-emerald-500/30 transition shadow cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
                             <svg class="w-4 h-4 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             <span>Unduh CV (PDF)</span>
-                        </a>
-                        <a href="https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing"
-                           target="_blank"
-                           class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sumedang-amber/15 hover:bg-sumedang-amber/25 text-sumedang-amber hover:text-white text-xs font-bold border border-sumedang-amber/30 transition">
+                        </button>
+                        <button type="button"
+                                @click="openPreview('pdf', '{{ $pactUrl }}', 'Pakta Integritas - {{ addslashes($headmaster?->name ?? 'Kepala Sekolah') }}', 'Surat Pernyataan Komitmen Kode Etik & Integritas Kepemimpinan Satuan Pendidikan')"
+                                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sumedang-amber/15 hover:bg-sumedang-amber/25 text-sumedang-amber hover:text-white text-xs font-bold border border-sumedang-amber/30 transition cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
                             <svg class="w-4 h-4 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                             <span>Pakta Integritas</span>
-                        </a>
+                        </button>
                     </div>
                 </div>
 

@@ -75,7 +75,7 @@ class HeadmasterProfileResource extends Resource
                             ->columnSpanFull(),
                     ]),
 
-                Forms\Components\Section::make('Foto Resmi & Tautan CV Lengkap')
+                Forms\Components\Section::make('Foto Resmi & Tautan Dokumen Eksekutif (CV & Pakta Integritas)')
                     ->columns(2)
                     ->schema([
                         Forms\Components\FileUpload::make('photo_path')
@@ -83,13 +83,20 @@ class HeadmasterProfileResource extends Resource
                             ->image()
                             ->disk('public')
                             ->directory('headmaster')
-                            ->helperText('Format PNG/JPG, rasio kotak atau pas foto.'),
+                            ->helperText('Format PNG/JPG, rasio kotak atau pas foto.')
+                            ->columnSpanFull(),
 
                         Forms\Components\TextInput::make('cv_pdf_path')
                             ->label('Tautan Unduh Dokumen CV Lengkap (PDF / Google Drive)')
                             ->placeholder('https://drive.google.com/...')
                             ->url()
-                            ->helperText('Tautan berkas CV terverifikasi di Google Drive atau server lokal.'),
+                            ->helperText('Tautan berkas CV kepala sekolah di Google Drive atau file lokal.'),
+
+                        Forms\Components\TextInput::make('integrity_pact_path')
+                            ->label('Tautan Dokumen Pakta Integritas (PDF / Google Drive)')
+                            ->placeholder('https://drive.google.com/...')
+                            ->url()
+                            ->helperText('Tautan surat/dokumen komitmen Pakta Integritas di Google Drive atau file lokal.'),
                     ]),
 
                 Forms\Components\Section::make('Riwayat Pengembangan Diri, Prestasi & Organisasi')
