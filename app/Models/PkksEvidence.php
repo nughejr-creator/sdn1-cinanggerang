@@ -37,16 +37,31 @@ class PkksEvidence extends Model
         $url = $this->external_url;
 
         // YouTube embed
-        if (str_contains($url, 'youtube.com/watch') || str_contains($url, 'youtu.be/')) {
-            preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $url, $matches);
+        if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
+            preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/', $url, $matches);
             if (!empty($matches[1])) {
-                return 'https://www.youtube.com/embed/' . $matches[1] . '?autoplay=1&rel=0';
+                return 'https://www.youtube-nocookie.com/embed/' . $matches[1] . '?autoplay=1&rel=0';
+            }
+        }
+
+        // TikTok embed
+        if (str_contains($url, 'tiktok.com')) {
+            preg_match('/tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/)(\d+)/', $url, $matches);
+            if (!empty($matches[1])) {
+                return 'https://www.tiktok.com/embed/v2/' . $matches[1];
             }
         }
 
         // Google Drive embed preview
         if (str_contains($url, 'drive.google.com/file/d/')) {
             return preg_replace('/\/view.*$/', '/preview', $url);
+        }
+
+        if (str_contains($url, 'drive.google.com/open?id=')) {
+            preg_match('/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/', $url, $matches);
+            if (!empty($matches[1])) {
+                return 'https://drive.google.com/file/d/' . $matches[1] . '/preview';
+            }
         }
 
         return $url;

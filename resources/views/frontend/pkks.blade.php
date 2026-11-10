@@ -11,6 +11,7 @@
         previewModalOpen: false,
         previewType: 'pdf',
         previewUrl: '',
+        originalUrl: '',
         previewTitle: '',
         previewDescription: '',
         pinModalOpen: false,
@@ -21,13 +22,21 @@
         openPreview(type, url, title, description = '') {
             this.previewTitle = title;
             this.previewDescription = description;
+            this.originalUrl = url;
             let processedUrl = url;
             let finalType = type;
 
-            // Konversi Tautan Google Drive menjadi Preview responsif
+            // 1. Deteksi dan Konversi Google Drive
             const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
             const openIdMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
             const folderMatch = url.match(/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/);
+
+            // 2. Deteksi YouTube (Watch, Shorts, Embed, youtu.be)
+            const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/i);
+
+            // 3. Deteksi TikTok Video
+            const tiktokMatch = url.match(/tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/)(\d+)/i);
+            const isTikTokGeneric = url.includes('tiktok.com');
 
             if (fileMatch && fileMatch[1]) {
                 processedUrl = `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
@@ -38,10 +47,22 @@
             } else if (folderMatch && folderMatch[1]) {
                 processedUrl = `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#grid`;
                 finalType = 'gdrive';
+            } else if (ytMatch && ytMatch[1]) {
+                processedUrl = `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+                finalType = 'youtube';
+            } else if (tiktokMatch && tiktokMatch[1]) {
+                processedUrl = `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`;
+                finalType = 'tiktok';
+            } else if (isTikTokGeneric) {
+                processedUrl = url;
+                finalType = 'tiktok';
             } else if (type === 'image' || url.match(/\.(jpeg|jpg|png|gif|webp|svg)($|\?)/i)) {
                 finalType = 'image';
-            } else if (type === 'video' || url.match(/\.(mp4|webm|ogg)($|\?)/i)) {
+            } else if (url.match(/\.(mp4|webm|ogg)($|\?)/i) || (type === 'video' && (!url.startsWith('http://') && !url.startsWith('https://')))) {
                 finalType = 'video';
+            } else if (type === 'video') {
+                // Video eksternal yang bukan YouTube/TikTok/Drive -> direct link/portal
+                finalType = 'link';
             } else if (type === 'pdf' || url.match(/\.pdf($|\?)/i)) {
                 finalType = 'pdf';
             }
@@ -53,6 +74,7 @@
         closePreview() {
             this.previewModalOpen = false;
             this.previewUrl = '';
+            this.originalUrl = '';
             this.previewType = '';
         },
         async submitPin() {
@@ -1065,13 +1087,18 @@
                               :class="{
                                   'bg-red-100 text-red-700': previewType === 'pdf',
                                   'bg-purple-100 text-purple-700': previewType === 'video',
+                                  'bg-rose-100 text-rose-700': previewType === 'tiktok',
+                                  'bg-red-100 text-red-600': previewType === 'youtube',
                                   'bg-sky-100 text-sky-700': previewType === 'image',
                                   'bg-emerald-100 text-emerald-700': previewType === 'gdrive' || previewType === 'link'
                               }">
                             <span x-show="previewType === 'pdf'">📄 PDF</span>
-                            <span x-show="previewType === 'video'">🎥 VIDEO</span>
+                            <span x-show="previewType === 'video'">🎥 VIDEO MP4</span>
+                            <span x-show="previewType === 'tiktok'">🎵 TIKTOK</span>
+                            <span x-show="previewType === 'youtube'">▶️ YOUTUBE</span>
                             <span x-show="previewType === 'image'">🖼️ FOTO</span>
-                            <span x-show="previewType === 'gdrive' || previewType === 'link'">☁️ DRIVE</span>
+                            <span x-show="previewType === 'gdrive'">☁️ DRIVE</span>
+                            <span x-show="previewType === 'link'">🔗 LINK</span>
                         </span>
                         <div class="truncate">
                             <h4 class="font-extrabold text-sm sm:text-base text-forest-950 dark:text-white truncate" x-text="previewTitle"></h4>
@@ -1079,14 +1106,14 @@
                         </div>
                     </div>
 
-                    {{-- Action Buttons: Buka di Tab Baru / Download + Tombol Tutup X --}}
+                    {{-- Action Buttons: Buka Sumber Asli di Tab Baru / Download + Tombol Tutup X --}}
                     <div class="flex items-center gap-2 shrink-0">
-                        <a :href="previewUrl"
+                        <a :href="originalUrl || previewUrl"
                            target="_blank"
                            class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-forest-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition"
-                           title="Buka file asli di tab baru jika diperlukan">
+                           title="Buka sumber asli di tab baru jika diperlukan">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                            <span>Tab Baru</span>
+                            <span>Buka Asli</span>
                         </a>
 
                         <button type="button"
@@ -1098,7 +1125,7 @@
                     </div>
                 </div>
 
-                {{-- Modal Body Preview (Universal Handler) --}}
+                {{-- Modal Body Preview (Universal Multi-Platform Handler) --}}
                 <div class="flex-1 w-full h-full bg-slate-900/5 relative overflow-hidden flex items-center justify-center">
                     {{-- Google Drive Embed --}}
                     <template x-if="previewType === 'gdrive'">
@@ -1106,6 +1133,40 @@
                                 class="w-full h-full border-0"
                                 allow="autoplay; fullscreen"
                                 allowfullscreen></iframe>
+                    </template>
+
+                    {{-- TikTok Video Embed Player (Responsive Vertical Frame) --}}
+                    <template x-if="previewType === 'tiktok'">
+                        <div class="w-full h-full p-2 sm:p-4 flex flex-col items-center justify-center bg-black/95 overflow-y-auto">
+                            <div class="w-full max-w-[420px] h-full max-h-[750px] bg-slate-900 rounded-2xl overflow-hidden shadow-2xl relative flex flex-col border border-slate-800">
+                                <iframe :src="previewUrl"
+                                        class="w-full flex-1 border-0"
+                                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen></iframe>
+                                <div class="px-4 py-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300 shrink-0">
+                                    <span class="flex items-center gap-1.5 font-semibold text-rose-400">
+                                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
+                                        TikTok Player
+                                    </span>
+                                    <a :href="originalUrl || previewUrl" target="_blank" class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white transition font-bold text-[11px] flex items-center gap-1 shadow-sm">
+                                        <span>Buka di TikTok</span>
+                                        <span>&rarr;</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- YouTube Video Player (Responsive 16:9 Widescreen) --}}
+                    <template x-if="previewType === 'youtube'">
+                        <div class="w-full h-full p-2 sm:p-6 flex items-center justify-center bg-black">
+                            <div class="w-full max-w-4xl aspect-video rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl bg-slate-900 border border-slate-800">
+                                <iframe :src="previewUrl"
+                                        class="w-full h-full border-0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
                     </template>
 
                     {{-- PDF Viewer Embed --}}
@@ -1125,13 +1186,13 @@
                         </div>
                     </template>
 
-                    {{-- Video Viewer Pemutar HTML5 --}}
+                    {{-- Video Viewer Pemutar HTML5 (Berkas MP4 / WebM Lokal) --}}
                     <template x-if="previewType === 'video'">
-                        <div class="w-full h-full p-4 flex items-center justify-center bg-black">
+                        <div class="w-full h-full p-4 flex flex-col items-center justify-center bg-black">
                             <video :src="previewUrl"
                                    controls
                                    autoplay
-                                   class="max-h-full max-w-full rounded-xl shadow-2xl">
+                                   class="max-h-[80vh] max-w-full rounded-xl shadow-2xl">
                                 Browser Anda tidak mendukung pemutar video HTML5.
                             </video>
                         </div>
@@ -1143,7 +1204,7 @@
                             <span class="text-4xl mb-3 block">🔗</span>
                             <h5 class="font-bold text-gray-800 dark:text-white text-base mb-2" x-text="previewTitle"></h5>
                             <p class="text-xs text-gray-500 mb-5">Tautan dokumen dapat dibuka langsung melalui tombol di bawah.</p>
-                            <a :href="previewUrl" target="_blank"
+                            <a :href="originalUrl || previewUrl" target="_blank"
                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-xs shadow-md transition">
                                 <span>Buka Tautan Eksternal</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>

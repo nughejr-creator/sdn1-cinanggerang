@@ -81,4 +81,22 @@ class PkksFeatureTest extends TestCase
             $profile->update(['pkks_status' => 'active']);
         }
     }
+
+    public function test_pkks_evidence_embed_urls_support_tiktok_and_youtube_and_gdrive(): void
+    {
+        $tiktok = new \App\Models\PkksEvidence([
+            'external_url' => 'https://www.tiktok.com/@sdn.cinanggerang1/video/7559429345354288395',
+        ]);
+        $this->assertEquals('https://www.tiktok.com/embed/v2/7559429345354288395', $tiktok->embed_url);
+
+        $youtube = new \App\Models\PkksEvidence([
+            'external_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        ]);
+        $this->assertEquals('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0', $youtube->embed_url);
+
+        $gdrive = new \App\Models\PkksEvidence([
+            'external_url' => 'https://drive.google.com/file/d/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG/view?usp=sharing',
+        ]);
+        $this->assertEquals('https://drive.google.com/file/d/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG/preview', $gdrive->embed_url);
+    }
 }
