@@ -120,7 +120,7 @@ class DapodikWebServiceSync
                 'class_changed' => 0, // Siswa yang naik kelas / pindah rombel
                 'deleted' => 0,       // Siswa yang dihapus permanen karena tidak ada di Dapodik
                 'skipped' => 0,
-                'classes_synced' => count($classMap),
+                'classes_synced' => count(array_unique(array_values($classMap))),
             ];
 
             $syncedStudentIds = [];
@@ -230,6 +230,8 @@ class DapodikWebServiceSync
                     $stats['deleted'] = $missingCount;
                 }
             }
+
+            $stats['classes_synced'] = count(array_unique(array_values($classMap)));
 
             return $stats;
         });
