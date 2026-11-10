@@ -37,6 +37,8 @@ class DapodikSyncController extends Controller
             ?: $request->input('rombel_rows') 
             ?: [];
 
+        $pruneMissing = $request->boolean('prune_missing', true);
+
         if (empty($students)) {
             return response()->json([
                 'success' => false,
@@ -45,14 +47,14 @@ class DapodikSyncController extends Controller
         }
 
         try {
-            // 3. Olah data dan masukkan ke database server
-            $stats = DapodikWebServiceSync::processSyncData($students, $rombels);
+            // 3. Olah data dan masukkan ke database server (dengan pembersihan siswa mutasi/keluar jika diaktifkan)
+            $stats = DapodikWebServiceSync::processSyncData($students, $rombels, $pruneMissing);
 
             Log::info("Dapodik Web Service Sync via API sukses", $stats);
 
             return response()->json([
                 'success' => true,
-                'message' => "Berhasil menyinkronkan {$stats['total']} siswa dari Dapodik.",
+                'message' => "Berhasil menyinkronkan {$stats['total']} siswa dari Dapodik. (Baru: {$stats['created']}, Diperbarui: {$stats['updated']}, Naik/Pindah Rombel: {$stats['class_changed']}, Dihapus/Mutasi: {$stats['deleted']})",
                 'data' => $stats,
             ]);
         } catch (\Throwable $e) {

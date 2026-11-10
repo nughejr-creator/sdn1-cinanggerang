@@ -4,13 +4,16 @@
 # Script ini secara otomatis:
 # 1. Menarik data Peserta Didik & Rombel dari Web Service Dapodik lokal (port 5774)
 # 2. Mengirimkan data ke server database website (https://sdncinanggerang1.onrender.com)
+# 3. Otomatis memindahkan kelas jika siswa naik kelas / pindah rombel
+# 4. Otomatis menghapus permanen siswa di web yang sudah tidak ada di Dapodik (mutasi/keluar)
 # ==============================================================================
 
 param(
     [string]$TargetServer = "https://sdncinanggerang1.onrender.com",
     [string]$TokenDapodik = "Cu7bJNdcgqTI42V",
     [string]$NPSN = "20208801",
-    [string]$LocalDapodikUrl = "http://127.0.0.1:5774"
+    [string]$LocalDapodikUrl = "http://127.0.0.1:5774",
+    [bool]$HapusSiswaMutasi = $true
 )
 
 $Host.UI.RawUI.WindowTitle = "Sinkronisasi Dapodik -> Website SDN Cinanggerang 1"
@@ -24,6 +27,7 @@ Write-Host "Target Server Web  : $TargetServer" -ForegroundColor Gray
 Write-Host "Dapodik Lokal      : $LocalDapodikUrl" -ForegroundColor Gray
 Write-Host "NPSN Sekolah       : $NPSN" -ForegroundColor Gray
 Write-Host "Token Web Service  : $(($TokenDapodik.Substring(0, 4)) + '***' + ($TokenDapodik.Substring($TokenDapodik.Length - 3)))" -ForegroundColor Gray
+Write-Host "Hapus Siswa Mutasi : $(if ($HapusSiswaMutasi) {'YA (Hapus permanen siswa jika keluar dari Dapodik)'} else {'TIDAK'})" -ForegroundColor Gray
 Write-Host ""
 
 # 1. Cek Konektivitas ke Dapodik Lokal
@@ -85,9 +89,9 @@ $payloadObj = @{
     students = $students
     rombels = $rombels
     token = $TokenDapodik
+    prune_missing = $HapusSiswaMutasi
 }
 
-# Convert payload ke format JSON UTF-8
 $payloadJson = $payloadObj | ConvertTo-Json -Depth 5
 
 $webHeaders = @{
@@ -104,13 +108,15 @@ try {
         Write-Host "              🎉 SINKRONISASI KE WEBSITE BERHASIL!                       " -ForegroundColor Green
         Write-Host "========================================================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "Pesan Server        : $($syncRes.message)" -ForegroundColor Cyan
-        Write-Host "Total Siswa Diproses: $($syncRes.data.total)" -ForegroundColor Yellow
-        Write-Host "Siswa Baru          : $($syncRes.data.created)" -ForegroundColor Green
+        Write-Host "Status Sinkronisasi : $($syncRes.message)" -ForegroundColor Cyan
+        Write-Host "Total Siswa Dapodik : $($syncRes.data.total)" -ForegroundColor Yellow
+        Write-Host "Siswa Baru Dibuat   : $($syncRes.data.created)" -ForegroundColor Green
         Write-Host "Siswa Diperbarui    : $($syncRes.data.updated)" -ForegroundColor White
+        Write-Host "Siswa Naik Rombel   : $($syncRes.data.class_changed)" -ForegroundColor Cyan
+        Write-Host "Siswa Mutasi/Keluar : $($syncRes.data.deleted) (Dihapus Permanen)" -ForegroundColor Magenta
         Write-Host "Jumlah Rombel/Kelas : $($syncRes.data.classes_synced)" -ForegroundColor White
         Write-Host ""
-        Write-Host "Data siswa di website resmi SDN Cinanggerang 1 telah diperbarui." -ForegroundColor Gray
+        Write-Host "Data siswa di website resmi SDN Cinanggerang 1 telah disesuaikan." -ForegroundColor Gray
     } else {
         Write-Host ""
         Write-Host "========================================================================" -ForegroundColor Red

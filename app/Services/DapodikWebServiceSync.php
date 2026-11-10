@@ -24,7 +24,8 @@ class DapodikWebServiceSync
     public static function pullFromLocal(
         ?string $token = null,
         string $npsn = '20208801',
-        string $baseUrl = 'http://127.0.0.1:5774'
+        string $baseUrl = 'http://127.0.0.1:5774',
+        bool $pruneMissing = true
     ): array {
         $token = $token ?: self::getDefaultToken();
         $baseUrl = rtrim($baseUrl, '/');
@@ -55,21 +56,28 @@ class DapodikWebServiceSync
         $pdData = $pdResp->json();
         $students = $pdData['rows'] ?? (is_array($pdData) ? $pdData : []);
 
-        // 3. Proses Sinkronisasi ke Database
-        return self::processSyncData($students, $rombels);
+        // 3. Proses Sinkronisasi ke Database (dengan pembersihan siswa mutasi/keluar jika diaktifkan)
+        return self::processSyncData($students, $rombels, $pruneMissing);
     }
 
     /**
      * Proses data array siswa dan rombel (baik dari pull lokal maupun dari kiriman payload API).
+     *
+     * @param array $students Daftar peserta didik dari Dapodik
+     * @param array $rombels Daftar rombel dari Dapodik
+     * @param bool $pruneMissing Hapus permanen siswa di web yang sudah tidak ada di Dapodik (mutasi/keluar)
      */
-    public static function processSyncData(array $students, array $rombels = []): array
+    public static function processSyncData(array $students, array $rombels = [], bool $pruneMissing = true): array
     {
-        return DB::transaction(function () use ($students, $rombels) {
-            // 1. Sinkronisasi atau petakan kelas
+        if (empty($students)) {
+            throw new \Exception("Daftar data siswa Dapodik kosong. Sinkronisasi dibatalkan demi keamanan data.");
+        }
+
+        return DB::transaction(function () use ($students, $rombels, $pruneMissing) {
+            // 1. Sinkronisasi dan petakan seluruh kelas rombel
             $classMap = []; // [nama_rombel => class_id, rombel_id => class_id]
             $existingClasses = StudentClass::pluck('id', 'nama')->toArray();
 
-            // Jika data rombel disediakan dari endpoint getRombonganBelajar
             foreach ($rombels as $r) {
                 $namaRombel = trim($r['nama'] ?? '');
                 if (!$namaRombel) continue;
@@ -100,7 +108,7 @@ class DapodikWebServiceSync
                 }
             }
 
-            // Pre-load all existing students to memory indexed by nisn, nik, nipd
+            // Pre-load siswa yang ada di memori untuk pencocokan cepat tanpa ribuan query
             $existingByNisn = Student::whereNotNull('nisn')->get()->keyBy('nisn');
             $existingByNik = Student::whereNotNull('nik')->get()->keyBy('nik');
             $existingByNipd = Student::whereNotNull('nipd')->get()->keyBy('nipd');
@@ -109,9 +117,13 @@ class DapodikWebServiceSync
                 'total' => 0,
                 'created' => 0,
                 'updated' => 0,
+                'class_changed' => 0, // Siswa yang naik kelas / pindah rombel
+                'deleted' => 0,       // Siswa yang dihapus permanen karena tidak ada di Dapodik
                 'skipped' => 0,
                 'classes_synced' => count($classMap),
             ];
+
+            $syncedStudentIds = [];
 
             // 2. Loop dan Upsert Peserta Didik
             foreach ($students as $row) {
@@ -170,7 +182,7 @@ class DapodikWebServiceSync
                     'status' => 'Aktif',
                 ];
 
-                // Cari data yang cocok
+                // 3. Cari data siswa di database (Multi-layer matching: NISN -> NIK -> NIPD -> Nama & Rombel)
                 $existing = null;
                 if (!empty($nisn) && isset($existingByNisn[$nisn])) {
                     $existing = $existingByNisn[$nisn];
@@ -185,11 +197,20 @@ class DapodikWebServiceSync
                 }
 
                 if ($existing) {
+                    // Deteksi apakah siswa naik kelas / pindah rombel
+                    if ($classId && $existing->student_class_id != $classId) {
+                        $stats['class_changed']++;
+                    }
+
+                    // Replace / Update in place data siswa yang ada
                     $existing->update($data);
+                    $syncedStudentIds[] = $existing->id;
                     $stats['updated']++;
                 } else {
                     $data['nisn'] = $nisn;
                     $created = Student::create($data);
+                    $syncedStudentIds[] = $created->id;
+
                     if ($nisn) $existingByNisn[$nisn] = $created;
                     if ($nik) $existingByNik[$nik] = $created;
                     if ($nipd) $existingByNipd[$nipd] = $created;
@@ -197,6 +218,17 @@ class DapodikWebServiceSync
                 }
 
                 $stats['total']++;
+            }
+
+            // 4. HAPUS PERMANEN SISWA YANG TIDAK ADA DI DAPODIK (Mutasi Keluar / Pindah Sekolah / Lulus)
+            if ($pruneMissing && !empty($syncedStudentIds)) {
+                $missingQuery = Student::whereNotIn('id', $syncedStudentIds);
+                $missingCount = $missingQuery->count();
+
+                if ($missingCount > 0) {
+                    $missingQuery->delete();
+                    $stats['deleted'] = $missingCount;
+                }
             }
 
             return $stats;

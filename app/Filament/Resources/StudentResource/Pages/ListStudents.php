@@ -49,6 +49,10 @@ class ListStudents extends ListRecords
                         ->default('http://127.0.0.1:5774')
                         ->required()
                         ->helperText('Default: http://127.0.0.1:5774 (Port bawaan Dapodik).'),
+                    Forms\Components\Toggle::make('prune_missing')
+                        ->label('Hapus Permanen Siswa yang Tidak Ada di Dapodik (Mutasi / Keluar)')
+                        ->default(true)
+                        ->helperText('Jika aktif, siswa di website yang sudah tidak terdaftar di Dapodik akan otomatis dihapus permanen.'),
                 ])
                 ->modalSubmitActionLabel('Mulai Tarik Data')
                 ->action(function (array $data) {
@@ -56,12 +60,13 @@ class ListStudents extends ListRecords
                         $stats = DapodikWebServiceSync::pullFromLocal(
                             $data['ws_token'],
                             $data['npsn'],
-                            $data['ws_url']
+                            $data['ws_url'],
+                            $data['prune_missing'] ?? true
                         );
 
                         Notification::make()
                             ->title('Sinkronisasi Web Service Berhasil! 🎉')
-                            ->body("Sukses memproses {$stats['total']} siswa dari Dapodik. Data Baru: {$stats['created']}, Data Diperbarui: {$stats['updated']}.")
+                            ->body("Sukses memproses {$stats['total']} siswa. Baru: {$stats['created']}, Diperbarui: {$stats['updated']}, Naik/Pindah Rombel: {$stats['class_changed']}, Dihapus (Mutasi): {$stats['deleted']}.")
                             ->success()
                             ->duration(10000)
                             ->send();

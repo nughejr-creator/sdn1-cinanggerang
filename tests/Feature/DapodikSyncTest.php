@@ -26,7 +26,7 @@ class DapodikSyncTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_sync_accepts_valid_payload(): void
+    public function test_sync_accepts_valid_payload_and_updates_class(): void
     {
         $payload = [
             'students' => [
@@ -47,7 +47,8 @@ class DapodikSyncTest extends TestCase
                     'nama' => 'Kelas IV',
                     'tingkat_pendidikan_id' => 4,
                 ]
-            ]
+            ],
+            'prune_missing' => false,
         ];
 
         $response = $this->withHeaders([
@@ -63,6 +64,37 @@ class DapodikSyncTest extends TestCase
             'nisn' => '9998887771',
             'nama' => 'Budi Santoso Uji Coba',
         ]);
+
+        // Uji coba kenaikan kelas (pindah ke Kelas V)
+        $payloadNaikKelas = [
+            'students' => [
+                [
+                    'nama' => 'Budi Santoso Uji Coba',
+                    'nisn' => '9998887771',
+                    'nik' => '3211130000000001',
+                    'jenis_kelamin' => 'L',
+                    'tempat_lahir' => 'Sumedang',
+                    'tanggal_lahir' => '2016-05-10',
+                    'nama_rombel' => 'Kelas V',
+                    'agama_id_str' => 'Islam',
+                    'alamat_jalan' => 'Dusun Cinanggerang',
+                ]
+            ],
+            'rombels' => [
+                [
+                    'nama' => 'Kelas V',
+                    'tingkat_pendidikan_id' => 5,
+                ]
+            ],
+            'prune_missing' => false,
+        ];
+
+        $response2 = $this->withHeaders([
+            'X-Dapodik-Token' => 'Cu7bJNdcgqTI42V',
+        ])->postJson('/api/dapodik/sync-students', $payloadNaikKelas);
+
+        $response2->assertStatus(200);
+        $this->assertEquals(1, $response2->json('data.class_changed'));
 
         // Clean up test record
         Student::where('nisn', '9998887771')->delete();
