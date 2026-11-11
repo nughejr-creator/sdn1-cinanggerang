@@ -1,4 +1,5 @@
 @php
+    // 1. Tangani Thumbnail Preview
     $thumbnailUrl = null;
     $thumbnail = $data['thumbnail'] ?? null;
     if (is_array($thumbnail) && !empty($thumbnail)) {
@@ -14,19 +15,41 @@
         $thumbnailUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($thumbnail);
     }
 
+    // 2. Tangani Kategori
     $categoryName = 'Umum / Warta Sekolah';
-    if (!empty($data['category_id'])) {
-        $cat = \App\Models\Category::find($data['category_id']);
-        if ($cat) {
-            $categoryName = $cat->nama;
+    if (!empty($data['category_id']) && is_numeric($data['category_id'])) {
+        try {
+            $cat = \App\Models\Category::find($data['category_id']);
+            if ($cat) {
+                $categoryName = $cat->nama;
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    // 3. Tangani Tanggal Rilis
+    $publishedDate = now()->translatedFormat('l, d F Y');
+    if (!empty($data['published_at'])) {
+        try {
+            $publishedDate = \Carbon\Carbon::parse($data['published_at'])->translatedFormat('l, d F Y');
+        } catch (\Throwable $e) {}
+    }
+
+    // 4. Tangani Konten HTML (Dukungan TipTap JSON/Array maupun String HTML biasa)
+    $contentHtml = '';
+    $rawContent = $data['konten'] ?? null;
+    if (!empty($rawContent)) {
+        if (is_array($rawContent)) {
+            try {
+                $contentHtml = tiptap_converter()->asHTML($rawContent);
+            } catch (\Throwable $e) {
+                $contentHtml = '<p>' . e(json_encode($rawContent)) . '</p>';
+            }
+        } else {
+            $contentHtml = (string) $rawContent;
         }
     }
 
-    $publishedDate = !empty($data['published_at']) 
-        ? \Carbon\Carbon::parse($data['published_at'])->translatedFormat('l, d F Y')
-        : now()->translatedFormat('l, d F Y');
-
-    $status = $data['status'] ?? 'Draft';
+    $status = is_string($data['status'] ?? null) ? $data['status'] : 'Draft';
     $isPublished = $status === 'Publish';
 @endphp
 
@@ -36,7 +59,7 @@
         <div class="flex items-center gap-2">
             <span class="text-base">👁️</span>
             <div>
-                <strong>Simulasi Pratinjau Tampilan Warta</strong> (Status saat ini: <span class="font-bold uppercase">{{ $status }}</span>)
+                <strong>Simulasi Pratinjau Tampilan Warta</strong> (Status: <span class="font-bold uppercase">{{ $status }}</span>)
                 <p class="text-[11px] opacity-80">Tampilan berikut mencerminkan persis bagaimana artikel akan tampil bagi pembaca di portal publik sekolah.</p>
             </div>
         </div>
@@ -78,8 +101,8 @@
 
         {{-- Isi Konten Berita --}}
         <div class="prose prose-emerald dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
-            @if(!empty($data['konten']))
-                {!! $data['konten'] !!}
+            @if(!empty($contentHtml))
+                {!! $contentHtml !!}
             @else
                 <p class="text-gray-400 italic">Konten artikel masih kosong. Tuliskan teks warta pada editor formulir untuk melihat hasil pratinjau.</p>
             @endif

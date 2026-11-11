@@ -1,15 +1,40 @@
 @php
-    $startDate = !empty($data['tanggal_mulai']) 
-        ? \Carbon\Carbon::parse($data['tanggal_mulai'])->translatedFormat('d F Y')
-        : now()->translatedFormat('d F Y');
+    $startDate = now()->translatedFormat('d F Y');
+    if (!empty($data['tanggal_mulai'])) {
+        try {
+            $startDate = \Carbon\Carbon::parse($data['tanggal_mulai'])->translatedFormat('d F Y');
+        } catch (\Throwable $e) {}
+    }
     
-    $endDate = !empty($data['tanggal_selesai']) 
-        ? \Carbon\Carbon::parse($data['tanggal_selesai'])->translatedFormat('d F Y')
-        : null;
+    $endDate = null;
+    if (!empty($data['tanggal_selesai'])) {
+        try {
+            $endDate = \Carbon\Carbon::parse($data['tanggal_selesai'])->translatedFormat('d F Y');
+        } catch (\Throwable $e) {}
+    }
 
     $isActive = true;
-    if (!empty($data['tanggal_selesai']) && \Carbon\Carbon::parse($data['tanggal_selesai'])->isPast()) {
-        $isActive = false;
+    if (!empty($data['tanggal_selesai'])) {
+        try {
+            if (\Carbon\Carbon::parse($data['tanggal_selesai'])->isPast()) {
+                $isActive = false;
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    // Tangani Konten HTML (TipTap Array / String)
+    $contentHtml = '';
+    $rawContent = $data['isi'] ?? null;
+    if (!empty($rawContent)) {
+        if (is_array($rawContent)) {
+            try {
+                $contentHtml = tiptap_converter()->asHTML($rawContent);
+            } catch (\Throwable $e) {
+                $contentHtml = '<p>' . e(json_encode($rawContent)) . '</p>';
+            }
+        } else {
+            $contentHtml = (string) $rawContent;
+        }
     }
 @endphp
 
@@ -56,8 +81,8 @@
 
         {{-- Isi Konten Pengumuman --}}
         <div class="prose prose-emerald dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
-            @if(!empty($data['isi']))
-                {!! $data['isi'] !!}
+            @if(!empty($contentHtml))
+                {!! $contentHtml !!}
             @else
                 <p class="text-gray-400 italic">Isi teks pengumuman masih kosong.</p>
             @endif
