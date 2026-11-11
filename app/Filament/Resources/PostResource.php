@@ -60,8 +60,12 @@ class PostResource extends Resource
                             ->disk('public')
                             ->directory('posts-thumbnails')
                             ->columnSpanFull(),
-                        Forms\Components\RichEditor::make('konten')
-                            ->label('Isi Lengkap Berita (Dukungan Gambar & Format Teks)')
+                        \FilamentTiptapEditor\TiptapEditor::make('konten')
+                            ->label('Isi Lengkap Berita (Editor Lengkap Mirip MS Word)')
+                            ->profile('default')
+                            ->disk('public')
+                            ->directory('posts-content')
+                            ->maxContentWidth('5xl')
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\Select::make('status')

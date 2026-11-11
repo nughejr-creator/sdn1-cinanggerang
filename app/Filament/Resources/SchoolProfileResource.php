@@ -193,59 +193,23 @@ class SchoolProfileResource extends Resource
                 Forms\Components\Section::make('Visi, Misi & Sambutan Kepala Sekolah')
                     ->description('Editor teks terformat ala MS Word dilengkapi perataan teks (Kiri, Tengah, Kanan, Justify), heading, list, penekanan font, dan riwayat revisi.')
                     ->schema([
-                        Forms\Components\RichEditor::make('visi')
+                        \FilamentTiptapEditor\TiptapEditor::make('visi')
                             ->label('Visi Sekolah')
                             ->helperText('Rumusan visi resmi satuan pendidikan SDN Cinanggerang I.')
-                            ->toolbarButtons([
-                                'bold',
-                                'italic',
-                                'underline',
-                                'strike',
-                                'h2',
-                                'h3',
-                                'bulletList',
-                                'orderedList',
-                                'blockquote',
-                                'link',
-                                'undo',
-                                'redo',
-                            ])
+                            ->profile('default')
                             ->columnSpanFull(),
-                        Forms\Components\RichEditor::make('misi')
+                        \FilamentTiptapEditor\TiptapEditor::make('misi')
                             ->label('Misi Sekolah')
                             ->helperText('Poin-poin misi sekolah (dapat menggunakan bullet list atau numbered list seperti di MS Word).')
-                            ->toolbarButtons([
-                                'bold',
-                                'italic',
-                                'underline',
-                                'strike',
-                                'h2',
-                                'h3',
-                                'bulletList',
-                                'orderedList',
-                                'blockquote',
-                                'link',
-                                'undo',
-                                'redo',
-                            ])
+                            ->profile('default')
                             ->columnSpanFull(),
-                        Forms\Components\RichEditor::make('sambutan_kepala_sekolah')
+                        \FilamentTiptapEditor\TiptapEditor::make('sambutan_kepala_sekolah')
                             ->label('Sambutan Kepala Sekolah (Aep Yayat, S.Pd)')
-                            ->helperText('Amanat resmi kepala sekolah untuk beranda portal sekolah.')
-                            ->toolbarButtons([
-                                'bold',
-                                'italic',
-                                'underline',
-                                'strike',
-                                'h2',
-                                'h3',
-                                'bulletList',
-                                'orderedList',
-                                'blockquote',
-                                'link',
-                                'undo',
-                                'redo',
-                            ])
+                            ->helperText('Amanat resmi kepala sekolah untuk beranda portal sekolah (Editor Lengkap Mirip MS Word).')
+                            ->profile('default')
+                            ->disk('public')
+                            ->directory('headmaster-speech')
+                            ->maxContentWidth('5xl')
                             ->columnSpanFull(),
                     ]),
             ]);

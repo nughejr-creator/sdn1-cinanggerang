@@ -37,8 +37,12 @@ class AnnouncementResource extends Resource
                             ->default(now()),
                         Forms\Components\DatePicker::make('tanggal_selesai')
                             ->label('Tanggal Berakhir'),
-                        Forms\Components\RichEditor::make('isi')
-                            ->label('Isi Pengumuman')
+                        \FilamentTiptapEditor\TiptapEditor::make('isi')
+                            ->label('Isi Lengkap Pengumuman (Editor Lengkap Mirip MS Word)')
+                            ->profile('default')
+                            ->disk('public')
+                            ->directory('announcements-content')
+                            ->maxContentWidth('5xl')
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\FileUpload::make('file_lampiran')

@@ -76,8 +76,12 @@ class LessonResource extends Resource
                             ->directory('elearning-materi')
                             ->openable()
                             ->downloadable(),
-                        Forms\Components\RichEditor::make('konten')
-                            ->label('Isi Materi Lengkap (Bisa sisipkan gambar/tabel)')
+                        \FilamentTiptapEditor\TiptapEditor::make('konten')
+                            ->label('Isi Materi Lengkap (Editor Lengkap Mirip MS Word: Sisip Gambar, Tabel, Video & Format Rapi)')
+                            ->profile('default')
+                            ->disk('public')
+                            ->directory('lessons-content')
+                            ->maxContentWidth('5xl')
                             ->columnSpanFull(),
                         Forms\Components\Toggle::make('is_published')
                             ->label('Terbitkan ke Siswa Sekarang')
