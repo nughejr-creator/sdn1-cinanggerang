@@ -498,4 +498,18 @@ class FrontendController extends Controller
             'categoryCounts'
         ));
     }
+
+    /**
+     * Halaman Profil & CV Singkat Pengembang Website
+     */
+    public function pengembang(): View
+    {
+        if (app()->environment('local')) {
+            array_map('unlink', glob(storage_path('framework/views/*.php')));
+        }
+        $profile = SchoolProfile::first();
+        $developer = Teacher::where('nama', 'like', '%Agi Hamdani%')->first();
+
+        return view('frontend.pengembang', compact('profile', 'developer'));
+    }
 }

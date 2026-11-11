@@ -94,6 +94,7 @@ Route::post('/e-pkks/verify-pin', [PkksController::class, 'verifyPin'])->name('p
 Route::post('/e-pkks/lock-pin', [PkksController::class, 'lockPin'])->name('pkks.lock-pin');
 Route::post('/e-pkks/review', [PkksController::class, 'storeReview'])->name('pkks.store-review');
 Route::get('/ppdb', [FrontendController::class, 'ppdb'])->name('ppdb');
+Route::get('/pengembang', [FrontendController::class, 'pengembang'])->name('pengembang');
 
 // Rute E-Learning & Bank Perangkat Ajar Kurikulum Merdeka (Akses Publik)
 Route::get('/perangkat-ajar', [FrontendController::class, 'perangkatAjar'])->name('perangkat-ajar');

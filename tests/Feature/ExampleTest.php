@@ -29,4 +29,18 @@ class ExampleTest extends TestCase
         $response->assertSee('Pendidikan Unggul, Berkarakter', false);
         $response->assertSee('Presensi Digital', false);
     }
+
+    public function test_developer_profile_page_loads_successfully(): void
+    {
+        $response = $this->get('/pengembang');
+
+        $response->assertStatus(200);
+        $response->assertSee('Agi Hamdani, M.Pd.', false);
+        $response->assertSee('S2 Magister PGSD', false);
+        $response->assertSee('Kampus Cibiru', false);
+        $response->assertSee('S1 Pendidikan Guru Sekolah Dasar (PGSD)', false);
+        $response->assertSee('Kampus Sumedang', false);
+        $response->assertSee('sasipedia.my.id', false);
+        $response->assertSee('Profil Pengembang Website', false);
+    }
 }
