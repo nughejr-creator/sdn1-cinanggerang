@@ -14,6 +14,8 @@
         originalUrl: '',
         previewTitle: '',
         previewDescription: '',
+        historyModalOpen: false,
+        historyCategoryFilter: 'all',
         pinModalOpen: false,
         pinInput: '',
         pinError: '',
@@ -317,75 +319,165 @@
                         </p>
                     </div>
 
-                    {{-- Bento Card Bawah: Riwayat Diklat, Prestasi & Keaktifan Organisasi --}}
+                    {{-- Bento Card Bawah: Riwayat Diklat, Prestasi & Keaktifan Organisasi (Compact Fixed-Height Cards) --}}
+                    @php
+                        $allHistories = $headmaster?->histories ?? collect();
+                        $trainings = $allHistories->where('type', 'training');
+                        $achievements = $allHistories->where('type', 'achievement');
+                        $organizations = $allHistories->where('type', 'organization');
+                        $educations = $allHistories->where('type', 'education');
+                    @endphp
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                        {{-- Diklat & Pelatihan --}}
-                        <div class="bg-forest-900/50 backdrop-blur-md rounded-2xl p-5 border border-forest-800/80 shadow">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 text-sm">🎓</span>
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">Pengembangan Diri</h3>
+                        {{-- Card 1: Pengembangan Diri & Diklat --}}
+                        <div class="bg-forest-900/50 backdrop-blur-md rounded-2xl p-5 border border-forest-800/80 shadow flex flex-col justify-between h-[210px]">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="p-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-sm">📚</span>
+                                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-300">Pengembangan Diri</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-bold">
+                                        {{ $trainings->count() }}
+                                    </span>
+                                </div>
+                                <ul class="text-xs text-gray-300 space-y-1.5 overflow-hidden">
+                                    @forelse($trainings->take(3) as $item)
+                                        <li class="flex items-start gap-1.5 leading-snug">
+                                            <span class="text-sumedang-amber text-xs font-bold shrink-0 mt-0.5">•</span>
+                                            <span class="line-clamp-2">
+                                                {{ $item->title }}
+                                                @if(!empty($item->year))
+                                                    <span class="text-emerald-400/90 text-[11px] font-semibold">({{ $item->year }})</span>
+                                                @endif
+                                            </span>
+                                        </li>
+                                    @empty
+                                        <li class="text-[11px] text-gray-400 italic py-2">Belum ada riwayat diklat tercatat.</li>
+                                    @endforelse
+                                </ul>
                             </div>
-                            <ul class="text-xs text-gray-300 space-y-2">
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Bimtek Implementasi Kurikulum Merdeka (2024)</span>
-                                </li>
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Pelatihan Perencanaan Berbasis Data (PBD) (2025)</span>
-                                </li>
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Program PKB Kepala Sekolah - BBGP Jabar</span>
-                                </li>
-                            </ul>
+                            <div class="pt-2 border-t border-forest-800/60 flex items-center justify-between text-[11px]">
+                                @if($trainings->count() > 3)
+                                    <span class="text-emerald-400 font-semibold">+{{ $trainings->count() - 3 }} riwayat lainnya</span>
+                                @else
+                                    <span class="text-gray-400 text-[10px]">Terverifikasi</span>
+                                @endif
+                                <button type="button"
+                                        @click="historyCategoryFilter = 'training'; historyModalOpen = true"
+                                        class="text-sumedang-amber hover:text-white font-bold transition flex items-center gap-1 cursor-pointer">
+                                    <span>Lihat Semua</span>
+                                    <span>&rarr;</span>
+                                </button>
+                            </div>
                         </div>
 
-                        {{-- Prestasi & Apresiasi --}}
-                        <div class="bg-forest-900/50 backdrop-blur-md rounded-2xl p-5 border border-forest-800/80 shadow">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="p-2 rounded-xl bg-amber-500/20 text-sumedang-amber text-sm">🏆</span>
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-sumedang-amber">Penghargaan</h3>
+                        {{-- Card 2: Prestasi & Penghargaan --}}
+                        <div class="bg-forest-900/50 backdrop-blur-md rounded-2xl p-5 border border-forest-800/80 shadow flex flex-col justify-between h-[210px]">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="p-1.5 rounded-xl bg-amber-500/20 text-sumedang-amber text-sm">🏆</span>
+                                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-sumedang-amber">Penghargaan</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-amber-500/10 text-sumedang-amber text-[10px] font-bold">
+                                        {{ $achievements->count() }}
+                                    </span>
+                                </div>
+                                <ul class="text-xs text-gray-300 space-y-1.5 overflow-hidden">
+                                    @forelse($achievements->take(3) as $item)
+                                        <li class="flex items-start gap-1.5 leading-snug">
+                                            <span class="text-sumedang-amber text-xs font-bold shrink-0 mt-0.5">•</span>
+                                            <span class="line-clamp-2">
+                                                {{ $item->title }}
+                                                @if(!empty($item->year))
+                                                    <span class="text-sumedang-amber text-[11px] font-semibold">({{ $item->year }})</span>
+                                                @endif
+                                            </span>
+                                        </li>
+                                    @empty
+                                        <li class="text-[11px] text-gray-400 italic py-2">Belum ada penghargaan tercatat.</li>
+                                    @endforelse
+                                </ul>
                             </div>
-                            <ul class="text-xs text-gray-300 space-y-2">
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Kepala Sekolah Penggerak Mutu Literasi & Numerasi</span>
-                                </li>
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Apresiasi Inovasi Pengelolaan Sekolah Adiwiyata</span>
-                                </li>
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Keteladanan Manajerial Satuan Pendidikan</span>
-                                </li>
-                            </ul>
+                            <div class="pt-2 border-t border-forest-800/60 flex items-center justify-between text-[11px]">
+                                @if($achievements->count() > 3)
+                                    <span class="text-sumedang-amber font-semibold">+{{ $achievements->count() - 3 }} lainnya</span>
+                                @else
+                                    <span class="text-gray-400 text-[10px]">Apresiasi Kinerja</span>
+                                @endif
+                                <button type="button"
+                                        @click="historyCategoryFilter = 'achievement'; historyModalOpen = true"
+                                        class="text-sumedang-amber hover:text-white font-bold transition flex items-center gap-1 cursor-pointer">
+                                    <span>Lihat Semua</span>
+                                    <span>&rarr;</span>
+                                </button>
+                            </div>
                         </div>
 
-                        {{-- Keaktifan Organisasi --}}
-                        <div class="bg-forest-900/50 backdrop-blur-md rounded-2xl p-5 border border-forest-800/80 shadow">
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="p-2 rounded-xl bg-sky-500/20 text-sky-300 text-sm">🤝</span>
-                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-sky-300">Organisasi Profesi</h3>
+                        {{-- Card 3: Keaktifan Organisasi Profesi --}}
+                        <div class="bg-forest-900/50 backdrop-blur-md rounded-2xl p-5 border border-forest-800/80 shadow flex flex-col justify-between h-[210px]">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span class="p-1.5 rounded-xl bg-sky-500/20 text-sky-300 text-sm">🤝</span>
+                                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-sky-300">Organisasi Profesi</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-300 text-[10px] font-bold">
+                                        {{ $organizations->count() }}
+                                    </span>
+                                </div>
+                                <ul class="text-xs text-gray-300 space-y-1.5 overflow-hidden">
+                                    @forelse($organizations->take(3) as $item)
+                                        <li class="flex items-start gap-1.5 leading-snug">
+                                            <span class="text-sumedang-amber text-xs font-bold shrink-0 mt-0.5">•</span>
+                                            <span class="line-clamp-2">
+                                                {{ $item->title }}
+                                                @if(!empty($item->year))
+                                                    <span class="text-sky-300 text-[11px] font-semibold">({{ $item->year }})</span>
+                                                @endif
+                                            </span>
+                                        </li>
+                                    @empty
+                                        <li class="text-[11px] text-gray-400 italic py-2">Belum ada riwayat organisasi.</li>
+                                    @endforelse
+                                </ul>
                             </div>
-                            <ul class="text-xs text-gray-300 space-y-2">
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Pengurus KKKS Kec. Pamulihan (2023 - Sekarang)</span>
-                                </li>
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Anggota Aktif PGRI Cabang Pamulihan</span>
-                                </li>
-                                <li class="flex items-start gap-1.5">
-                                    <span class="text-sumedang-amber text-xs font-bold mt-0.5">•</span>
-                                    <span>Pembina Gugus Komunitas Belajar Sekolah</span>
-                                </li>
-                            </ul>
+                            <div class="pt-2 border-t border-forest-800/60 flex items-center justify-between text-[11px]">
+                                @if($organizations->count() > 3)
+                                    <span class="text-sky-300 font-semibold">+{{ $organizations->count() - 3 }} lainnya</span>
+                                @else
+                                    <span class="text-gray-400 text-[10px]">Aktif Berorganisasi</span>
+                                @endif
+                                <button type="button"
+                                        @click="historyCategoryFilter = 'organization'; historyModalOpen = true"
+                                        class="text-sumedang-amber hover:text-white font-bold transition flex items-center gap-1 cursor-pointer">
+                                    <span>Lihat Semua</span>
+                                    <span>&rarr;</span>
+                                </button>
+                            </div>
                         </div>
 
+                    </div>
+
+                    {{-- Action Banner: Full Theater View Trigger --}}
+                    <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 sm:px-5 rounded-2xl bg-forest-900/80 border border-forest-700/80 shadow-md">
+                        <div class="flex items-center gap-2.5 text-xs text-gray-200">
+                            <span class="flex h-2 w-2 rounded-full bg-sumedang-amber animate-pulse"></span>
+                            <span>Total <strong>{{ $allHistories->count() }}</strong> Rekam Jejak Pimpinan Tercatat</span>
+                            @if($educations->isNotEmpty())
+                                <span class="hidden md:inline px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-200 text-[10px] font-bold">
+                                    🎓 {{ $educations->count() }} Pendidikan Formal
+                                </span>
+                            @endif
+                        </div>
+                        <button type="button"
+                                @click="historyCategoryFilter = 'all'; historyModalOpen = true"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-sumedang-amber hover:bg-sumedang-gold text-forest-950 font-black text-xs shadow-md transition transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                            <svg class="w-4 h-4 text-forest-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                            <span>Buka Portofolio Lengkap (Theater View) &rarr;</span>
+                        </button>
                     </div>
 
                 </div>
@@ -1216,6 +1308,219 @@
                         </div>
                     </template>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL EXECUTIVE THEATER VIEW: PORTOFOLIO LENGKAP KEPALA SEKOLAH --}}
+    <div x-show="historyModalOpen"
+         x-cloak
+         class="fixed inset-0 z-50 overflow-y-auto"
+         role="dialog" aria-modal="true"
+         @keydown.escape.window="historyModalOpen = false">
+        <div class="min-h-screen px-3 sm:px-6 text-center flex items-center justify-center py-6">
+            {{-- Backdrop Blur --}}
+            <div x-show="historyModalOpen"
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="fixed inset-0 bg-slate-950/85 backdrop-blur-md transition-opacity"
+                 @click="historyModalOpen = false"></div>
+
+            {{-- Modal Card Container --}}
+            <div x-show="historyModalOpen"
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="ease-in duration-150"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="relative inline-block w-full max-w-4xl max-h-[90vh] text-left bg-forest-950 text-white rounded-3xl shadow-2xl z-10 border border-forest-800 flex flex-col overflow-hidden">
+
+                {{-- Header Modal --}}
+                <div class="px-6 py-5 border-b border-forest-800 flex items-center justify-between bg-forest-900/90 shrink-0">
+                    <div class="flex items-center gap-4 overflow-hidden pr-2">
+                        <img src="{{ $headmaster?->photo_url ?? asset('images/headmaster-default.png') }}"
+                             alt="{{ $headmaster?->name ?? 'Kepala Sekolah' }}"
+                             class="w-12 h-12 rounded-2xl object-cover border-2 border-emerald-400 shadow-md shrink-0">
+                        <div class="truncate">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                                    Portofolio Rekam Jejak Pimpinan
+                                </span>
+                                <span class="text-xs text-gray-400">• {{ $allHistories->count() }} Data Tercatat</span>
+                            </div>
+                            <h3 class="text-base sm:text-lg font-black text-white truncate">
+                                {{ $headmaster?->name ?? 'Bpk. Aep Yayat, S.Pd' }}
+                            </h3>
+                            <p class="text-[11px] text-emerald-300 font-mono truncate">
+                                NIP: {{ $headmaster?->nip ?? '-' }} • Pangkat/Gol: {{ $headmaster?->rank_group ?? '-' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Tombol Tutup --}}
+                    <button type="button"
+                            @click="historyModalOpen = false"
+                            class="w-9 h-9 rounded-xl bg-forest-800 hover:bg-forest-700 text-gray-300 hover:text-white flex items-center justify-center font-bold text-sm transition shrink-0 cursor-pointer"
+                            title="Tutup (ESC)">
+                        ✕
+                    </button>
+                </div>
+
+                {{-- Filter Kategori Tabs --}}
+                <div class="px-6 py-3 border-b border-forest-800/80 bg-forest-900/50 shrink-0 flex items-center gap-2 overflow-x-auto">
+                    <button type="button"
+                            @click="historyCategoryFilter = 'all'"
+                            :class="historyCategoryFilter === 'all' ? 'bg-sumedang-amber text-forest-950 font-black shadow' : 'bg-forest-800/80 text-gray-300 hover:bg-forest-800'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5">
+                        <span>🌟 Semua</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="historyCategoryFilter === 'all' ? 'bg-forest-950/20 text-forest-950' : 'bg-forest-900 text-gray-400'">
+                            {{ $allHistories->count() }}
+                        </span>
+                    </button>
+
+                    <button type="button"
+                            @click="historyCategoryFilter = 'education'"
+                            :class="historyCategoryFilter === 'education' ? 'bg-purple-500 text-white font-black shadow' : 'bg-forest-800/80 text-gray-300 hover:bg-forest-800'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5">
+                        <span>🎓 Pendidikan Formal</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="historyCategoryFilter === 'education' ? 'bg-purple-900 text-white' : 'bg-forest-900 text-gray-400'">
+                            {{ $educations->count() }}
+                        </span>
+                    </button>
+
+                    <button type="button"
+                            @click="historyCategoryFilter = 'training'"
+                            :class="historyCategoryFilter === 'training' ? 'bg-emerald-500 text-white font-black shadow' : 'bg-forest-800/80 text-gray-300 hover:bg-forest-800'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5">
+                        <span>📚 Diklat & Pelatihan</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="historyCategoryFilter === 'training' ? 'bg-emerald-900 text-white' : 'bg-forest-900 text-gray-400'">
+                            {{ $trainings->count() }}
+                        </span>
+                    </button>
+
+                    <button type="button"
+                            @click="historyCategoryFilter = 'achievement'"
+                            :class="historyCategoryFilter === 'achievement' ? 'bg-amber-500 text-forest-950 font-black shadow' : 'bg-forest-800/80 text-gray-300 hover:bg-forest-800'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5">
+                        <span>🏆 Penghargaan</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="historyCategoryFilter === 'achievement' ? 'bg-amber-900/30 text-forest-950' : 'bg-forest-900 text-gray-400'">
+                            {{ $achievements->count() }}
+                        </span>
+                    </button>
+
+                    <button type="button"
+                            @click="historyCategoryFilter = 'organization'"
+                            :class="historyCategoryFilter === 'organization' ? 'bg-sky-500 text-white font-black shadow' : 'bg-forest-800/80 text-gray-300 hover:bg-forest-800'"
+                            class="px-3.5 py-1.5 rounded-xl text-xs transition shrink-0 cursor-pointer flex items-center gap-1.5">
+                        <span>🤝 Organisasi Profesi</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="historyCategoryFilter === 'organization' ? 'bg-sky-900 text-white' : 'bg-forest-900 text-gray-400'">
+                            {{ $organizations->count() }}
+                        </span>
+                    </button>
+                </div>
+
+                {{-- Modal Body: Full Vertical Timeline View --}}
+                <div class="flex-1 overflow-y-auto p-5 sm:p-7 space-y-3.5 bg-forest-950">
+                    @forelse($allHistories as $item)
+                        <div x-show="historyCategoryFilter === 'all' || historyCategoryFilter === '{{ $item->type }}'"
+                             x-transition
+                             class="p-4 sm:p-5 rounded-2xl bg-forest-900/70 border border-forest-800 hover:border-emerald-500/40 hover:bg-forest-900 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                            <div class="flex items-start gap-3.5">
+                                {{-- Icon Kategori --}}
+                                <div class="shrink-0 p-2.5 rounded-xl
+                                    @if($item->type === 'education') bg-purple-500/20 text-purple-300 border border-purple-400/30
+                                    @elseif($item->type === 'training') bg-emerald-500/20 text-emerald-300 border border-emerald-400/30
+                                    @elseif($item->type === 'achievement') bg-amber-500/20 text-sumedang-amber border border-amber-400/30
+                                    @else bg-sky-500/20 text-sky-300 border border-sky-400/30
+                                    @endif">
+                                    <span class="text-base">
+                                        @if($item->type === 'education') 🎓
+                                        @elseif($item->type === 'training') 📚
+                                        @elseif($item->type === 'achievement') 🏆
+                                        @else 🤝
+                                        @endif
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider
+                                            @if($item->type === 'education') bg-purple-500/20 text-purple-300
+                                            @elseif($item->type === 'training') bg-emerald-500/20 text-emerald-300
+                                            @elseif($item->type === 'achievement') bg-amber-500/20 text-sumedang-amber
+                                            @else bg-sky-500/20 text-sky-300
+                                            @endif">
+                                            @if($item->type === 'education') Pendidikan Formal
+                                            @elseif($item->type === 'training') Diklat & Pelatihan
+                                            @elseif($item->type === 'achievement') Prestasi & Apresiasi
+                                            @else Organisasi Profesi
+                                            @endif
+                                        </span>
+                                        @if(!empty($item->year))
+                                            <span class="px-2 py-0.5 rounded-full bg-forest-800 text-gray-300 text-[10px] font-mono font-bold">
+                                                🗓️ {{ $item->year }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <h4 class="font-bold text-sm sm:text-base text-white leading-snug">
+                                        {{ $item->title }}
+                                    </h4>
+
+                                    @if(!empty($item->organizer))
+                                        <p class="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
+                                            <span>🏛️ {{ $item->organizer }}</span>
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+
+                            @if(!empty($item->certificate_path))
+                                <div class="shrink-0 sm:self-center">
+                                    <button type="button"
+                                            @click="openPreview('pdf', '{{ asset('storage/' . $item->certificate_path) }}', '{{ addslashes($item->title) }}', 'Sertifikat/Piagam Resmi')"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-emerald-300 text-xs font-bold transition">
+                                        <span>Lihat Berkas</span>
+                                        <span>&rarr;</span>
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="py-12 text-center text-gray-400">
+                            <span class="text-4xl block mb-2">📋</span>
+                            <p class="text-sm font-semibold">Belum ada riwayat rekam jejak yang dimasukkan di Panel Admin.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- Footer Modal --}}
+                <div class="px-6 py-4 border-t border-forest-800 bg-forest-900/90 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 text-xs">
+                    <p class="text-gray-400 text-center sm:text-left">
+                        Portofolio ini tersinkronisasi langsung dengan pangkalan data profil pimpinan sekolah.
+                    </p>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        @if(!empty($headmaster?->cv_pdf_path))
+                            <button type="button"
+                                    @click="openPreview('pdf', '{{ $headmaster->cv_pdf_path }}', 'Curriculum Vitae - {{ addslashes($headmaster->name) }}')"
+                                    class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-forest-800 hover:bg-forest-700 text-white font-bold transition cursor-pointer">
+                                <svg class="w-3.5 h-3.5 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <span>Unduh CV (PDF)</span>
+                            </button>
+                        @endif
+                        <button type="button"
+                                @click="historyModalOpen = false"
+                                class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-forest-800 hover:bg-forest-700 text-gray-200 hover:text-white font-bold transition cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

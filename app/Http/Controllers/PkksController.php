@@ -87,7 +87,7 @@ class PkksController extends Controller
         // 1. Profil Kepala Sekolah & Riwayat
         $headmaster = HeadmasterProfile::where('is_active', true)
             ->with(['histories'])
-            ->first() ?? HeadmasterProfile::first();
+            ->first() ?? HeadmasterProfile::with(['histories'])->first();
 
         // Pastikan format tahun ajaran selalu '2026' (bukan 2025/2026) di seluruh record database
         PkksPeriod::where('academic_year', 'like', '%2025%')->update(['academic_year' => '2026']);
