@@ -97,16 +97,22 @@
 
                             {{-- Tombol Aksi Cepat Kontak & Tautan --}}
                             <div class="pt-2 flex flex-wrap items-center gap-3">
+                                <a href="https://wa.me/6282118449525" target="_blank" rel="noopener noreferrer"
+                                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all transform hover:-translate-y-0.5">
+                                    <span>💬</span>
+                                    <span>WhatsApp (082118449525)</span>
+                                </a>
+
                                 <a href="mailto:nughejr@gmail.com"
                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white text-xs font-bold shadow-md shadow-forest-900/20 transition-all transform hover:-translate-y-0.5">
                                     <span>✉️</span>
-                                    <span>Kirim Email (nughejr@gmail.com)</span>
+                                    <span>Email</span>
                                 </a>
 
                                 <a href="https://github.com/nughejr-creator" target="_blank" rel="noopener noreferrer"
                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all transform hover:-translate-y-0.5">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                                    <span>GitHub Profile</span>
+                                    <span>GitHub</span>
                                 </a>
 
                                 <a href="https://sasipedia.my.id" target="_blank" rel="noopener noreferrer"
@@ -220,7 +226,7 @@
                                     <span class="px-2 py-0.5 rounded bg-forest-100 dark:bg-forest-800 text-forest-900 dark:text-emerald-300 text-[10px] font-bold">
                                         Inovasi Sistem
                                     </span>
-                                    <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">2025 – Sekarang</span>
+                                    <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">2019 – Sekarang</span>
                                 </div>
                                 <h4 class="text-sm font-bold text-gray-900 dark:text-white mt-1.5">
                                     Webmaster & Pengembang Sistem Informasi Sekolah
@@ -229,7 +235,7 @@
                                     Pembangunan Ekosistem Web SDN Cinanggerang I
                                 </p>
                                 <p class="text-[11px] text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
-                                    Merancang arsitektur sistem portal resmi, modul Presensi GPS Mandiri Guru & GTK, digitalisasi e-PKKS, serta integrasi layanan PPDB daring.
+                                    Merancang dan mengawal arsitektur portal resmi, modul Presensi GPS Mandiri Guru & GTK, digitalisasi e-PKKS, serta integrasi layanan PPDB daring sejak 2019.
                                 </p>
                             </div>
                         </div>
@@ -301,7 +307,7 @@
                                     💻
                                 </div>
                                 <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 text-[10px] font-bold">
-                                    Platform Ujian Digital CBT
+                                    Platform Asesmen & Ujian Digital
                                 </span>
                             </div>
 
@@ -310,20 +316,37 @@
                                     Sistem Web CBT (Computer-Based Testing) – Sasipedia
                                 </h4>
                                 <p class="text-xs text-sumedang-amber font-semibold mt-0.5">
-                                    sasipedia.my.id • Asesmen Digital Siswa
+                                    sasipedia.my.id • Modern Jamstack Architecture
                                 </p>
                             </div>
 
                             <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                                Platform Computer-Based Testing (CBT) mandiri untuk penyelenggaraan ujian, kuis, asesmen formatif dan sumatif secara daring. Dirancang dengan antarmuka yang bersih, cepat, terstruktur, dan ramah pengguna untuk memudahkan siswa serta guru dalam proses evaluasi hasil belajar.
+                                Platform Computer-Based Testing (CBT) mandiri untuk penyelenggaraan ujian, kuis, asesmen formatif dan sumatif secara daring dengan keandalan tinggi di lingkungan sekolah.
                             </p>
 
+                            {{-- Rincian Arsitektur & Karakteristik Desain CBT --}}
+                            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-forest-950/70 border border-slate-200/70 dark:border-forest-800 space-y-2.5 text-xs">
+                                <div>
+                                    <span class="font-bold text-emerald-700 dark:text-emerald-400 block text-[11px] uppercase tracking-wider">Teknologi Utama:</span>
+                                    <p class="text-gray-700 dark:text-gray-200 mt-0.5">TypeScript, React 18, Tailwind CSS, Supabase (PostgreSQL), Vite, Node.js.</p>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-amber-700 dark:text-sumedang-amber block text-[11px] uppercase tracking-wider">Model Arsitektur:</span>
+                                    <p class="text-gray-700 dark:text-gray-200 mt-0.5">Modern Jamstack (SPA Frontend + BaaS Supabase + Cloudflare Edge Gateway).</p>
+                                </div>
+                                <div>
+                                    <span class="font-bold text-forest-800 dark:text-emerald-300 block text-[11px] uppercase tracking-wider">Karakteristik Desain:</span>
+                                    <p class="text-gray-700 dark:text-gray-200 mt-0.5">Sangat hemat bandwidth, aman dari kebocoran soal, tahan gangguan koneksi internet lokal di sekolah (<em>offline-resilient</em>), dan siap melayani asesmen skala besar secara bersamaan.</p>
+                                </div>
+                            </div>
+
                             {{-- Badges Tech --}}
-                            <div class="flex flex-wrap gap-1.5 pt-2">
-                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">CBT Assessment</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">Online Exam</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">Edu-Technology</span>
-                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">Responsive Web</span>
+                            <div class="flex flex-wrap gap-1.5 pt-1">
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">TypeScript</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">React 18</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">Supabase (PostgreSQL)</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">Jamstack</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-forest-950 text-slate-700 dark:text-gray-300 text-[10px] font-semibold">Cloudflare</span>
                             </div>
                         </div>
 
@@ -339,17 +362,17 @@
                 </div>
             </div>
 
-            {{-- 4. KECAKAPAN TEKNIS & INTEGRASI (TECH STACK OVERVIEW) --}}
+            {{-- 4. SPESIFIKASI TEKNIS & INTEGRASI (TECH OVERVIEW) --}}
             <div class="bg-forest-900 text-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-forest-800 shadow-xl relative overflow-hidden">
                 <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
                 <div class="relative z-10 max-w-3xl space-y-4">
-                    <span class="text-xs font-bold uppercase tracking-wider text-sumedang-amber">Kompetensi Teknis & Alat Pengembangan</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-sumedang-amber">SPESIFIKASI TEKNIS & ALAT PENGEMBANGAN</span>
                     <h3 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
-                        Keahlian Rekayasa Perangkat Lunak & Sistem
+                        Sistem & Rekayasa Perangkat Lunak
                     </h3>
                     <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                        Pengembangan solusi web dilakukan dengan menerapkan standar kode yang bersih (*clean code*), berorientasi kinerja tinggi, aman, serta memprioritaskan kemudahan pemakaian oleh seluruh warga sekolah.
+                        Penerapan arsitektur sistem berbasis web yang berfokus pada efisiensi penggunaan sumber daya, kemudahan pemeliharaan, serta aksesibilitas yang andal dan ramah bagi seluruh warga sekolah.
                     </p>
 
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
@@ -373,18 +396,59 @@
                 </div>
             </div>
 
-            {{-- 5. KOTAK AJAKAN KOLABORASI & KONTAK --}}
-            <div class="text-center py-6">
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Memiliki pertanyaan teknis, saran pengembangan, atau diskusi seputar digitalisasi pendidikan?
-                </p>
-                <div class="mt-3 flex items-center justify-center gap-3">
-                    <a href="mailto:nughejr@gmail.com" class="text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:text-sumedang-amber transition underline">
-                        Hubungi via Email: nughejr@gmail.com
+            {{-- 5. KOTAK MEDIA SOSIAL & KONTAK PENGEMBANG --}}
+            <div class="bg-white dark:bg-forest-900 rounded-3xl p-6 sm:p-8 lg:p-10 border border-slate-200/80 dark:border-forest-800 shadow-md text-center space-y-6">
+                <div class="max-w-xl mx-auto space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Kontak & Media Sosial</span>
+                    <h3 class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
+                        Saluran Komunikasi Pengembang
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                        Silakan hubungi atau terhubung melalui media sosial dan saluran komunikasi berikut:
+                    </p>
+                </div>
+
+                {{-- Badges Kontak Sosial Lengkap --}}
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    {{-- WhatsApp --}}
+                    <a href="https://wa.me/6282118449525" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 hover:bg-emerald-600 hover:text-white text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-300/60 dark:border-emerald-800 transition shadow-sm transform hover:-translate-y-0.5">
+                        <span class="text-base">💬</span>
+                        <span>WhatsApp: 082118449525</span>
                     </a>
-                    <span class="text-gray-300 dark:text-forest-800">•</span>
-                    <a href="{{ route('home') }}" class="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-forest-900 dark:hover:text-white transition">
-                        Kembali ke Halaman Beranda &uarr;
+
+                    {{-- Instagram --}}
+                    <a href="https://instagram.com/nughe_jr" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-pink-50 dark:bg-pink-950/70 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white text-pink-800 dark:text-pink-300 text-xs font-bold border border-pink-300/60 dark:border-pink-800 transition shadow-sm transform hover:-translate-y-0.5">
+                        <span class="text-base">📸</span>
+                        <span>Instagram: @nughe_jr</span>
+                    </a>
+
+                    {{-- Facebook --}}
+                    <a href="https://facebook.com/search/top?q=Abdi%20Jalmi%20Alit" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-600 hover:text-white text-blue-800 dark:text-blue-300 text-xs font-bold border border-blue-300/60 dark:border-blue-800 transition shadow-sm transform hover:-translate-y-0.5">
+                        <span class="text-base">👥</span>
+                        <span>Facebook: Abdi Jalmi Alit</span>
+                    </a>
+
+                    {{-- Email --}}
+                    <a href="mailto:nughejr@gmail.com"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/70 hover:bg-amber-500 hover:text-forest-950 text-amber-900 dark:text-sumedang-amber text-xs font-bold border border-amber-300/60 dark:border-amber-800 transition shadow-sm transform hover:-translate-y-0.5">
+                        <span class="text-base">✉️</span>
+                        <span>nughejr@gmail.com</span>
+                    </a>
+
+                    {{-- GitHub --}}
+                    <a href="https://github.com/nughejr-creator" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-900 hover:text-white text-slate-800 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-700 transition shadow-sm transform hover:-translate-y-0.5">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                        <span>GitHub</span>
+                    </a>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100 dark:border-forest-800">
+                    <a href="{{ route('home') }}" class="text-xs font-bold text-gray-500 hover:text-forest-900 dark:hover:text-emerald-300 transition">
+                        Kembali ke Halaman Beranda Utama &uarr;
                     </a>
                 </div>
             </div>

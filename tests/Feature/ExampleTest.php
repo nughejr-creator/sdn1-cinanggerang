@@ -42,5 +42,13 @@ class ExampleTest extends TestCase
         $response->assertSee('Kampus Sumedang', false);
         $response->assertSee('sasipedia.my.id', false);
         $response->assertSee('Profil Pengembang Website', false);
+        $response->assertSee('Sistem & Rekayasa Perangkat Lunak', false);
+        $response->assertSee('SPESIFIKASI TEKNIS & ALAT PENGEMBANGAN', false);
+        $response->assertSee('Modern Jamstack', false);
+        $response->assertSee('offline-resilient', false);
+        $response->assertSee('082118449525', false);
+        $response->assertSee('@nughe_jr', false);
+        $response->assertSee('Abdi Jalmi Alit', false);
+        $response->assertSee('2019 – Sekarang', false);
     }
 }
