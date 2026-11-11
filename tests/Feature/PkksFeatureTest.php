@@ -158,5 +158,13 @@ class PkksFeatureTest extends TestCase
 
         // Harus ada tombol Theater View
         $response->assertSee('Buka Portofolio Lengkap (Theater View)');
+
+        // Harus ada TMT Kepala Sekolah dan Pendidikan Terakhir
+        $response->assertSee('TMT Kepala Sekolah');
+        $response->assertSee('Pendidikan Terakhir');
+
+        // Harus menampilkan nama kepala sekolah tanpa kata Bpk.
+        $response->assertSee('Aep Yayat, S.Pd');
+        $response->assertDontSee('Bpk. Aep Yayat, S.Pd');
     }
 }

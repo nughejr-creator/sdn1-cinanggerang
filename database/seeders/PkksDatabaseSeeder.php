@@ -23,7 +23,7 @@ class PkksDatabaseSeeder extends Seeder
         $headmaster = HeadmasterProfile::updateOrCreate(
             ['nip' => '197206102014111001'],
             [
-                'name' => 'Bpk. Aep Yayat, S.Pd',
+                'name' => 'Aep Yayat, S.Pd',
                 'nuptk' => '7442750652200022',
                 'rank_group' => 'Penata Tk. I / IV/b',
                 'photo_path' => 'headmaster/aep-yayat.png',
@@ -40,7 +40,7 @@ class PkksDatabaseSeeder extends Seeder
             \App\Models\User::firstOrCreate(
                 ['email' => 'admin@sdncinanggerang1.sch.id'],
                 [
-                    'name' => 'Bpk. Aep Yayat, S.Pd',
+                    'name' => 'Aep Yayat, S.Pd',
                     'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
                     'role' => 'admin',
                     'is_active' => true,

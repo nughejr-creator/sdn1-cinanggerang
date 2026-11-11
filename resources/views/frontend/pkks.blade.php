@@ -232,47 +232,101 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                 {{-- Kolom 1: Foto Profil & Identitas Resmi (4 Kolom) --}}
-                <div class="lg:col-span-4 bg-forest-900/70 backdrop-blur-md rounded-3xl p-6 border border-forest-700/60 shadow-xl flex flex-col justify-between">
+                <div class="lg:col-span-4 bg-forest-900/70 backdrop-blur-md rounded-3xl p-6 sm:p-7 border border-forest-700/60 shadow-xl flex flex-col justify-between">
                     <div>
                         {{-- Avatar / Foto Kepala Sekolah --}}
-                        <div class="relative w-36 h-36 sm:w-44 sm:h-44 mx-auto mb-5 rounded-2xl overflow-hidden border-4 border-sumedang-amber/70 shadow-2xl bg-forest-950 flex items-center justify-center">
+                        <div class="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto mb-5 rounded-3xl overflow-hidden border-4 border-sumedang-amber/80 shadow-2xl bg-forest-950 flex items-center justify-center">
                             @php
                                 $pkksHeadmasterPhoto = $headmaster?->photo_url 
                                     ?: ($profile?->foto_kepala_sekolah_url 
                                     ?: (\App\Models\Teacher::where('jabatan', 'like', '%Kepala%')->orWhere('nama', 'like', '%Aep Yayat%')->first()?->foto_url 
                                     ?: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80'));
+                                $cleanHeadmasterName = preg_replace('/^(Bpk\.|Bapak)\s*/i', '', $headmaster?->name ?? 'Aep Yayat, S.Pd');
                             @endphp
                             <img src="{{ $pkksHeadmasterPhoto }}"
-                                 alt="{{ $headmaster?->name ?? 'Bpk. Aep Yayat, S.Pd' }}"
+                                 alt="{{ $cleanHeadmasterName }}"
                                  class="w-full h-full object-cover object-top"
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80';">
 
                             {{-- Status Badge Aktif --}}
-                            <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500 text-forest-950 font-black text-[9px] uppercase tracking-wider flex items-center gap-1 shadow">
-                                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                            <div class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-full bg-emerald-500 text-forest-950 font-black text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-lg border border-white/20">
+                                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
                                 <span>Aktif</span>
                             </div>
                         </div>
 
-                        {{-- Identitas Formal --}}
+                        {{-- Identitas Formal (Tipografi Lebih Besar & Proporsional) --}}
                         <div class="text-center">
-                            <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
-                                {{ $headmaster?->name ?? 'Bpk. Aep Yayat, S.Pd' }}
+                            <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                                {{ $cleanHeadmasterName }}
                             </h2>
-                            <p class="text-xs font-semibold text-sumedang-amber mt-0.5">
+                            <p class="text-sm font-bold text-sumedang-amber mt-1 tracking-wide">
                                 Kepala SD Negeri Cinanggerang I
                             </p>
-                            <p class="text-[11px] text-emerald-300/90 font-mono mt-1">
-                                NIP: {{ $headmaster?->nip ?? '197206102014111001' }}
-                            </p>
-                            <p class="text-[11px] text-gray-300">
-                                Pangkat/Gol: <span class="font-bold text-white">{{ $headmaster?->rank_group ?? 'Penata Tk. I / IV/b' }}</span>
-                            </p>
-                            @if(!empty($headmaster?->nuptk))
-                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">
-                                    NUPTK: {{ $headmaster->nuptk }}
+
+                            <div class="mt-3 space-y-1">
+                                <p class="text-xs sm:text-sm text-emerald-300 font-mono">
+                                    <span class="text-gray-400 font-sans font-medium text-xs">NIP:</span> {{ $headmaster?->nip ?? '197206102014111001' }}
                                 </p>
-                            @endif
+                                <p class="text-xs sm:text-sm text-gray-200">
+                                    <span class="text-gray-400 font-medium text-xs">Pangkat/Gol:</span> <span class="font-bold text-white">{{ $headmaster?->rank_group ?? 'Penata Tk. I / III/D' }}</span>
+                                </p>
+                                @if(!empty($headmaster?->nuptk))
+                                    <p class="text-xs text-gray-300 font-mono">
+                                        <span class="text-gray-400 font-sans font-medium text-xs">NUPTK:</span> {{ $headmaster->nuptk }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Kotak Informasi Kedinasan: TMT & Pendidikan Terakhir --}}
+                        @php
+                            $tmtFormatted = $headmaster?->appointment_date 
+                                ? \Carbon\Carbon::parse($headmaster->appointment_date)->translatedFormat('d F Y')
+                                : '01 Mei 2025';
+
+                            $lastEducation = $headmaster?->histories?->where('type', 'education')->first();
+                            $eduTitle = $lastEducation?->title ?? 'S1 Pendidikan Guru Sekolah Dasar (PGSD)';
+                            $eduCampus = $lastEducation?->organizer ?? 'Universitas Pendidikan Indonesia (UPI)';
+                        @endphp
+                        <div class="mt-5 p-4 rounded-2xl bg-forest-950/75 border border-forest-800/90 shadow-inner space-y-3">
+                            {{-- TMT Kepala Sekolah --}}
+                            <div class="flex items-start gap-3 text-left">
+                                <div class="shrink-0 p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/25">
+                                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-[10px] font-black uppercase tracking-wider text-emerald-300/90">
+                                        TMT Kepala Sekolah
+                                    </span>
+                                    <p class="text-sm font-black text-white mt-0.5">
+                                        {{ $tmtFormatted }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Divider --}}
+                            <div class="border-t border-forest-800/70"></div>
+
+                            {{-- Pendidikan Terakhir --}}
+                            <div class="flex items-start gap-3 text-left">
+                                <div class="shrink-0 p-2.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-400/25">
+                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-[10px] font-black uppercase tracking-wider text-purple-300/90">
+                                        Pendidikan Terakhir
+                                    </span>
+                                    <p class="text-sm font-black text-white mt-0.5 leading-snug">
+                                        {{ $eduTitle }}
+                                    </p>
+                                    @if(!empty($eduCampus))
+                                        <p class="text-xs text-gray-300 mt-0.5 font-medium">
+                                            {{ $eduCampus }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1344,7 +1398,7 @@
                 <div class="px-6 py-5 border-b border-forest-800 flex items-center justify-between bg-forest-900/90 shrink-0">
                     <div class="flex items-center gap-4 overflow-hidden pr-2">
                         <img src="{{ $headmaster?->photo_url ?? asset('images/headmaster-default.png') }}"
-                             alt="{{ $headmaster?->name ?? 'Kepala Sekolah' }}"
+                             alt="{{ $cleanHeadmasterName }}"
                              class="w-12 h-12 rounded-2xl object-cover border-2 border-emerald-400 shadow-md shrink-0">
                         <div class="truncate">
                             <div class="flex items-center gap-2 mb-0.5">
@@ -1354,7 +1408,7 @@
                                 <span class="text-xs text-gray-400">• {{ $allHistories->count() }} Data Tercatat</span>
                             </div>
                             <h3 class="text-base sm:text-lg font-black text-white truncate">
-                                {{ $headmaster?->name ?? 'Bpk. Aep Yayat, S.Pd' }}
+                                {{ $cleanHeadmasterName }}
                             </h3>
                             <p class="text-[11px] text-emerald-300 font-mono truncate">
                                 NIP: {{ $headmaster?->nip ?? '-' }} • Pangkat/Gol: {{ $headmaster?->rank_group ?? '-' }}
