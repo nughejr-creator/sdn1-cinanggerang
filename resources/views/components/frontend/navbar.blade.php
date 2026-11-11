@@ -19,13 +19,6 @@
             <span class="text-gray-300">Kec. Pamulihan, Kab. Sumedang</span>
         </div>
         <div class="flex items-center gap-3">
-            {{-- Tombol Presensi GPS Bersih di Topbar --}}
-            <a href="{{ route('presensi.index') }}"
-               class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 hover:text-white border border-emerald-400/40 rounded-full text-[10px] font-bold transition shadow-sm">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>📍 Presensi GPS Guru</span>
-            </a>
-
             <span class="px-2 py-0.5 bg-forest-800 text-emerald-200 rounded text-[10px] font-semibold tracking-wider">
                 NPSN: {{ $profile?->npsn ?? '20208801' }}
             </span>
@@ -55,11 +48,11 @@
                 </div>
 
                 {{-- Teks Nama Sekolah --}}
-                <div class="flex flex-col">
-                    <span class="font-extrabold text-forest-900 dark:text-white text-base sm:text-lg tracking-tight leading-tight group-hover:text-forest-800 transition">
+                <div class="flex flex-col min-w-0">
+                    <span class="font-extrabold text-forest-900 dark:text-white text-base sm:text-lg tracking-tight leading-tight group-hover:text-forest-800 transition whitespace-nowrap">
                         SDN CINANGGERANG I
                     </span>
-                    <span class="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium tracking-wide">
+                    <span class="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium tracking-wide truncate">
                         Kec. Pamulihan, Kab. Sumedang
                     </span>
                 </div>
@@ -289,14 +282,8 @@
                 </a>
             </div>
 
-            {{-- MOBILE ACTION & HAMBURGER BUTTON --}}
-            <div class="flex lg:hidden items-center gap-2">
-                <a href="{{ route('presensi.index') }}"
-                   class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-forest-900 dark:text-emerald-300 font-bold text-xs border border-emerald-400/30">
-                    <span>📍</span>
-                    <span>Presensi</span>
-                </a>
-
+            {{-- MOBILE HAMBURGER BUTTON --}}
+            <div class="flex lg:hidden items-center">
                 <button type="button"
                         @click="mobileOpen = !mobileOpen"
                         class="p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-forest-900 transition"

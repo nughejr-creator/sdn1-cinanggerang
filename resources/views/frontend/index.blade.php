@@ -72,11 +72,11 @@
                     {{-- Badge Status Legalitas --}}
                     <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-forest-900/90 border border-emerald-400/30 text-emerald-300 text-xs font-semibold backdrop-blur-sm shadow-sm">
                         <span class="w-2 h-2 rounded-full bg-sumedang-amber animate-pulse"></span>
-                        <span>Satuan Pendidikan Dasar Negeri Resmi • NPSN {{ $profile?->npsn ?? '20208801' }}</span>
+                        <span>Satuan Pendidikan Dasar Negeri • NPSN {{ $profile?->npsn ?? '20208801' }}</span>
                     </div>
 
                     {{-- Judul Utama --}}
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight tracking-tight">
                         Pendidikan Unggul, Berkarakter & Ramah Anak
                     </h1>
 
@@ -86,19 +86,22 @@
                         <span class="text-xs px-2 py-0.5 rounded bg-emerald-900/80 text-emerald-200 border border-emerald-700">Kec. Pamulihan, Sumedang</span>
                     </div>
 
-                    {{-- Ringkasan Visi Ringkas (Maksimal 2 Baris agar Tidak Sesak) --}}
+                    {{-- Ringkasan Visi Sekolah Utuh --}}
                     <div class="pl-3.5 border-l-2 border-amber-400 max-w-xl my-3">
-                        <p class="text-xs sm:text-sm text-emerald-100/90 italic leading-relaxed line-clamp-2">
+                        <p class="text-xs sm:text-sm text-emerald-100/90 italic leading-relaxed">
                             "{!! strip_tags($profile?->visi) ?: 'Terwujudnya Peserta Didik yang Berakhlak Mulia, Cerdas, Terampil, Mandiri, dan Berwawasan Lingkungan.' !!}"
                         </p>
                     </div>
 
                     {{-- Tombol Aksi CTA --}}
                     <div class="pt-2 flex flex-wrap items-center gap-3">
-                        <a href="{{ route('ppdb') }}"
+                        <a href="{{ route('presensi.index') }}"
                            class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-sumedang-amber hover:bg-sumedang-gold text-forest-950 font-black text-xs sm:text-sm shadow-lg shadow-sumedang-amber/25 transition-all transform hover:-translate-y-0.5">
-                            <svg class="w-4 h-4 text-forest-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                            <span>Layanan PPDB Online 2026/2027</span>
+                            <svg class="w-4 h-4 text-forest-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>Presensi Digital</span>
                         </a>
 
                         <a href="{{ route('profil') }}"

@@ -7,6 +7,15 @@ use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config([
+            'database.default' => 'mysql',
+            'database.connections.mysql.database' => 'test',
+        ]);
+    }
+
     /**
      * A basic test example.
      */
@@ -15,5 +24,9 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+        $response->assertSee('Satuan Pendidikan Dasar Negeri • NPSN', false);
+        $response->assertDontSee('Satuan Pendidikan Dasar Negeri Resmi');
+        $response->assertSee('Pendidikan Unggul, Berkarakter', false);
+        $response->assertSee('Presensi Digital', false);
     }
 }
