@@ -62,6 +62,7 @@ class PostResource extends Resource
                             ->columnSpanFull(),
                         \FilamentTiptapEditor\TiptapEditor::make('konten')
                             ->label('Isi Lengkap Berita (Editor Lengkap Mirip MS Word)')
+                            ->helperText('💡 Tips Penulis: Jika menyalin teks dari Word/Web, gunakan Ctrl + Shift + V (Paste Teks Bersih) atau gunakan tombol ikon Penghapus (Clear Formatting) pada toolbar agar teks bebas dari kode asing dan responsif diformat.')
                             ->profile('default')
                             ->disk('public')
                             ->directory('posts-content')

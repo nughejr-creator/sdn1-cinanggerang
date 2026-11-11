@@ -19,7 +19,7 @@ return [
     'profiles' => [
         'default' => [
             'heading', 'paragraph', 'lead', 'small', '|',
-            'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'color', 'highlight', 'remove-color', '|',
+            'bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'color', 'highlight', 'remove-color', 'erase', '|',
             'align-left', 'align-center', 'align-right', 'align-justify', '|',
             'ordered-list', 'bullet-list', 'checked-list', '|',
             'table', 'media', 'edit-media', 'oembed', 'link', 'remove-link', '|',
@@ -86,8 +86,8 @@ return [
     |--------------------------------------------------------------------------
     |
     */
-    'disable_floating_menus' => false,
-    'disable_bubble_menus' => false,
+    'disable_floating_menus' => true,
+    'disable_bubble_menus' => true,
     'disable_toolbar_menus' => false,
 
     'bubble_menu_tools' => ['bold', 'italic', 'strike', 'underline', 'superscript', 'subscript', 'lead', 'small', 'link'],
