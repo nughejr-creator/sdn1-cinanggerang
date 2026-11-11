@@ -96,7 +96,7 @@
                 @endif
 
                 {{-- Isi Lengkap Pengumuman --}}
-                <div class="prose prose-emerald dark:prose-invert max-w-none text-slate-700 dark:text-gray-200 text-sm sm:text-base leading-relaxed space-y-4">
+                <div class="article-content prose prose-emerald dark:prose-invert max-w-none text-slate-700 dark:text-gray-200 text-sm sm:text-base leading-relaxed space-y-4">
                     {!! $announcement->isi !!}
                 </div>
 

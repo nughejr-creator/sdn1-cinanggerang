@@ -93,8 +93,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    {{-- Tailwind CSS & Plugins via CDN --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Tailwind CSS & Plugins (Forms, Typography, Aspect Ratio) via CDN --}}
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -140,11 +140,94 @@
             background-size: 24px 24px;
         }
 
-        /* Perataan Halaman Teks (Align Left, Center, Right, Justify) */
-        align-left, [align-left] { display: block; text-align: left !important; }
-        align-center, [align-center] { display: block; text-align: center !important; }
-        align-right, [align-right] { display: block; text-align: right !important; }
-        align-justify, [align-justify] { display: block; text-align: justify !important; text-justify: inter-word !important; }
+        /* Dukungan Perataan Halaman Teks (Align Left, Center, Right, Justify) */
+        align-left, [align-left], .article-content [style*="text-align: left"], .prose [style*="text-align: left"] {
+            display: block;
+            text-align: left !important;
+        }
+        align-center, [align-center], .article-content [style*="text-align: center"], .prose [style*="text-align: center"] {
+            display: block;
+            text-align: center !important;
+        }
+        align-right, [align-right], .article-content [style*="text-align: right"], .prose [style*="text-align: right"] {
+            display: block;
+            text-align: right !important;
+        }
+        align-justify, [align-justify], .article-content [style*="text-align: justify"], .prose [style*="text-align: justify"], p[style*="text-align: justify"] {
+            display: block;
+            text-align: justify !important;
+            text-justify: inter-word !important;
+            hyphens: auto;
+        }
+
+        /* Penataan Tipografi Konten Artikel & Editor (Sinkronisasi WYSIWYG) */
+        .article-content blockquote,
+        .prose blockquote {
+            border-left: 4px solid #059669 !important; /* Emerald 600 */
+            background-color: rgba(236, 253, 245, 0.6) !important; /* Emerald 50 */
+            color: #064e3b !important; /* Emerald 900 */
+            padding: 0.875rem 1.25rem !important;
+            margin: 1.5rem 0 !important;
+            border-radius: 0 0.75rem 0.75rem 0 !important;
+            font-style: italic !important;
+            font-size: 1rem !important;
+            line-height: 1.625 !important;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .dark .article-content blockquote,
+        .dark .prose blockquote {
+            border-left-color: #34d399 !important; /* Emerald 400 */
+            background-color: rgba(6, 78, 59, 0.25) !important;
+            color: #d1fae5 !important;
+        }
+
+        /* Penomoran & Poin Butir Artikel */
+        .article-content ul, .prose ul {
+            list-style-type: disc !important;
+            padding-left: 1.5rem !important;
+            margin: 1rem 0 !important;
+        }
+        .article-content ol, .prose ol {
+            list-style-type: decimal !important;
+            padding-left: 1.5rem !important;
+            margin: 1rem 0 !important;
+        }
+        .article-content li, .prose li {
+            margin-bottom: 0.375rem !important;
+        }
+
+        /* Media Gambar di Dalam Artikel */
+        .article-content img, .prose img {
+            border-radius: 0.75rem !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: inline-block !important;
+            margin: 1rem 0 !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+        }
+
+        /* Tabel di Dalam Artikel */
+        .article-content table, .prose table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 1.5rem 0 !important;
+            font-size: 0.875rem !important;
+        }
+        .article-content th, .article-content td, .prose th, .prose td {
+            border: 1px solid #cbd5e1 !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+        .article-content th, .prose th {
+            background-color: #f1f5f9 !important;
+            font-weight: 700 !important;
+            text-align: left;
+        }
+        .dark .article-content th, .dark .article-content td, .dark .prose th, .dark .prose td {
+            border-color: #334155 !important;
+        }
+        .dark .article-content th, .dark .prose th {
+            background-color: #1e293b !important;
+        }
     </style>
 
     <script>

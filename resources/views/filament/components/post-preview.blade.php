@@ -100,7 +100,7 @@
         @endif
 
         {{-- Isi Konten Berita --}}
-        <div class="prose prose-emerald dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div class="article-content prose prose-emerald dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
             @if(!empty($contentHtml))
                 {!! $contentHtml !!}
             @else
