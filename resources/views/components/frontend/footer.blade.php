@@ -41,6 +41,18 @@
                             <span class="text-[11px] font-medium text-gray-200">Disdik Kab. Sumedang</span>
                         </div>
                     </div>
+
+                    {{-- Inisiator Digitalisasi Satuan Pendidikan --}}
+                    <div class="pt-3 mt-3 border-t border-forest-900/80 space-y-1">
+                        <a href="{{ route('pengembang') }}" class="inline-flex items-center gap-2 text-xs text-gray-300 hover:text-sumedang-amber transition group">
+                            <svg class="w-3.5 h-3.5 text-emerald-400 group-hover:text-sumedang-amber transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            <span>Inisiator: <strong class="text-white group-hover:text-sumedang-amber font-semibold">Agi Hamdani, M.Pd.</strong></span>
+                        </a>
+                        <p class="text-[11px] text-gray-400 flex items-center gap-1.5 pl-0.5">
+                            <span class="text-xs">📍</span>
+                            <span>Sumedang – Jawa Barat, Indonesia</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -59,8 +71,6 @@
                     <li><a href="{{ route('perangkat-ajar') }}" class="hover:text-sumedang-amber transition">Bank Perangkat Ajar</a></li>
                     <li><a href="{{ route('pkks') }}" class="hover:text-sumedang-amber transition">E-PKKS Digital</a></li>
                     <li><a href="{{ route('ppdb') }}" class="hover:text-sumedang-gold font-semibold text-sumedang-amber transition">PPDB Online</a></li>
-                    <li><a href="{{ route('pengembang') }}" class="text-emerald-300 hover:text-sumedang-amber font-semibold transition">💻 Profil Pengembang Web</a></li>
-                    <li><a href="{{ url('/sitemap.xml') }}" target="_blank" class="text-emerald-400 font-bold hover:underline transition">🗺️ Peta Situs (Sitemap XML)</a></li>
                 </ul>
             </div>
 
@@ -111,18 +121,8 @@
 
         {{-- Copyright & Hak Cipta --}}
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-            <p>
-                © {{ date('Y') }} <strong>SD Negeri Cinanggerang I</strong>. Hak Cipta Dilindungi Undang-Undang.
-                <span class="hidden md:inline text-gray-600">•</span>
-                <span class="block md:inline mt-1 md:mt-0">
-                    Dikembangkan oleh <a href="{{ route('pengembang') }}" class="text-emerald-400 hover:text-sumedang-amber font-semibold underline underline-offset-2 transition">Agi Hamdani, M.Pd.</a> ⚡
-                </span>
-            </p>
+            <p>© {{ date('Y') }} <strong>SD Negeri Cinanggerang I</strong>. Hak Cipta Dilindungi Undang-Undang.</p>
             <div class="flex items-center gap-4">
-                <a href="{{ route('pengembang') }}" class="text-emerald-300 hover:text-white font-medium transition">Profil Pengembang</a>
-                <span>•</span>
-                <a href="{{ url('/sitemap.xml') }}" target="_blank" class="hover:text-sumedang-amber transition">Peta Situs (Sitemap)</a>
-                <span>•</span>
                 <a href="{{ url('/admin') }}" class="hover:text-sumedang-amber transition">Login Operator / Guru</a>
                 <span>•</span>
                 <a href="{{ route('home') }}" class="hover:text-sumedang-amber transition">Kembali ke Beranda ↑</a>

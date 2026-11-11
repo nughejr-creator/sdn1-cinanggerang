@@ -28,6 +28,10 @@ class ExampleTest extends TestCase
         $response->assertDontSee('Satuan Pendidikan Dasar Negeri Resmi');
         $response->assertSee('Pendidikan Unggul, Berkarakter', false);
         $response->assertSee('Presensi Digital', false);
+        $response->assertSee('Inisiator:', false);
+        $response->assertSee('Agi Hamdani, M.Pd.', false);
+        $response->assertDontSee('Peta Situs (Sitemap XML)');
+        $response->assertDontSee('Peta Situs (Sitemap)');
     }
 
     public function test_developer_profile_page_loads_successfully(): void
