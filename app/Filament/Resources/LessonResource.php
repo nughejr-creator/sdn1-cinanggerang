@@ -75,7 +75,19 @@ class LessonResource extends Resource
                             ->acceptedFileTypes(['application/pdf', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'])
                             ->directory('elearning-materi')
                             ->openable()
-                            ->downloadable(),
+                            ->downloadable()
+                            ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state) {
+                                if (blank($state)) return;
+                                $file = is_array($state) ? (array_values($state)[0] ?? null) : $state;
+                                if (blank($file)) return;
+                                try {
+                                    if (! $component->getDisk()->exists($file)) {
+                                        $component->state([]);
+                                    }
+                                } catch (\Throwable $e) {
+                                    $component->state([]);
+                                }
+                            }),
                         \FilamentTiptapEditor\TiptapEditor::make('konten')
                             ->label('Isi Materi Lengkap (Editor Lengkap Mirip MS Word: Sisip Gambar, Tabel, Video & Format Rapi)')
                             ->profile('default')

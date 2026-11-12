@@ -59,7 +59,25 @@ class PostResource extends Resource
                             ->image()
                             ->disk('public')
                             ->directory('posts-thumbnails')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state) {
+                                if (blank($state)) {
+                                    return;
+                                }
+
+                                $file = is_array($state) ? (array_values($state)[0] ?? null) : $state;
+                                if (blank($file)) {
+                                    return;
+                                }
+
+                                try {
+                                    if (! $component->getDisk()->exists($file)) {
+                                        $component->state([]);
+                                    }
+                                } catch (\Throwable $e) {
+                                    $component->state([]);
+                                }
+                            }),
                         \FilamentTiptapEditor\TiptapEditor::make('konten')
                             ->label('Isi Lengkap Berita (Editor Lengkap Mirip MS Word)')
                             ->helperText('💡 Tips Penulis: Jika menyalin teks dari Word/Web, gunakan Ctrl + Shift + V (Paste Teks Bersih) atau gunakan tombol ikon Penghapus (Clear Formatting) pada toolbar agar teks bebas dari kode asing dan responsif diformat.')

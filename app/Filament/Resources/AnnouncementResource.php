@@ -53,7 +53,19 @@ class AnnouncementResource extends Resource
                             ->directory('announcements')
                             ->openable()
                             ->downloadable()
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state) {
+                                if (blank($state)) return;
+                                $file = is_array($state) ? (array_values($state)[0] ?? null) : $state;
+                                if (blank($file)) return;
+                                try {
+                                    if (! $component->getDisk()->exists($file)) {
+                                        $component->state([]);
+                                    }
+                                } catch (\Throwable $e) {
+                                    $component->state([]);
+                                }
+                            }),
                         Forms\Components\Toggle::make('is_active')
                             ->label('Status Aktif')
                             ->default(true),
