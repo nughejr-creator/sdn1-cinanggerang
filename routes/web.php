@@ -58,9 +58,22 @@ Route::get('/storage/{path}', function ($path) {
         return response()->file($rawStorage);
     }
 
-    if (env('AWS_URL')) {
+    // 4. Jika menggunakan Cloudflare R2 / S3, streaming berkas langsung dari S3
+    if (config('filesystems.default') === 's3' || env('FILESYSTEM_DISK') === 's3') {
+        try {
+            $s3Disk = \Illuminate\Support\Facades\Storage::disk('s3');
+            if ($s3Disk->exists($path)) {
+                return $s3Disk->response($path, null, [
+                    'Cache-Control' => 'public, max-age=31536000, immutable',
+                ]);
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    if (env('AWS_URL') && !str_contains(env('AWS_URL'), 'r2.dev')) {
         return redirect(rtrim(env('AWS_URL'), '/') . '/' . ltrim($path, '/'));
     }
+
     abort(404);
 })->where('path', '.*');
 
