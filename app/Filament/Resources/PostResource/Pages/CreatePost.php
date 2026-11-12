@@ -14,7 +14,6 @@ class CreatePost extends CreateRecord
     {
         return [
             $this->getCreateFormAction(),
-            $this->getPreviewAction(),
             ...(static::canCreateAnother() ? [$this->getCreateAnotherFormAction()] : []),
             $this->getCancelFormAction(),
         ];

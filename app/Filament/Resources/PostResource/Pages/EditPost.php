@@ -15,7 +15,6 @@ class EditPost extends EditRecord
     {
         return [
             $this->getSaveFormAction(),
-            $this->getPreviewAction(),
             $this->getCancelFormAction(),
         ];
     }

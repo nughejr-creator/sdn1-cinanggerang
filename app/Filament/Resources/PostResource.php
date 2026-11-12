@@ -59,6 +59,7 @@ class PostResource extends Resource
                             ->image()
                             ->disk('public')
                             ->directory('posts-thumbnails')
+                            ->fetchFileInformation(false)
                             ->columnSpanFull()
                             ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state) {
                                 if (blank($state)) {
@@ -85,7 +86,6 @@ class PostResource extends Resource
                             ->disk('public')
                             ->directory('posts-content')
                             ->maxContentWidth('5xl')
-                            ->live(debounce: 1000)
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\Select::make('status')
