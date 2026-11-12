@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 
 @section('title', 'Warta Sekolah, Program Kegiatan & Prestasi - SD Negeri Cinanggerang I')
-@section('meta_description', 'Kabar sekolah terkini, publikasi kegiatan ekstrakurikuler, kokurikuler P5, pembiasaan karakter, dan prestasi peserta didik SDN Cinanggerang I Sumedang.')
+@section('meta_description', 'Kabar sekolah terkini, publikasi kegiatan ekstrakurikuler, kokurikuler, pembiasaan karakter, dan prestasi peserta didik SDN Cinanggerang I Sumedang.')
 @section('canonical_url', route('warta'))
 
 @section('content')
@@ -16,7 +16,7 @@
                 Warta Terkini & Program Sekolah
             </h1>
             <p class="text-xs sm:text-sm text-gray-300 mt-2 max-w-2xl leading-relaxed">
-                Dokumentasi dinamis kegiatan ekstrakurikuler, kokurikuler P5, pembiasaan religius & literasi, serta prestasi peserta didik SDN Cinanggerang I.
+                Dokumentasi dinamis kegiatan ekstrakurikuler, kokurikuler, pembiasaan religius & literasi, serta prestasi peserta didik SDN Cinanggerang I.
             </p>
         </div>
     </div>
@@ -45,7 +45,7 @@
                 <a href="{{ route('warta', ['kategori_program' => 'kokurikuler']) }}"
                    class="shrink-0 px-4 py-2 rounded-xl transition flex items-center gap-1.5 {{ $selectedCategory === 'kokurikuler' ? 'bg-emerald-700 text-white shadow-sm ring-2 ring-emerald-400' : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-forest-800 dark:text-gray-300' }}">
                     <span>🌱</span>
-                    <span>Kokurikuler (P5)</span>
+                    <span>Kokurikuler</span>
                 </a>
 
                 {{-- Tab: Pembiasaan --}}
