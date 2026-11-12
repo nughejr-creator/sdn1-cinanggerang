@@ -82,6 +82,7 @@ class LessonResource extends Resource
                             ->disk('public')
                             ->directory('lessons-content')
                             ->maxContentWidth('5xl')
+                            ->live(debounce: 1000)
                             ->columnSpanFull(),
                         Forms\Components\Toggle::make('is_published')
                             ->label('Terbitkan ke Siswa Sekarang')

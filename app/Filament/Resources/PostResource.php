@@ -67,6 +67,7 @@ class PostResource extends Resource
                             ->disk('public')
                             ->directory('posts-content')
                             ->maxContentWidth('5xl')
+                            ->live(debounce: 1000)
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\Select::make('status')

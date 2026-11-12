@@ -44,6 +44,7 @@ class AnnouncementResource extends Resource
                             ->disk('public')
                             ->directory('announcements-content')
                             ->maxContentWidth('5xl')
+                            ->live(debounce: 1000)
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\FileUpload::make('file_lampiran')

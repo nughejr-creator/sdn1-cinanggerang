@@ -197,11 +197,13 @@ class SchoolProfileResource extends Resource
                             ->label('Visi Sekolah')
                             ->helperText('Rumusan visi resmi satuan pendidikan SDN Cinanggerang I.')
                             ->profile('default')
+                            ->live(debounce: 1000)
                             ->columnSpanFull(),
                         \FilamentTiptapEditor\TiptapEditor::make('misi')
                             ->label('Misi Sekolah')
                             ->helperText('Poin-poin misi sekolah (dapat menggunakan bullet list atau numbered list seperti di MS Word).')
                             ->profile('default')
+                            ->live(debounce: 1000)
                             ->columnSpanFull(),
                         \FilamentTiptapEditor\TiptapEditor::make('sambutan_kepala_sekolah')
                             ->label('Sambutan Kepala Sekolah (Aep Yayat, S.Pd)')
@@ -210,6 +212,7 @@ class SchoolProfileResource extends Resource
                             ->disk('public')
                             ->directory('headmaster-speech')
                             ->maxContentWidth('5xl')
+                            ->live(debounce: 1000)
                             ->columnSpanFull(),
                     ]),
             ]);
