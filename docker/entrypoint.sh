@@ -8,7 +8,12 @@ if [ -n "$PORT" ]; then
 fi
 
 echo "==> Menyiapkan direktori storage & symlink..."
-mkdir -p /var/www/html/storage/app/public
+mkdir -p /var/www/html/storage/app/public/posts-thumbnails
+mkdir -p /var/www/html/public/storage/posts-thumbnails
+if [ -d /var/www/html/public/images/posts ]; then
+    cp -n /var/www/html/public/images/posts/* /var/www/html/storage/app/public/posts-thumbnails/ 2>/dev/null || true
+    cp -n /var/www/html/public/images/posts/* /var/www/html/public/storage/posts-thumbnails/ 2>/dev/null || true
+fi
 mkdir -p /var/www/html/storage/app/private/livewire-tmp
 mkdir -p /var/www/html/storage/app/livewire-tmp
 mkdir -p /var/www/html/storage/framework/cache/data

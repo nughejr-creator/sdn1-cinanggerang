@@ -52,7 +52,13 @@ Route::get('/storage/{path}', function ($path) {
         return response()->file($localFile);
     }
 
-    // 3. Cek di storage/app/
+    // 3. Cek aset gambar tetap di public/images/posts/
+    $postImage = public_path('images/posts/' . basename($path));
+    if (file_exists($postImage) && !is_dir($postImage)) {
+        return response()->file($postImage);
+    }
+
+    // 4. Cek di storage/app/
     $rawStorage = storage_path('app/' . $path);
     if (file_exists($rawStorage) && !is_dir($rawStorage)) {
         return response()->file($rawStorage);

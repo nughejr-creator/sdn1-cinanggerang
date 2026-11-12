@@ -144,7 +144,7 @@ class PostResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('thumbnail')
                     ->label('Foto')
-                    ->disk('public')
+                    ->state(fn ($record) => $record->thumbnail_url)
                     ->square(),
                 Tables\Columns\TextColumn::make('judul')
                     ->label('Judul Berita')
