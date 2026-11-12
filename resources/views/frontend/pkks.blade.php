@@ -168,7 +168,7 @@
                         </div>
                     </div>
 
-                    <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
                         E-PKKS Digital <span class="text-sumedang-amber">{{ $activePeriod?->academic_year ?? '2026' }}</span>
                     </h1>
                     <p class="text-xs sm:text-sm text-emerald-200/90 mt-1.5 max-w-2xl font-light">

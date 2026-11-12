@@ -14,7 +14,7 @@
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-800 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
                         <span>📚</span> E-Learning & Kurikulum Merdeka
                     </span>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                         Bank Perangkat Ajar & Modul
                     </h1>
                     <p class="text-xs sm:text-sm text-gray-300 mt-2 max-w-2xl leading-relaxed">

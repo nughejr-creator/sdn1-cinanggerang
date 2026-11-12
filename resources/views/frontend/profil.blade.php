@@ -12,7 +12,7 @@
             <span class="inline-block px-3 py-1 rounded-full bg-forest-800 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
                 Tentang Satuan Pendidikan
             </span>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                 Profil & Visi Misi Sekolah
             </h1>
             <p class="text-xs sm:text-sm text-gray-300 mt-1 max-w-2xl leading-relaxed">
@@ -154,11 +154,10 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-6 border-b border-white/10">
                     <div class="inline-flex items-center gap-3">
                         <div class="w-12 h-12 rounded-2xl bg-forest-800/80 border border-emerald-400/40 p-2 flex items-center justify-center shadow-inner">
-                            @if(!empty($profile?->logo))
-                                <img src="{{ asset('storage/' . $profile->logo) }}" alt="Logo SDN Cinanggerang I" class="w-full h-full object-contain">
-                            @else
-                                <img src="{{ asset('images/logo-sd.svg') }}" alt="Logo SD" class="w-full h-full object-contain">
-                            @endif
+                            <img src="{{ $profile?->logo_url ?? asset('images/logo-official.png') }}"
+                                 alt="Logo SDN Cinanggerang I"
+                                 class="w-full h-full object-contain"
+                                 onerror="this.onerror=null; this.src='{{ asset('images/logo-official.png') }}';">
                         </div>
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-sumedang-amber block">Arah & Cita-Cita Luhur</span>

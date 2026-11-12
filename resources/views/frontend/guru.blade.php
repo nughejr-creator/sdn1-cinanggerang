@@ -12,7 +12,7 @@
             <span class="inline-block px-3 py-1 rounded-full bg-forest-800 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
                 Sumber Daya Manusia Unggul
             </span>
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
                 Direktori Guru & Tenaga Kependidikan
             </h1>
             <p class="text-sm text-emerald-100 max-w-2xl mt-1 leading-relaxed">

@@ -12,7 +12,7 @@
             <span class="inline-block px-3 py-1 rounded-full bg-sumedang-amber/20 text-sumedang-amber border border-sumedang-amber/40 text-xs font-bold uppercase tracking-wider mb-3">
                 Penerimaan Murid Baru {{ $setting->academic_year ?? '2026/2027' }}
             </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                 Layanan PPDB Digital
             </h1>
             <p class="text-xs sm:text-sm text-gray-300 mt-2 max-w-2xl leading-relaxed">

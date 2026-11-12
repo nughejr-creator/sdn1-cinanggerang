@@ -25,7 +25,7 @@
             <span class="inline-block px-3.5 py-1 rounded-full bg-forest-800 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3 border border-emerald-400/20">
                 Publikasi & Dokumentasi Resmi
             </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                 Galeri Foto & Video Kegiatan Sekolah
             </h1>
             <p class="text-xs sm:text-sm text-gray-300 mt-2 max-w-2xl leading-relaxed">

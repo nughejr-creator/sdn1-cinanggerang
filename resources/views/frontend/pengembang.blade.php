@@ -20,7 +20,7 @@
                 <span class="w-2 h-2 rounded-full bg-sumedang-amber animate-pulse"></span>
                 <span>Inovasi Teknologi & Dedikasi Pendidikan</span>
             </span>
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-white">
                 Profil Pengembang Website
             </h1>
             <p class="text-sm md:text-base text-gray-300 mt-2 max-w-3xl leading-relaxed">

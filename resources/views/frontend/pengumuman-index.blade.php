@@ -14,7 +14,7 @@
             <span class="inline-block px-3.5 py-1 rounded-full bg-amber-500/20 text-sumedang-amber border border-amber-400/30 text-xs font-bold uppercase tracking-wider mb-3">
                 📢 Papan Informasi Resmi
             </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                 Pengumuman Kedinasan & Surat Edaran
             </h1>
             <p class="text-xs sm:text-sm text-gray-300 mt-2 max-w-2xl leading-relaxed">

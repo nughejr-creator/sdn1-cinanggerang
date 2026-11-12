@@ -14,7 +14,7 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-sumedang-amber"></span>
                 <span>NPSN: 20208801</span>
             </div>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
                 Daftar Siswa & Cek NISN Mandiri
             </h1>
             <p class="text-xs sm:text-sm text-gray-300 mt-2 max-w-3xl leading-relaxed">
