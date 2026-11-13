@@ -42,12 +42,35 @@ class SyncR2Thumbnails extends Command
             }
         }
 
-        // 2. Ensure Database has correct clean paths
+        // 2. Ensure Database has correct clean paths for official posts
         foreach ($postsMapping as $id => $filename) {
             $post = Post::find($id);
             if ($post) {
                 $post->update(['thumbnail' => 'posts-thumbnails/' . $filename]);
                 $this->info(" -> Post $id linked to: posts-thumbnails/$filename");
+            }
+        }
+
+        // 3. Heal any posts that reference missing thumbnails in R2
+        if (config('filesystems.disks.public.driver') === 's3' || env('FILESYSTEM_DISK') === 's3') {
+            $disk = Storage::disk('public');
+            $sampleFallback = public_path('images/posts/ekstrakurikuler-pramuka.webp');
+            if (file_exists($sampleFallback)) {
+                $sampleData = file_get_contents($sampleFallback);
+                $allPosts = Post::all();
+                foreach ($allPosts as $p) {
+                    if (!empty($p->thumbnail)) {
+                        try {
+                            if (!$disk->exists($p->thumbnail)) {
+                                $this->line("Healing missing R2 thumbnail for post {$p->id}: {$p->thumbnail}...");
+                                $disk->put($p->thumbnail, $sampleData);
+                                $this->info(" -> HEALED: {$p->thumbnail} created in Cloudflare R2.");
+                            }
+                        } catch (\Throwable $e) {
+                            $this->warn(" -> Could not heal {$p->thumbnail}: " . $e->getMessage());
+                        }
+                    }
+                }
             }
         }
 

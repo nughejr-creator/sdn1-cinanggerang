@@ -59,8 +59,6 @@ class PostResource extends Resource
                             ->image()
                             ->disk('public')
                             ->directory('posts-thumbnails')
-                            ->visibility('private')
-                            ->fetchFileInformation(false)
                             ->columnSpanFull(),
                         \FilamentTiptapEditor\TiptapEditor::make('konten')
                             ->label('Isi Lengkap Berita (Editor Lengkap Mirip MS Word)')

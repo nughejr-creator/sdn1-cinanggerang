@@ -40,40 +40,32 @@ Route::get('/favicon.ico', function () {
 
 Route::get('/debug-r2-upload', function () {
     try {
-        $config = config('filesystems.disks.public');
-        $config['throw'] = true; // FORCE THROW TRUE!
-        $adapter = new \League\Flysystem\AwsS3V3\AwsS3V3Adapter(
-            new \Aws\S3\S3Client([
-                'version' => 'latest',
-                'region' => env('AWS_DEFAULT_REGION', 'auto'),
-                'endpoint' => env('AWS_ENDPOINT'),
-                'use_path_style_endpoint' => true,
-                'credentials' => [
-                    'key' => env('AWS_ACCESS_KEY_ID'),
-                    'secret' => env('AWS_SECRET_ACCESS_KEY'),
-                ],
-            ]),
-            env('AWS_BUCKET')
-        );
-        $filesystem = new \League\Flysystem\Filesystem($adapter);
-
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
         $content = 'R2 Test Upload ' . date('Y-m-d H:i:s');
-        $filesystem->write('test-r2-throw.txt', $content);
+        $disk->put('test-r2-public-disk.txt', $content);
+
+        $syncOutput = null;
+        if (request()->has('sync')) {
+            \Illuminate\Support\Facades\Artisan::call('app:sync-r2-thumbnails');
+            $syncOutput = \Illuminate\Support\Facades\Artisan::output();
+        }
 
         return response()->json([
             'status' => 'write_succeeded',
-            'file' => 'test-r2-throw.txt',
+            'file' => 'test-r2-public-disk.txt',
+            'exists' => $disk->exists('test-r2-public-disk.txt'),
+            'url' => $disk->url('test-r2-public-disk.txt'),
+            'sync_output' => $syncOutput,
         ]);
     } catch (\Throwable $e) {
         return response()->json([
             'status' => 'caught_exception',
             'class' => get_class($e),
             'message' => $e->getMessage(),
-            'code' => $e->getCode(),
-            'trace' => array_slice($e->getTrace(), 0, 5),
         ], 500);
     }
 });
+
 Route::get('/storage/{path}', function ($path) {
     // 1. Prioritas Utama: Cek aset gambar terbundel di public/images/posts/
     $basename = basename($path);
@@ -94,7 +86,19 @@ Route::get('/storage/{path}', function ($path) {
         return response()->file($localFile);
     }
 
-    // 4. Cek di storage/app/
+    // 4. Jika menggunakan Cloudflare R2 / S3, streaming berkas langsung dari cloud
+    if (config('filesystems.disks.public.driver') === 's3' || env('FILESYSTEM_DISK') === 's3') {
+        try {
+            $s3Disk = \Illuminate\Support\Facades\Storage::disk('public');
+            if ($s3Disk->exists($path)) {
+                return $s3Disk->response($path, null, [
+                    'Cache-Control' => 'public, max-age=31536000, immutable',
+                ]);
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    // 5. Cek di storage/app/
     $rawStorage = storage_path('app/' . $path);
     if (file_exists($rawStorage) && !is_dir($rawStorage)) {
         return response()->file($rawStorage);
