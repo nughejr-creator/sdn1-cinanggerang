@@ -40,22 +40,23 @@ Route::get('/favicon.ico', function () {
 
 // Fallback akses berkas Cloudflare R2 / S3 jika dipanggil melalui path storage lokal
 Route::get('/storage/{path}', function ($path) {
-    // 1. Cek langsung di storage/app/public/ (tempat upload lokal Laravel/Filament)
+    // 1. Prioritas Utama: Cek aset gambar terbundel di public/images/posts/
+    $basename = basename($path);
+    $postImage = public_path('images/posts/' . $basename);
+    if (file_exists($postImage) && !is_dir($postImage)) {
+        return response()->file($postImage);
+    }
+
+    // 2. Cek langsung di storage/app/public/ (tempat upload lokal Laravel/Filament)
     $storageFile = storage_path('app/public/' . $path);
     if (file_exists($storageFile) && !is_dir($storageFile)) {
         return response()->file($storageFile);
     }
 
-    // 2. Cek di public/storage/ (jika symlink atau folder disalin ke public)
+    // 3. Cek di public/storage/ (jika symlink atau folder disalin ke public)
     $localFile = public_path('storage/' . $path);
     if (file_exists($localFile) && !is_dir($localFile)) {
         return response()->file($localFile);
-    }
-
-    // 3. Cek aset gambar tetap di public/images/posts/
-    $postImage = public_path('images/posts/' . basename($path));
-    if (file_exists($postImage) && !is_dir($postImage)) {
-        return response()->file($postImage);
     }
 
     // 4. Cek di storage/app/

@@ -15,12 +15,30 @@ class Post extends Model
 
     public function getThumbnailUrlAttribute(): ?string
     {
+        // 1. Cek langsung jika berkas fisik terdaftar di aset publik images/posts/
         if (!empty($this->thumbnail)) {
             $basename = basename($this->thumbnail);
             if (file_exists(public_path('images/posts/' . $basename))) {
                 return asset('images/posts/' . $basename);
             }
+        }
 
+        // 2. Pemetaan cerdas otomatis untuk 6 artikel utama sekolah
+        $officialPostImages = [
+            1 => 'peluncuran-website-resmi.webp',
+            30001 => 'gelar-karya-kearifan-lokal.webp',
+            4030001 => 'sekolah-ramah-lingkungan-srl.webp',
+            4060001 => 'ekstrakurikuler-pramuka.webp',
+            4090001 => 'gerakan-zero-waste.webp',
+            4120001 => 'sinergi-sekolah-2026.webp',
+        ];
+
+        if (isset($officialPostImages[$this->id]) && file_exists(public_path('images/posts/' . $officialPostImages[$this->id]))) {
+            return asset('images/posts/' . $officialPostImages[$this->id]);
+        }
+
+        // 3. Cek penyimpanan lokal storage
+        if (!empty($this->thumbnail)) {
             if (file_exists(public_path('storage/' . $this->thumbnail))) {
                 return asset('storage/' . $this->thumbnail);
             }
@@ -31,6 +49,7 @@ class Post extends Model
                 return asset('storage/' . $this->thumbnail);
             }
         }
+
         return null;
     }
 
