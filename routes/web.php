@@ -38,34 +38,6 @@ Route::get('/favicon.ico', function () {
     return response()->file(public_path('favicon.ico'));
 });
 
-Route::get('/debug-r2-upload', function () {
-    try {
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
-        $content = 'R2 Test Upload ' . date('Y-m-d H:i:s');
-        $disk->put('test-r2-public-disk.txt', $content);
-
-        $syncOutput = null;
-        if (request()->has('sync')) {
-            \Illuminate\Support\Facades\Artisan::call('app:sync-r2-thumbnails');
-            $syncOutput = \Illuminate\Support\Facades\Artisan::output();
-        }
-
-        return response()->json([
-            'status' => 'write_succeeded',
-            'file' => 'test-r2-public-disk.txt',
-            'exists' => $disk->exists('test-r2-public-disk.txt'),
-            'url' => $disk->url('test-r2-public-disk.txt'),
-            'sync_output' => $syncOutput,
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'status' => 'caught_exception',
-            'class' => get_class($e),
-            'message' => $e->getMessage(),
-        ], 500);
-    }
-});
-
 Route::get('/storage/{path}', function ($path) {
     // 1. Prioritas Utama: Cek aset gambar terbundel di public/images/posts/
     $basename = basename($path);
