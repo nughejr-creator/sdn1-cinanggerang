@@ -11,8 +11,8 @@ echo "==> Menyiapkan direktori storage & symlink..."
 mkdir -p /var/www/html/storage/app/public/posts-thumbnails
 mkdir -p /var/www/html/public/storage/posts-thumbnails
 if [ -d /var/www/html/public/images/posts ]; then
-    cp -f /var/www/html/public/images/posts/* /var/www/html/storage/app/public/posts-thumbnails/ 2>/dev/null || true
-    cp -f /var/www/html/public/images/posts/* /var/www/html/public/storage/posts-thumbnails/ 2>/dev/null || true
+    cp -n /var/www/html/public/images/posts/* /var/www/html/storage/app/public/posts-thumbnails/ 2>/dev/null || true
+    cp -n /var/www/html/public/images/posts/* /var/www/html/public/storage/posts-thumbnails/ 2>/dev/null || true
 fi
 mkdir -p /var/www/html/storage/app/private/livewire-tmp
 mkdir -p /var/www/html/storage/app/livewire-tmp
@@ -33,9 +33,6 @@ php artisan livewire:publish --assets || true
 
 echo "==> Menjalankan migrasi basis data..."
 php artisan migrate --force || true
-
-echo "==> Sinkronisasi thumbnail resmi ke Cloudflare R2..."
-php artisan app:sync-r2-thumbnails || true
 
 echo "==> Mengoptimalkan cache konfigurasi & rute Laravel..."
 php artisan config:cache || true
