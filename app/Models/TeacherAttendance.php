@@ -29,7 +29,7 @@ class TeacherAttendance extends Model
                 return asset('storage/' . $this->foto_bukti);
             }
         }
-        return null;
+        return $this->teacher?->foto_url;
     }
 
     public function getFotoPulangUrlAttribute(): ?string
@@ -41,7 +41,7 @@ class TeacherAttendance extends Model
                 return asset('storage/' . $this->foto_pulang);
             }
         }
-        return null;
+        return $this->teacher?->foto_url;
     }
 
     public function getDutyProofUrlAttribute(): ?string

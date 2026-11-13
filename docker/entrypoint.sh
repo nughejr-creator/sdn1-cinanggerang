@@ -34,6 +34,9 @@ php artisan livewire:publish --assets || true
 echo "==> Menjalankan migrasi basis data..."
 php artisan migrate --force || true
 
+echo "==> Memulihkan berkas presensi yang belum terunggah..."
+php artisan app:heal-attendances || true
+
 echo "==> Mengoptimalkan cache konfigurasi & rute Laravel..."
 php artisan config:cache || true
 php artisan route:cache || true

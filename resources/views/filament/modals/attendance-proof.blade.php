@@ -99,7 +99,7 @@
     @if(!empty($record->foto_bukti) && $record->foto_bukti !== $record->duty_proof_file)
         <div class="pt-2 border-t border-slate-100 dark:border-gray-800 flex items-center gap-3">
             <div class="w-14 h-14 rounded-xl overflow-hidden border border-slate-300 shrink-0 bg-black">
-                <img src="{{ asset('storage/' . $record->foto_bukti) }}" alt="Foto Presensi" class="w-full h-full object-cover">
+                <img src="{{ $record->foto_bukti_url ?: asset('storage/' . $record->foto_bukti) }}" alt="Foto Presensi" class="w-full h-full object-cover">
             </div>
             <div>
                 <p class="font-bold text-xs text-gray-800 dark:text-white">Foto Verifikasi Presensi</p>

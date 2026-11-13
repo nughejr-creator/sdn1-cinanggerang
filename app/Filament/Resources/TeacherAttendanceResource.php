@@ -205,7 +205,8 @@ class TeacherAttendanceResource extends Resource
                 Tables\Columns\ImageColumn::make('foto_bukti')
                     ->label('Selfie')
                     ->circular()
-                    ->disk('public'),
+                    ->disk('public')
+                    ->defaultImageUrl(fn ($record) => $record->teacher?->foto_url ?: asset('images/logo-official.png')),
 
                 Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
