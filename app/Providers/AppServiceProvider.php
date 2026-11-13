@@ -24,10 +24,25 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
-        // Matikan fetch file information otomatis agar FilePond di Cloudflare R2 / S3
-        // tidak tersangkut / hanging 'Menunggu ukuran berkas'
-        FileUpload::configureUsing(function (FileUpload $fileUpload): void {
-            $fileUpload->fetchFileInformation(false);
-        });
+        // Hapus header x-amz-acl pada S3Client agar 100% kompatibel dengan Cloudflare R2
+        if (config('filesystems.disks.public.driver') === 's3' || env('FILESYSTEM_DISK') === 's3') {
+            try {
+                foreach (['public', 's3'] as $diskName) {
+                    $disk = \Illuminate\Support\Facades\Storage::disk($diskName);
+                    if (method_exists($disk, 'getClient')) {
+                        $client = $disk->getClient();
+                        if ($client instanceof \Aws\AwsClientInterface) {
+                            $client->getHandlerList()->appendInit(
+                                \Aws\Middleware::mapCommand(function (\Aws\CommandInterface $command) {
+                                    unset($command['ACL']);
+                                    return $command;
+                                }),
+                                'strip-r2-acl'
+                            );
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {}
+        }
     }
 }
