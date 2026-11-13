@@ -59,6 +59,7 @@ class PostResource extends Resource
                             ->image()
                             ->disk('public')
                             ->directory('posts-thumbnails')
+                            ->visibility('private')
                             ->fetchFileInformation(false)
                             ->columnSpanFull(),
                         \FilamentTiptapEditor\TiptapEditor::make('konten')
@@ -67,6 +68,7 @@ class PostResource extends Resource
                             ->profile('default')
                             ->disk('public')
                             ->directory('posts-content')
+                            ->visibility('private')
                             ->maxContentWidth('5xl')
                             ->required()
                             ->columnSpanFull(),
