@@ -38,7 +38,43 @@ Route::get('/favicon.ico', function () {
     return response()->file(public_path('favicon.ico'));
 });
 
-// Fallback akses berkas Cloudflare R2 / S3 jika dipanggil melalui path storage lokal
+Route::get('/debug-r2-upload', function () {
+    try {
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $driver = config('filesystems.disks.public.driver');
+        $bucket = env('AWS_BUCKET');
+        $endpoint = env('AWS_ENDPOINT');
+        $usePathStyle = env('AWS_USE_PATH_STYLE_ENDPOINT');
+        $keyLen = strlen(env('AWS_ACCESS_KEY_ID') ?? '');
+        $secretLen = strlen(env('AWS_SECRET_ACCESS_KEY') ?? '');
+
+        // Try putting a test file
+        $content = 'R2 Test Upload ' . date('Y-m-d H:i:s');
+        $putResult = $disk->put('test-r2.txt', $content);
+
+        return response()->json([
+            'status' => 'success',
+            'driver' => $driver,
+            'bucket' => $bucket,
+            'endpoint' => $endpoint,
+            'use_path_style' => $usePathStyle,
+            'key_len' => $keyLen,
+            'secret_len' => $secretLen,
+            'put_result' => $putResult,
+            'url' => $disk->url('test-r2.txt'),
+            'exists' => $disk->exists('test-r2.txt'),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'class' => get_class($e),
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ], 500);
+    }
+});
 Route::get('/storage/{path}', function ($path) {
     // 1. Prioritas Utama: Cek aset gambar terbundel di public/images/posts/
     $basename = basename($path);
