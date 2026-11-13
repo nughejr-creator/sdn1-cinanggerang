@@ -23,7 +23,8 @@ class Post extends Model
             }
         }
 
-        // 2. Pemetaan cerdas otomatis untuk 6 artikel utama sekolah
+        // 2. Pemetaan cerdas cadangan (fallback) untuk 6 artikel utama sekolah
+        // Berfungsi otomatis jika thumbnail belum diisi atau masih mengarah ke template bawaan
         $officialPostImages = [
             1 => 'peluncuran-website-resmi.webp',
             30001 => 'gelar-karya-kearifan-lokal.webp',
@@ -33,11 +34,13 @@ class Post extends Model
             4120001 => 'sinergi-sekolah-2026.webp',
         ];
 
-        if (isset($officialPostImages[$this->id]) && file_exists(public_path('images/posts/' . $officialPostImages[$this->id]))) {
-            return asset('images/posts/' . $officialPostImages[$this->id]);
+        if (empty($this->thumbnail) || (isset($officialPostImages[$this->id]) && basename($this->thumbnail) === $officialPostImages[$this->id])) {
+            if (isset($officialPostImages[$this->id]) && file_exists(public_path('images/posts/' . $officialPostImages[$this->id]))) {
+                return asset('images/posts/' . $officialPostImages[$this->id]);
+            }
         }
 
-        // 3. Cek penyimpanan lokal storage
+        // 3. Jika pengguna mengunggah foto kustom baru (Cloudflare R2 / Storage Publik)
         if (!empty($this->thumbnail)) {
             if (file_exists(public_path('storage/' . $this->thumbnail))) {
                 return asset('storage/' . $this->thumbnail);
@@ -48,6 +51,11 @@ class Post extends Model
             } catch (\Throwable $e) {
                 return asset('storage/' . $this->thumbnail);
             }
+        }
+
+        // 4. Cadangan terakhir jika berkas kustom tidak ditemukan
+        if (isset($officialPostImages[$this->id]) && file_exists(public_path('images/posts/' . $officialPostImages[$this->id]))) {
+            return asset('images/posts/' . $officialPostImages[$this->id]);
         }
 
         return null;
