@@ -38,13 +38,6 @@ Route::get('/favicon.ico', function () {
     return response()->file(public_path('favicon.ico'));
 });
 
-Route::get('/debug-heal', function () {
-    \Illuminate\Support\Facades\Artisan::call('app:heal-attendances');
-    return response()->json([
-        'output' => \Illuminate\Support\Facades\Artisan::output(),
-    ]);
-});
-
 Route::get('/storage/{path}', function ($path) {
     // 1. Prioritas Utama: Cek aset gambar terbundel di public/images/posts/
     $basename = basename($path);
