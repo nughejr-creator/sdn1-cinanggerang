@@ -119,6 +119,71 @@
 
         </div>
 
+        {{-- Bar Statistik Pengunjung Web --}}
+        @php
+            $visitorStats = \App\Services\VisitorCounterService::getStats();
+        @endphp
+        <div class="py-6 border-b border-forest-900/80">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-forest-900/60 border border-forest-800/80 shadow-lg backdrop-blur-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-forest-800 border border-forest-700 flex items-center justify-center text-sumedang-amber shrink-0 shadow-inner">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                    <div>
+                        <h5 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <span>Statistik Pengunjung Portal</span>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Live Aktif
+                            </span>
+                        </h5>
+                        <p class="text-[11px] text-gray-400">Pencatatan statistik lalu lintas kunjungan situs resmi SDN Cinanggerang I</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 w-full lg:w-auto">
+                    {{-- Sedang Online --}}
+                    <div class="px-3 py-2 rounded-xl bg-forest-950/70 border border-forest-800 text-center">
+                        <span class="text-[10px] text-gray-400 block font-medium">Online</span>
+                        <span class="text-sm font-extrabold text-emerald-400 flex items-center justify-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            {{ number_format($visitorStats['online'], 0, ',', '.') }}
+                        </span>
+                    </div>
+
+                    {{-- Hari Ini --}}
+                    <div class="px-3 py-2 rounded-xl bg-forest-950/70 border border-forest-800 text-center">
+                        <span class="text-[10px] text-gray-400 block font-medium">Hari Ini</span>
+                        <span class="text-sm font-extrabold text-white">{{ number_format($visitorStats['today'], 0, ',', '.') }}</span>
+                    </div>
+
+                    {{-- Kemarin --}}
+                    <div class="px-3 py-2 rounded-xl bg-forest-950/70 border border-forest-800 text-center">
+                        <span class="text-[10px] text-gray-400 block font-medium">Kemarin</span>
+                        <span class="text-sm font-extrabold text-gray-300">{{ number_format($visitorStats['yesterday'], 0, ',', '.') }}</span>
+                    </div>
+
+                    {{-- Bulan Ini --}}
+                    <div class="px-3 py-2 rounded-xl bg-forest-950/70 border border-forest-800 text-center">
+                        <span class="text-[10px] text-gray-400 block font-medium">Bulan Ini</span>
+                        <span class="text-sm font-extrabold text-sumedang-amber">{{ number_format($visitorStats['month'], 0, ',', '.') }}</span>
+                    </div>
+
+                    {{-- Total Pengunjung --}}
+                    <div class="px-3 py-2 rounded-xl bg-forest-950/70 border border-forest-800 text-center">
+                        <span class="text-[10px] text-gray-400 block font-medium">Pengunjung</span>
+                        <span class="text-sm font-extrabold text-emerald-300">{{ number_format($visitorStats['total'], 0, ',', '.') }}</span>
+                    </div>
+
+                    {{-- Total Hits / Tayangan --}}
+                    <div class="px-3 py-2 rounded-xl bg-forest-950/70 border border-forest-800 text-center">
+                        <span class="text-[10px] text-gray-400 block font-medium">Total Hits</span>
+                        <span class="text-sm font-extrabold text-sumedang-gold">{{ number_format($visitorStats['total_hits'], 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Copyright & Hak Cipta --}}
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
             <p>© {{ date('Y') }} <strong>SD Negeri Cinanggerang I</strong>. Hak Cipta Dilindungi Undang-Undang.</p>
