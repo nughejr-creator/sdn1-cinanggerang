@@ -92,7 +92,7 @@ class FrontendController extends Controller
         }
 
         // Auto-seed / sync video resmi jika belum lengkap
-        if (VideoGallery::count() < 7) {
+        if (VideoGallery::count() < 16) {
             (new \Database\Seeders\VideoGallerySeeder())->run();
         }
 
@@ -299,7 +299,7 @@ class FrontendController extends Controller
     {
         $profile = SchoolProfile::first();
         
-        if (VideoGallery::count() < 7) {
+        if (VideoGallery::count() < 16) {
             (new \Database\Seeders\VideoGallerySeeder())->run();
         }
 
