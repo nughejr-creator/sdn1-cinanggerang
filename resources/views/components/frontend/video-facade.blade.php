@@ -59,10 +59,12 @@
                         <span class="px-2 py-0.5 bg-forest-900/90 text-emerald-300 text-[10px] font-bold rounded-md backdrop-blur-sm shadow">
                             {{ $video->kategori }}
                         </span>
-                        <span class="px-2 py-0.5 {{ $video->platform === 'TikTok' ? 'bg-[#010101]/90 text-[#25F4EE]' : 'bg-red-600/90 text-white' }} text-[10px] font-extrabold rounded-md backdrop-blur-sm shadow flex items-center gap-1">
+                        <span class="px-2 py-0.5 {{ $video->platform === 'TikTok' ? 'bg-[#010101]/90 text-[#25F4EE]' : ($video->platform === 'Google Drive' ? 'bg-sky-600/90 text-white' : 'bg-red-600/90 text-white') }} text-[10px] font-extrabold rounded-md backdrop-blur-sm shadow flex items-center gap-1">
                             @if($video->platform === 'TikTok')
                                 <svg class="w-3 h-3 fill-current inline" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
                                 <span>TikTok</span>
+                            @elseif($video->platform === 'Google Drive')
+                                <span>☁️ Drive</span>
                             @else
                                 <span>{{ $video->platform }}</span>
                             @endif
@@ -181,13 +183,13 @@
                           :class="{
                               'bg-[#010101] text-[#25F4EE] border border-[#25F4EE]/30': activeVideo && (activeVideo.platform === 'TikTok' || (activeVideo.url && activeVideo.url.includes('tiktok.com'))),
                               'bg-red-600 text-white': activeVideo && (activeVideo.platform === 'YouTube' || (activeVideo.url && (activeVideo.url.includes('youtube.com') || activeVideo.url.includes('youtu.be')))),
-                              'bg-sky-600 text-white': activeVideo && activeVideo.platform === 'Google Drive',
-                              'bg-emerald-600 text-white': activeVideo && activeVideo.platform !== 'TikTok' && activeVideo.platform !== 'YouTube' && activeVideo.platform !== 'Google Drive'
+                              'bg-sky-600 text-white': activeVideo && (activeVideo.platform === 'Google Drive' || (activeVideo.url && activeVideo.url.includes('drive.google.com'))),
+                              'bg-emerald-600 text-white': activeVideo && activeVideo.platform !== 'TikTok' && activeVideo.platform !== 'YouTube' && activeVideo.platform !== 'Google Drive' && (!activeVideo.url || !activeVideo.url.includes('drive.google.com'))
                           }">
                         <span x-show="activeVideo && (activeVideo.platform === 'TikTok' || (activeVideo.url && activeVideo.url.includes('tiktok.com')))">🎵 TIKTOK</span>
                         <span x-show="activeVideo && (activeVideo.platform === 'YouTube' || (activeVideo.url && (activeVideo.url.includes('youtube.com') || activeVideo.url.includes('youtu.be'))))">▶️ YOUTUBE</span>
-                        <span x-show="activeVideo && activeVideo.platform === 'Google Drive'">☁️ DRIVE</span>
-                        <span x-show="activeVideo && activeVideo.platform !== 'TikTok' && activeVideo.platform !== 'YouTube' && activeVideo.platform !== 'Google Drive'">🎬 VIDEO</span>
+                        <span x-show="activeVideo && (activeVideo.platform === 'Google Drive' || (activeVideo.url && activeVideo.url.includes('drive.google.com')))">☁️ DRIVE</span>
+                        <span x-show="activeVideo && activeVideo.platform !== 'TikTok' && activeVideo.platform !== 'YouTube' && activeVideo.platform !== 'Google Drive' && (!activeVideo.url || !activeVideo.url.includes('drive.google.com'))">🎬 VIDEO</span>
                     </span>
                     <div class="truncate">
                         <h3 class="font-extrabold text-sm sm:text-base text-white truncate" x-text="activeVideo ? activeVideo.title : ''"></h3>
