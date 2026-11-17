@@ -232,13 +232,23 @@
                     @endphp
                     <div class="mt-6 pt-5 border-t border-forest-800 flex flex-col sm:flex-row gap-2.5">
                         <button type="button"
-                                @click="openPreview('pdf', '{{ $cvUrl }}', 'Curriculum Vitae (CV) - {{ addslashes($headmaster?->name ?? 'Kepala Sekolah') }}', 'Dokumen Portofolio & Riwayat Pengabdian Kepala SD Negeri Cinanggerang I')"
+                                @click="openPreview({
+                                    type: 'pdf',
+                                    url: '{{ $cvUrl }}',
+                                    title: 'Curriculum Vitae (CV) - {{ addslashes($headmaster?->name ?? 'Kepala Sekolah') }}',
+                                    description: 'Dokumen Portofolio & Riwayat Pengabdian Kepala SD Negeri Cinanggerang I'
+                                })"
                                 class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-white text-xs font-bold border border-emerald-500/30 transition shadow cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
                             <svg class="w-4 h-4 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             <span>Unduh CV (PDF)</span>
                         </button>
                         <button type="button"
-                                @click="openPreview('pdf', '{{ $pactUrl }}', 'Pakta Integritas - {{ addslashes($headmaster?->name ?? 'Kepala Sekolah') }}', 'Surat Pernyataan Komitmen Kode Etik & Integritas Kepemimpinan Satuan Pendidikan')"
+                                @click="openPreview({
+                                    type: 'pdf',
+                                    url: '{{ $pactUrl }}',
+                                    title: 'Pakta Integritas - {{ addslashes($headmaster?->name ?? 'Kepala Sekolah') }}',
+                                    description: 'Surat Pernyataan Komitmen Kode Etik & Integritas Kepemimpinan Satuan Pendidikan'
+                                })"
                                 class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sumedang-amber/15 hover:bg-sumedang-amber/25 text-sumedang-amber hover:text-white text-xs font-bold border border-sumedang-amber/30 transition cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
                             <svg class="w-4 h-4 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                             <span>Pakta Integritas</span>
@@ -724,8 +734,13 @@
                                                     $fileTargetUrl = $ev->file_url ?: ($ev->external_url ?: 'https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing');
                                                 @endphp
                                                 <button type="button"
-                                                        @click="openPreview('{{ $ev->file_type }}', '{{ $fileTargetUrl }}', '{{ addslashes($ev->title) }}', '{{ addslashes($ev->description ?? '') }}')"
-                                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-xs shadow-sm transition hover:shadow-md hover:scale-105">
+                                                        @click="openPreview({
+                                                            type: @js($ev->file_type),
+                                                            url: @js($fileTargetUrl),
+                                                            title: @js(trim($ev->title)),
+                                                            description: @js(trim($ev->description ?? ''))
+                                                        })"
+                                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-bold text-xs shadow-sm transition hover:shadow-md hover:scale-105 cursor-pointer">
                                                     <svg class="w-3.5 h-3.5 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                     <span>Buka Dokumen</span>
                                                 </button>
@@ -1155,15 +1170,15 @@
                     <div class="flex items-center gap-2 shrink-0">
                         <a :href="originalUrl || previewUrl"
                            target="_blank"
-                           class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-forest-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition"
-                           title="Buka sumber asli di tab baru jika diperlukan">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition shadow-xs"
+                           title="Buka sumber asli dokumen di tab baru">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                             <span>Buka Asli</span>
                         </a>
 
                         <button type="button"
                                 @click="closePreview()"
-                                class="w-8 h-8 rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-forest-800 dark:hover:bg-forest-700 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-sm transition"
+                                class="w-8 h-8 rounded-xl bg-slate-200/80 hover:bg-slate-300 dark:bg-forest-800 dark:hover:bg-forest-700 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-sm transition cursor-pointer"
                                 title="Tutup (ESC)">
                             ✕
                         </button>
@@ -1174,11 +1189,22 @@
                 <div class="flex-1 w-full h-full bg-slate-900/5 relative overflow-hidden flex items-center justify-center">
                     {{-- Google Drive Embed --}}
                     <template x-if="previewType === 'gdrive'">
-                        <div class="w-full h-full flex items-center justify-center p-2 sm:p-4 bg-slate-950">
-                            <iframe :src="previewUrl"
-                                    class="w-full max-w-5xl h-full min-h-[480px] max-h-[82vh] rounded-2xl border-0 shadow-2xl bg-black"
-                                    allow="autoplay; fullscreen"
-                                    allowfullscreen></iframe>
+                        <div class="w-full h-full flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-950">
+                            <div class="w-full max-w-5xl h-full min-h-[480px] max-h-[82vh] rounded-2xl overflow-hidden shadow-2xl border border-forest-800 bg-black flex flex-col flex-1">
+                                <iframe :src="previewUrl"
+                                        class="w-full flex-1 border-0"
+                                        allow="autoplay; fullscreen"
+                                        allowfullscreen></iframe>
+                                <div class="py-2 px-4 bg-forest-900/90 border-t border-forest-800 flex items-center justify-between text-xs text-slate-300 shrink-0">
+                                    <span class="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+                                        ☁️ Google Drive Cloud Viewer
+                                    </span>
+                                    <a :href="originalUrl || previewUrl" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition font-bold text-[11px] flex items-center gap-1 shadow-sm">
+                                        <span>Buka Penuh di Drive</span>
+                                        <span>&rarr;</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </template>
 
@@ -1437,7 +1463,12 @@
                             @if(!empty($item->certificate_path))
                                 <div class="shrink-0 sm:self-center">
                                     <button type="button"
-                                            @click="openPreview('pdf', '{{ asset('storage/' . $item->certificate_path) }}', '{{ addslashes($item->title) }}', 'Sertifikat/Piagam Resmi')"
+                                            @click="openPreview({
+                                                type: 'pdf',
+                                                url: @js(asset('storage/' . $item->certificate_path)),
+                                                title: @js(trim($item->title)),
+                                                description: 'Sertifikat/Piagam Resmi'
+                                            })"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-emerald-300 text-xs font-bold transition">
                                         <span>Lihat Berkas</span>
                                         <span>&rarr;</span>
@@ -1461,7 +1492,11 @@
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         @if(!empty($headmaster?->cv_pdf_path))
                             <button type="button"
-                                    @click="openPreview('pdf', '{{ $headmaster->cv_pdf_path }}', 'Curriculum Vitae - {{ addslashes($headmaster->name) }}')"
+                                    @click="openPreview({
+                                        type: 'pdf',
+                                        url: '{{ $headmaster->cv_pdf_path }}',
+                                        title: 'Curriculum Vitae - {{ addslashes($headmaster->name) }}'
+                                    })"
                                     class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-forest-800 hover:bg-forest-700 text-white font-bold transition cursor-pointer">
                                 <svg class="w-3.5 h-3.5 text-sumedang-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 <span>Unduh CV (PDF)</span>
@@ -1499,11 +1534,24 @@ function pkksPage() {
         pinError: '',
         pinLoading: false,
 
-        openPreview(type, url, title, description = '') {
-            this.previewTitle = title;
-            this.previewDescription = description;
-            this.originalUrl = url;
-            let processedUrl = url;
+        openPreview(typeOrData, urlParam, titleParam, descriptionParam = '') {
+            let type = typeOrData;
+            let url = urlParam;
+            let title = titleParam;
+            let description = descriptionParam;
+
+            // Dukungan pemanggilan fleksibel via Object: openPreview({ type, url, title, description })
+            if (typeof typeOrData === 'object' && typeOrData !== null) {
+                type = typeOrData.type || 'link';
+                url = typeOrData.url || '';
+                title = typeOrData.title || '';
+                description = typeOrData.description || '';
+            }
+
+            this.previewTitle = title ? title.trim() : 'Dokumen Bukti Fisik';
+            this.previewDescription = description ? description.trim() : '';
+            this.originalUrl = url || '';
+            let processedUrl = url || '';
             let finalType = type;
 
             // 1. Deteksi dan Konversi Google Drive

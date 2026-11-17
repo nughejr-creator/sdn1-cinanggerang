@@ -48,12 +48,14 @@ class PkksEvidenceResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->label('Nama / Judul Dokumen Bukti Fisik')
                             ->placeholder('Contoh: SK Tim TPPK & Laporan Kegiatan 2025/2026')
+                            ->dehydrateStateUsing(fn ($state) => is_string($state) ? trim($state) : $state)
                             ->required()
                             ->columnSpanFull(),
 
                         Forms\Components\Textarea::make('description')
                             ->label('Ringkasan / Keterangan Dokumen')
                             ->placeholder('Jelaskan isi berkas bukti fisik ini secara ringkas...')
+                            ->dehydrateStateUsing(fn ($state) => is_string($state) ? trim($state) : $state)
                             ->rows(3)
                             ->columnSpanFull(),
 
@@ -81,15 +83,19 @@ class PkksEvidenceResource extends Resource
                             ->label('Tautan Eksternal (Google Drive / YouTube / TikTok)')
                             ->placeholder('https://drive.google.com/... atau https://youtube.com/...')
                             ->url()
+                            ->dehydrateStateUsing(fn ($state) => is_string($state) ? trim($state) : $state)
                             ->helperText('Gunakan tautan Google Drive SDN Cinanggerang I atau video dokumentasi resmi.')
                             ->columnSpanFull(),
 
                         Forms\Components\FileUpload::make('file_path')
                             ->label('Unggah Berkas Lokal (Opsional)')
+                            ->disk('public')
                             ->directory('pkks-evidences')
                             ->acceptedFileTypes(['application/pdf', 'image/*'])
+                            ->maxSize(25600)
                             ->openable()
-                            ->downloadable(),
+                            ->downloadable()
+                            ->helperText('Unggah berkas PDF atau Foto dokumen bukti fisik langsung ke server (Maks. 25MB). Berkas tersimpan di penyimpanan publik.'),
 
                         Forms\Components\TextInput::make('sort_order')
                             ->label('Urutan Tampilan')

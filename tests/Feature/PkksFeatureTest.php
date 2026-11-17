@@ -141,4 +141,29 @@ class PkksFeatureTest extends TestCase
             $response->assertSee($history->title);
         }
     }
+
+    public function test_newly_created_pkks_evidence_with_multiline_description_renders_safely(): void
+    {
+        $indicator = \App\Models\PkksIndicator::first();
+        $this->assertNotNull($indicator);
+
+        $evidence = \App\Models\PkksEvidence::create([
+            'pkks_indicator_id' => $indicator->id,
+            'title' => "  \t Naskah Kerja Sama Uji Coba  ",
+            'description' => "Baris 1 keterangan\nBaris 2 dengan kutip 'tunggal' dan \"ganda\"",
+            'file_type' => 'pdf',
+            'external_url' => 'https://drive.google.com/file/d/13s39yzcSGp6DZO481iMvHqRlliRCiwOw/view?usp=drive_link',
+            'is_public' => true,
+        ]);
+
+        // Model booted hook harus membersihkan leading/trailing whitespace
+        $this->assertEquals('Naskah Kerja Sama Uji Coba', $evidence->title);
+
+        $response = $this->get('/e-pkks');
+        $response->assertStatus(200);
+        $response->assertSee('Naskah Kerja Sama Uji Coba');
+
+        // Clean up
+        $evidence->delete();
+    }
 }

@@ -20,6 +20,21 @@ class PkksEvidence extends Model
         'sort_order' => 'integer',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function ($model) {
+            if (is_string($model->title)) {
+                $model->title = trim($model->title);
+            }
+            if (is_string($model->description)) {
+                $model->description = trim($model->description);
+            }
+            if (is_string($model->external_url)) {
+                $model->external_url = trim($model->external_url);
+            }
+        });
+    }
+
     public function indicator(): BelongsTo
     {
         return $this->belongsTo(PkksIndicator::class, 'pkks_indicator_id');
