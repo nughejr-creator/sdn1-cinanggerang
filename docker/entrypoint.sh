@@ -3,8 +3,12 @@ set -e
 
 # Sesuaikan port Nginx jika environment PORT disediakan oleh platform
 if [ -n "$PORT" ]; then
-    sed -i "s/8000/$PORT/g" /etc/nginx/sites-available/default || true
-    sed -i "s/8000/$PORT/g" /etc/nginx/conf.d/default.conf || true
+    if [ -f /etc/nginx/sites-available/default ]; then
+        sed -i "s/8000/$PORT/g" /etc/nginx/sites-available/default || true
+    fi
+    if [ -f /etc/nginx/conf.d/default.conf ]; then
+        sed -i "s/8000/$PORT/g" /etc/nginx/conf.d/default.conf || true
+    fi
 fi
 
 echo "==> Menyiapkan direktori storage & symlink..."
@@ -23,7 +27,10 @@ mkdir -p /var/www/html/storage/logs
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-php artisan storage:link --force || true
+# Pastikan tautan storage tersedia secara bersih
+if [ ! -L /var/www/html/public/storage ] && [ ! -d /var/www/html/public/storage ]; then
+    php artisan storage:link || true
+fi
 
 echo "==> Mendaftarkan paket & aset Filament..."
 php artisan package:discover --ansi || true
