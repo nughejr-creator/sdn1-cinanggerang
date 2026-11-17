@@ -41,20 +41,26 @@ class VideoGallery extends Model
             }
         }
 
-        // 3. TikTok
+        // 3. TikTok (Official Embed Widget)
         if ($this->platform === 'TikTok' || str_contains($url, 'tiktok.com')) {
-            if (preg_match('/video\/(\d+)/', $url, $matches)) {
+            $videoId = '';
+            if (preg_match('/(?:video\/|embed\/v2\/)(\d+)/', $url, $matches)) {
                 $videoId = $matches[1];
-                return '<div class="w-full flex flex-col items-center justify-center p-2">' .
-                    '<iframe src="https://www.tiktok.com/player/v1/' . $videoId . '?autoplay=1" class="w-full max-w-[340px] h-[540px] rounded-2xl border border-forest-800 shadow-2xl bg-black" allow="autoplay; fullscreen" allowfullscreen></iframe>' .
-                    '<div class="mt-3 text-center">' .
-                        '<a href="' . htmlspecialchars($url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FE2C55] hover:bg-[#e0264a] text-white rounded-xl text-xs font-bold shadow-md transition">' .
-                            '<span>Buka di Aplikasi TikTok @sdn.cinanggerang1</span>' .
-                            '<span>&rarr;</span>' .
-                        '</a>' .
-                    '</div>' .
-                '</div>';
             }
+            return '<div class="w-full flex flex-col items-center justify-center p-2 tiktok-wrapper">' .
+                '<blockquote class="tiktok-embed" cite="' . htmlspecialchars($url) . '" ' . ($videoId ? 'data-video-id="' . $videoId . '"' : '') . ' style="max-width: 440px; min-width: 280px; width: 100%; margin: 0 auto;">' .
+                    '<section class="p-3 text-center text-xs text-slate-300">' .
+                        '<p class="font-bold mb-1">' . htmlspecialchars($this->judul ?? 'Video Dokumentasi Siswa') . '</p>' .
+                        '<a target="_blank" href="' . htmlspecialchars($url) . '" class="text-rose-400 hover:underline">Memuat Video TikTok Resmi...</a>' .
+                    '</section>' .
+                '</blockquote>' .
+                '<div class="mt-3 text-center">' .
+                    '<a href="' . htmlspecialchars($url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FE2C55] hover:bg-[#e0264a] text-white rounded-xl text-xs font-bold shadow-md transition">' .
+                        '<span>Buka di Aplikasi TikTok @sdn.cinanggerang1</span>' .
+                        '<span>&rarr;</span>' .
+                    '</a>' .
+                '</div>' .
+            '</div>';
         }
 
         return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="text-primary-600 underline">Tonton Video di Tautan Eksternal</a>';

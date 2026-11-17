@@ -1,5 +1,28 @@
 <section id="video" class="py-10 md:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-         x-data="{ activeVideoModal: null, activeVideoEmbed: '' }">
+         x-data="{ 
+             activeVideoModal: null, 
+             activeVideoEmbed: '',
+             openVideo(judul, embedHtml) {
+                 this.activeVideoModal = judul;
+                 this.activeVideoEmbed = embedHtml;
+                 this.$nextTick(() => {
+                     if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
+                         window.tiktokEmbed.lib.render();
+                     } else if (document.querySelector('blockquote.tiktok-embed')) {
+                         const existingScript = document.querySelector('script[src*=\"tiktok.com/embed.js\"]');
+                         if (existingScript) existingScript.remove();
+                         const s = document.createElement('script');
+                         s.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
+                         s.async = true;
+                         document.body.appendChild(s);
+                     }
+                 });
+             },
+             closeVideo() {
+                 this.activeVideoModal = null;
+                 this.activeVideoEmbed = '';
+             }
+         }">
 
     {{-- HEADER DOKUMENTASI KEGIATAN --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -26,7 +49,7 @@
 
                 {{-- Thumbnail Facade (Ringan & Cepat) --}}
                 <div class="aspect-video w-full bg-forest-950 relative overflow-hidden cursor-pointer"
-                     @click="activeVideoModal = '{{ addslashes($video->judul) }}'; activeVideoEmbed = $el.querySelector('.video-embed-src').innerHTML">
+                     @click="openVideo('{{ addslashes($video->judul) }}', $el.querySelector('.video-embed-src').innerHTML)">
 
                     <template class="video-embed-src hidden">{!! $video->embed_html ?? '' !!}</template>
 
@@ -77,7 +100,7 @@
                     </div>
 
                     <button type="button"
-                            @click="activeVideoModal = '{{ addslashes($video->judul) }}'; activeVideoEmbed = $el.closest('.group').querySelector('.video-embed-src').innerHTML"
+                            @click="openVideo('{{ addslashes($video->judul) }}', $el.closest('.group').querySelector('.video-embed-src').innerHTML)"
                             class="mt-3 text-left text-xs font-bold text-forest-800 dark:text-emerald-300 hover:text-sumedang-amber flex items-center gap-1 transition">
                         <span>Tonton Video</span>
                         <span>&rarr;</span>
@@ -153,17 +176,17 @@
         </div>
     </div>
 
-    {{-- MODAL PLAYER POPUP (Hanya memuat iframe saat diklik) --}}
+    {{-- MODAL PLAYER POPUP (Hanya memuat iframe/embed saat diklik) --}}
     <div x-show="activeVideoModal" x-cloak
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-         @keydown.escape.window="activeVideoModal = null; activeVideoEmbed = ''">
+         @keydown.escape.window="closeVideo()">
 
         <div class="bg-forest-950 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-forest-800 max-h-[92vh] flex flex-col"
-             @click.away="activeVideoModal = null; activeVideoEmbed = ''">
+             @click.away="closeVideo()">
 
             <div class="p-4 border-b border-forest-800 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-sm truncate pr-4 text-emerald-300" x-text="activeVideoModal"></h3>
-                <button type="button" @click="activeVideoModal = null; activeVideoEmbed = ''" class="text-gray-400 hover:text-white p-1 text-2xl font-bold leading-none">
+                <button type="button" @click="closeVideo()" class="text-gray-400 hover:text-white p-1 text-2xl font-bold leading-none">
                     &times;
                 </button>
             </div>
