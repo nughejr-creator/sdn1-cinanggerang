@@ -266,14 +266,14 @@ function videoGalleryTheater() {
                 }
             }
 
-            // 2. Google Drive Theater (Widescreen Cinema)
+            // 2. Google Drive Theater (Responsive Full-Height View - Perfect for both Portrait & Landscape!)
             const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
             if (platform === 'Google Drive' || driveMatch) {
                 const driveId = driveMatch ? driveMatch[1] : '';
                 if (driveId) {
                     stage.innerHTML = `
-                        <div class="w-full h-full flex items-center justify-center p-2 sm:p-6 bg-black">
-                            <div class="w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-forest-800 bg-forest-950">
+                        <div class="w-full h-full flex items-center justify-center p-2 sm:p-4 bg-black">
+                            <div class="w-full max-w-5xl h-full min-h-[480px] max-h-[82vh] rounded-2xl overflow-hidden shadow-2xl border border-forest-800 bg-forest-950 flex items-center justify-center">
                                 <iframe src="https://drive.google.com/file/d/${driveId}/preview" 
                                         class="w-full h-full border-0" 
                                         allow="autoplay; fullscreen" 
@@ -285,41 +285,38 @@ function videoGalleryTheater() {
                 }
             }
 
-            // 3. TikTok Theater (Studio Dual-Panel Theater Experience)
-            const tiktokMatch = url.match(/\/video\/(\d+)/i) || url.match(/embed\/v2\/(\d+)/i) || url.match(/(\d{18,21})/);
+            // 3. TikTok Theater (Official TikTok Player v1)
+            const tiktokMatch = url.match(/\/video\/(\d+)/i) || url.match(/embed\/v2\/(\d+)/i) || url.match(/player\/v1\/(\d+)/i) || url.match(/(\d{18,21})/);
             if (platform === 'TikTok' || url.includes('tiktok.com') || tiktokMatch) {
                 const videoId = tiktokMatch ? tiktokMatch[1] : '';
                 const cleanUrl = url.split('?')[0];
 
                 stage.innerHTML = `
-                    <div class="w-full h-full flex flex-col lg:flex-row items-center justify-center p-3 sm:p-6 gap-6 bg-black/95 overflow-y-auto">
-                        <div class="w-full max-w-[420px] flex-shrink-0 flex justify-center items-center">
-                            <div class="w-full flex justify-center items-center min-h-[500px]">
-                                <blockquote class="tiktok-embed" 
-                                            cite="${cleanUrl}" 
-                                            ${videoId ? `data-video-id="${videoId}"` : ''} 
-                                            style="max-width: 420px; min-width: 280px; width: 100%; margin: 0 auto;">
-                                    <section class="p-4 text-center text-xs text-slate-300">
-                                        <p class="font-bold text-white mb-1">${title}</p>
-                                        <a target="_blank" href="${cleanUrl}" class="text-rose-400 hover:underline">Memuat Pemutar Resmi TikTok...</a>
-                                    </section>
-                                </blockquote>
-                            </div>
+                    <div class="w-full h-full flex flex-col lg:flex-row items-center justify-center p-3 sm:p-6 gap-6 sm:gap-8 bg-black/95 overflow-y-auto">
+                        <div class="w-[325px] h-[578px] max-w-full flex-shrink-0 bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-forest-800 flex items-center justify-center">
+                            <iframe height="578" width="325" 
+                                    src="https://www.tiktok.com/player/v1/${videoId}?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1" 
+                                    class="w-full h-full border-0 bg-black" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" 
+                                    title="${title}" 
+                                    allowfullscreen 
+                                    loading="lazy"></iframe>
                         </div>
-                        <div class="w-full max-w-md bg-forest-900/60 p-5 rounded-2xl border border-forest-800/80 flex flex-col justify-between text-left shrink-0">
+                        <div class="w-full max-w-md bg-forest-900/70 p-6 rounded-2xl border border-forest-800/80 flex flex-col justify-between text-left shrink-0 shadow-xl">
                             <div>
-                                <div class="flex items-center gap-2 mb-2">
+                                <div class="flex items-center gap-2 mb-2.5">
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#010101] text-[#25F4EE] border border-[#25F4EE]/30">
                                         🎵 TikTok Resmi Sekolah
                                     </span>
                                     <span class="text-xs text-gray-400 font-semibold">${tanggal}</span>
                                 </div>
-                                <h3 class="text-base sm:text-lg font-black text-white leading-snug mb-2">${title}</h3>
+                                <h3 class="text-lg font-black text-white leading-snug mb-2.5">${title}</h3>
                                 <p class="text-xs text-gray-300 leading-relaxed">${deskripsi}</p>
                             </div>
-                            <div class="mt-5 pt-4 border-t border-forest-800/80 flex flex-col sm:flex-row items-center gap-2.5">
+                            <div class="mt-6 pt-4 border-t border-forest-800/80">
                                 <a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" 
-                                   class="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FE2C55] to-[#FF0050] hover:brightness-110 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition">
+                                   class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FE2C55] to-[#FF0050] hover:brightness-110 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg transition">
                                     <span>Buka di Aplikasi TikTok</span>
                                     <span>&rarr;</span>
                                 </a>
@@ -327,18 +324,6 @@ function videoGalleryTheater() {
                         </div>
                     </div>
                 `;
-
-                // Render TikTok Embed Script
-                if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
-                    window.tiktokEmbed.lib.render();
-                } else {
-                    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
-                    if (existingScript) existingScript.remove();
-                    const s = document.createElement('script');
-                    s.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
-                    s.async = true;
-                    document.body.appendChild(s);
-                }
                 return;
             }
 

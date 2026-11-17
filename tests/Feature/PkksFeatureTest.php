@@ -89,7 +89,7 @@ class PkksFeatureTest extends TestCase
         $tiktok = new \App\Models\PkksEvidence([
             'external_url' => 'https://www.tiktok.com/@sdn.cinanggerang1/video/7559429345354288395',
         ]);
-        $this->assertEquals('https://www.tiktok.com/embed/v2/7559429345354288395', $tiktok->embed_url);
+        $this->assertEquals('https://www.tiktok.com/player/v1/7559429345354288395?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1', $tiktok->embed_url);
 
         $youtube = new \App\Models\PkksEvidence([
             'external_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',

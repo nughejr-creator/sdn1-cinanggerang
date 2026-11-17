@@ -1174,30 +1174,32 @@
                 <div class="flex-1 w-full h-full bg-slate-900/5 relative overflow-hidden flex items-center justify-center">
                     {{-- Google Drive Embed --}}
                     <template x-if="previewType === 'gdrive'">
-                        <iframe :src="previewUrl"
-                                class="w-full h-full border-0"
-                                allow="autoplay; fullscreen"
-                                allowfullscreen></iframe>
+                        <div class="w-full h-full flex items-center justify-center p-2 sm:p-4 bg-slate-950">
+                            <iframe :src="previewUrl"
+                                    class="w-full max-w-5xl h-full min-h-[480px] max-h-[82vh] rounded-2xl border-0 shadow-2xl bg-black"
+                                    allow="autoplay; fullscreen"
+                                    allowfullscreen></iframe>
+                        </div>
                     </template>
 
-                    {{-- TikTok Video Embed Player (Official TikTok Embed Widget + Fallback Direct Link) --}}
+                    {{-- TikTok Video Embed Player (Official TikTok Player v1) --}}
                     <template x-if="previewType === 'tiktok'">
-                        <div class="w-full h-full p-2 sm:p-4 flex flex-col items-center justify-start bg-black/95 overflow-y-auto"
-                             x-init="$nextTick(() => { initTikTokEmbed(); })">
-                            <div class="w-full max-w-[460px] my-auto bg-slate-900 rounded-2xl overflow-hidden shadow-2xl relative flex flex-col border border-slate-800">
-                                <div id="tiktok-embed-container" class="w-full p-2 flex justify-center items-center min-h-[460px]">
-                                    <div class="text-center py-12 text-slate-400">
-                                        <div class="inline-block animate-spin w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full mb-3"></div>
-                                        <p class="text-xs font-semibold">Menghubungkan ke Pemutar Resmi TikTok...</p>
-                                    </div>
-                                </div>
-                                <div class="px-4 py-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300 shrink-0">
-                                    <span class="flex items-center gap-1.5 font-semibold text-rose-400">
-                                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
+                        <div class="w-full h-full p-2 sm:p-4 flex flex-col items-center justify-center bg-black/95 overflow-y-auto">
+                            <div class="w-[325px] h-[578px] max-w-full my-auto bg-slate-900 rounded-2xl overflow-hidden shadow-2xl relative flex flex-col border border-slate-800 shrink-0">
+                                <iframe height="578" width="325"
+                                        :src="previewUrl"
+                                        class="w-full flex-1 border-0"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
+                                        allowfullscreen
+                                        loading="lazy"></iframe>
+                                <div class="px-3.5 py-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300 shrink-0">
+                                    <span class="flex items-center gap-1.5 font-semibold text-rose-400 text-[11px]">
+                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z"/></svg>
                                         TikTok Official Player
                                     </span>
-                                    <a :href="originalUrl || previewUrl" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white transition font-bold text-[11px] flex items-center gap-1.5 shadow-md">
-                                        <span>Buka di Aplikasi TikTok</span>
+                                    <a :href="originalUrl || previewUrl" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white transition font-bold text-[11px] flex items-center gap-1 shadow-sm">
+                                        <span>Buka di TikTok</span>
                                         <span>&rarr;</span>
                                     </a>
                                 </div>
@@ -1530,7 +1532,7 @@ function pkksPage() {
                 finalType = 'youtube';
             } else if (tiktokMatch && tiktokMatch[1]) {
                 this.previewTiktokId = tiktokMatch[1];
-                processedUrl = 'https://www.tiktok.com/@sdn.cinanggerang1/video/' + tiktokMatch[1];
+                processedUrl = 'https://www.tiktok.com/player/v1/' + tiktokMatch[1] + '?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1';
                 finalType = 'tiktok';
             } else if (isTikTokGeneric) {
                 this.previewTiktokId = '';
@@ -1551,55 +1553,12 @@ function pkksPage() {
             this.previewModalOpen = true;
         },
 
-        initTikTokEmbed() {
-            this.$nextTick(() => {
-                const container = document.getElementById('tiktok-embed-container');
-                if (!container) return;
-
-                const videoId = this.previewTiktokId || '';
-                const rawUrl = this.originalUrl || (videoId ? ('https://www.tiktok.com/@sdn.cinanggerang1/video/' + videoId) : '');
-                const cleanUrl = rawUrl.split('?')[0];
-
-                if (!videoId && !cleanUrl) {
-                    container.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Tautan video TikTok tidak valid.</div>';
-                    return;
-                }
-
-                container.innerHTML = `
-                    <blockquote class="tiktok-embed" 
-                                cite="${cleanUrl}" 
-                                ${videoId ? `data-video-id="${videoId}"` : ''}
-                                style="max-width: 440px; min-width: 280px; width: 100%; margin: 0 auto;">
-                        <section class="p-4 text-center text-xs text-slate-300">
-                            <p class="font-bold mb-1">${this.previewTitle || 'Video Dokumentasi Kegiatan Siswa'}</p>
-                            <a target="_blank" href="${cleanUrl}" class="text-rose-400 hover:underline">Memuat Pemutar Resmi TikTok...</a>
-                        </section>
-                    </blockquote>
-                `;
-
-                if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
-                    window.tiktokEmbed.lib.render();
-                } else {
-                    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
-                    if (existingScript) existingScript.remove();
-                    const script = document.createElement('script');
-                    script.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
-                    script.async = true;
-                    document.body.appendChild(script);
-                }
-            });
-        },
-
         closePreview() {
             this.previewModalOpen = false;
             this.previewUrl = '';
             this.originalUrl = '';
             this.previewType = '';
             this.previewTiktokId = '';
-            const container = document.getElementById('tiktok-embed-container');
-            if (container) {
-                container.innerHTML = '';
-            }
         },
 
         async submitPin() {

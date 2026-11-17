@@ -41,26 +41,23 @@ class VideoGallery extends Model
             }
         }
 
-        // 3. TikTok (Official Embed Widget)
+        // 3. TikTok (Official Player v1)
         if ($this->platform === 'TikTok' || str_contains($url, 'tiktok.com')) {
             $videoId = '';
-            if (preg_match('/(?:video\/|embed\/v2\/)(\d+)/', $url, $matches)) {
+            if (preg_match('/(?:video\/|embed\/v2\/|player\/v1\/)(\d+)/', $url, $matches)) {
                 $videoId = $matches[1];
             }
-            return '<div class="w-full flex flex-col items-center justify-center p-2 tiktok-wrapper">' .
-                '<blockquote class="tiktok-embed" cite="' . htmlspecialchars($url) . '" ' . ($videoId ? 'data-video-id="' . $videoId . '"' : '') . ' style="max-width: 440px; min-width: 280px; width: 100%; margin: 0 auto;">' .
-                    '<section class="p-3 text-center text-xs text-slate-300">' .
-                        '<p class="font-bold mb-1">' . htmlspecialchars($this->judul ?? 'Video Dokumentasi Siswa') . '</p>' .
-                        '<a target="_blank" href="' . htmlspecialchars($url) . '" class="text-rose-400 hover:underline">Memuat Video TikTok Resmi...</a>' .
-                    '</section>' .
-                '</blockquote>' .
-                '<div class="mt-3 text-center">' .
-                    '<a href="' . htmlspecialchars($url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FE2C55] hover:bg-[#e0264a] text-white rounded-xl text-xs font-bold shadow-md transition">' .
-                        '<span>Buka di Aplikasi TikTok @sdn.cinanggerang1</span>' .
-                        '<span>&rarr;</span>' .
-                    '</a>' .
-                '</div>' .
-            '</div>';
+            if ($videoId) {
+                return '<div class="w-full flex flex-col items-center justify-center p-2">' .
+                    '<iframe height="578" width="325" src="https://www.tiktok.com/player/v1/' . $videoId . '?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1" class="w-[325px] h-[578px] max-w-full rounded-2xl shadow-2xl border-0 bg-black" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share" title="' . htmlspecialchars($this->judul ?? 'Video Dokumentasi') . '" allowfullscreen loading="lazy"></iframe>' .
+                    '<div class="mt-3 text-center">' .
+                        '<a href="' . htmlspecialchars($url) . '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FE2C55] hover:bg-[#e0264a] text-white rounded-xl text-xs font-bold shadow-md transition">' .
+                            '<span>Buka di Aplikasi TikTok @sdn.cinanggerang1</span>' .
+                            '<span>&rarr;</span>' .
+                        '</a>' .
+                    '</div>' .
+                '</div>';
+            }
         }
 
         return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="text-primary-600 underline">Tonton Video di Tautan Eksternal</a>';

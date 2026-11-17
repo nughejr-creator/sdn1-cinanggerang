@@ -44,11 +44,11 @@ class PkksEvidence extends Model
             }
         }
 
-        // TikTok embed
+        // TikTok embed (Official Player v1)
         if (str_contains($url, 'tiktok.com')) {
-            preg_match('/tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/)(\d+)/', $url, $matches);
+            preg_match('/(?:tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/|player\/v1\/)|video\/)(\d+)/', $url, $matches);
             if (!empty($matches[1])) {
-                return 'https://www.tiktok.com/embed/v2/' . $matches[1];
+                return 'https://www.tiktok.com/player/v1/' . $matches[1] . '?embed_from=webapp_share&music_info=1&description=1&autoplay=1&muted=1';
             }
         }
 
