@@ -1,28 +1,5 @@
 <section id="video" class="py-10 md:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-         x-data="{ 
-             activeVideoModal: null, 
-             activeVideoEmbed: '',
-             openVideo(judul, embedHtml) {
-                 this.activeVideoModal = judul;
-                 this.activeVideoEmbed = embedHtml;
-                 this.$nextTick(() => {
-                     if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
-                         window.tiktokEmbed.lib.render();
-                     } else if (document.querySelector('blockquote.tiktok-embed')) {
-                         const existingScript = document.querySelector('script[src*=\"tiktok.com/embed.js\"]');
-                         if (existingScript) existingScript.remove();
-                         const s = document.createElement('script');
-                         s.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
-                         s.async = true;
-                         document.body.appendChild(s);
-                     }
-                 });
-             },
-             closeVideo() {
-                 this.activeVideoModal = null;
-                 this.activeVideoEmbed = '';
-             }
-         }">
+         x-data="videoGalleryTheater()">
 
     {{-- HEADER DOKUMENTASI KEGIATAN --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -49,9 +26,14 @@
 
                 {{-- Thumbnail Facade (Ringan & Cepat) --}}
                 <div class="aspect-video w-full bg-forest-950 relative overflow-hidden cursor-pointer"
-                     @click="openVideo('{{ addslashes($video->judul) }}', $el.querySelector('.video-embed-src').innerHTML)">
-
-                    <template class="video-embed-src hidden">{!! $video->embed_html ?? '' !!}</template>
+                     @click="openTheater({
+                         title: @js($video->judul),
+                         platform: @js($video->platform),
+                         url: @js($video->video_url),
+                         kategori: @js($video->kategori),
+                         tanggal: @js($video->tanggal ? \Carbon\Carbon::parse($video->tanggal)->translatedFormat('d M Y') : 'Dokumentasi'),
+                         deskripsi: @js($video->deskripsi ?? '')
+                     })">
 
                     {{-- Cover / Thumbnail --}}
                     @if(!empty($video->thumbnail_url))
@@ -100,7 +82,14 @@
                     </div>
 
                     <button type="button"
-                            @click="openVideo('{{ addslashes($video->judul) }}', $el.closest('.group').querySelector('.video-embed-src').innerHTML)"
+                            @click="openTheater({
+                                title: @js($video->judul),
+                                platform: @js($video->platform),
+                                url: @js($video->video_url),
+                                kategori: @js($video->kategori),
+                                tanggal: @js($video->tanggal ? \Carbon\Carbon::parse($video->tanggal)->translatedFormat('d M Y') : 'Dokumentasi'),
+                                deskripsi: @js($video->deskripsi ?? '')
+                            })"
                             class="mt-3 text-left text-xs font-bold text-forest-800 dark:text-emerald-300 hover:text-sumedang-amber flex items-center gap-1 transition">
                         <span>Tonton Video</span>
                         <span>&rarr;</span>
@@ -128,24 +117,25 @@
                     📁
                 </div>
                 <div>
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sumedang-amber/20 text-sumedang-amber text-[10px] font-extrabold uppercase tracking-wider mb-1.5 border border-sumedang-amber/30">
-                        <span>Google Drive Cloud Storage</span>
-                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-sumedang-amber text-forest-950 mb-1">
+                        <span>📁</span>
+                        <span>Penyimpanan Awan Resmi</span>
+                    </span>
                     <h3 class="text-lg sm:text-xl font-black text-white leading-snug">
-                        Arsip Album Foto Dokumentasi Kegiatan SDN Cinanggerang I
+                        Arsip Digital & Galeri Dokumentasi Kegiatan SDN Cinanggerang 1
                     </h3>
-                    <p class="text-xs sm:text-sm text-gray-200 mt-1 max-w-2xl leading-relaxed">
-                        Dokumentasi foto kegiatan belajar mengajar, pembiasaan siswa, upacara, kepramukaan, dan sarana prasarana sekolah diarsipkan secara rapi dan terbuka pada Google Drive resmi sekolah.
+                    <p class="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-2xl">
+                        Akses ribuan dokumentasi foto orisinal, gelar karya P5, kemah kepramukaan, dan momen bersejarah sekolah yang tersimpan aman di Google Drive institusi.
                     </p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full lg:w-auto flex-shrink-0">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto shrink-0">
                 <button type="button"
                         @click="showDriveEmbed = !showDriveEmbed"
-                        class="w-full sm:w-auto px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition flex items-center justify-center gap-2">
-                    <span x-text="showDriveEmbed ? 'Tutup Pratinjau Folder' : 'Pratinjau Folder Foto'"></span>
-                    <svg class="w-4 h-4 transform transition-transform" :class="showDriveEmbed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition flex items-center justify-center gap-2">
+                    <span x-text="showDriveEmbed ? 'Tutup Pratinjau' : 'Buka Pratinjau Folder'"></span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': showDriveEmbed }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
 
                 <a href="https://drive.google.com/drive/folders/14OBTBm-pTOgP-YJ7Wffzz6VCqxqwyxoG?usp=sharing"
@@ -176,23 +166,192 @@
         </div>
     </div>
 
-    {{-- MODAL PLAYER POPUP (Hanya memuat iframe/embed saat diklik) --}}
-    <div x-show="activeVideoModal" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-         @keydown.escape.window="closeVideo()">
+    {{-- THEATER VIEW POPUP MODAL (WIDESCREEN CINEMA EXPERIENCE) --}}
+    <div x-show="activeVideo" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/95 backdrop-blur-md"
+         @keydown.escape.window="closeTheater()">
 
-        <div class="bg-forest-950 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-forest-800 max-h-[92vh] flex flex-col"
-             @click.away="closeVideo()">
+        <div class="bg-forest-950 rounded-2xl sm:rounded-3xl max-w-6xl w-full h-[92vh] md:h-[88vh] overflow-hidden shadow-2xl border border-forest-800 flex flex-col"
+             @click.away="closeTheater()">
 
-            <div class="p-4 border-b border-forest-800 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-sm truncate pr-4 text-emerald-300" x-text="activeVideoModal"></h3>
-                <button type="button" @click="closeVideo()" class="text-gray-400 hover:text-white p-1 text-2xl font-bold leading-none">
-                    &times;
-                </button>
+            {{-- Theater Top Bar --}}
+            <div class="px-5 py-3.5 border-b border-forest-800/80 bg-forest-900/90 flex justify-between items-center text-white shrink-0">
+                <div class="flex items-center gap-3 overflow-hidden pr-4">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-black shrink-0 flex items-center gap-1.5"
+                          :class="{
+                              'bg-[#010101] text-[#25F4EE] border border-[#25F4EE]/30': activeVideo && (activeVideo.platform === 'TikTok' || (activeVideo.url && activeVideo.url.includes('tiktok.com'))),
+                              'bg-red-600 text-white': activeVideo && (activeVideo.platform === 'YouTube' || (activeVideo.url && (activeVideo.url.includes('youtube.com') || activeVideo.url.includes('youtu.be')))),
+                              'bg-sky-600 text-white': activeVideo && activeVideo.platform === 'Google Drive',
+                              'bg-emerald-600 text-white': activeVideo && activeVideo.platform !== 'TikTok' && activeVideo.platform !== 'YouTube' && activeVideo.platform !== 'Google Drive'
+                          }">
+                        <span x-show="activeVideo && (activeVideo.platform === 'TikTok' || (activeVideo.url && activeVideo.url.includes('tiktok.com')))">🎵 TIKTOK</span>
+                        <span x-show="activeVideo && (activeVideo.platform === 'YouTube' || (activeVideo.url && (activeVideo.url.includes('youtube.com') || activeVideo.url.includes('youtu.be'))))">▶️ YOUTUBE</span>
+                        <span x-show="activeVideo && activeVideo.platform === 'Google Drive'">☁️ DRIVE</span>
+                        <span x-show="activeVideo && activeVideo.platform !== 'TikTok' && activeVideo.platform !== 'YouTube' && activeVideo.platform !== 'Google Drive'">🎬 VIDEO</span>
+                    </span>
+                    <div class="truncate">
+                        <h3 class="font-extrabold text-sm sm:text-base text-white truncate" x-text="activeVideo ? activeVideo.title : ''"></h3>
+                        <p class="text-[11px] text-gray-400 truncate">
+                            <span x-text="activeVideo ? activeVideo.kategori : ''"></span>
+                            <span class="mx-1">•</span>
+                            <span x-text="activeVideo ? activeVideo.tanggal : ''"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <a :href="activeVideo ? activeVideo.url : '#'" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-forest-800 hover:bg-forest-700 text-emerald-300 text-xs font-bold transition">
+                        <span>Buka Asli</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    <button type="button" @click="closeTheater()" class="w-8 h-8 rounded-xl bg-forest-800 hover:bg-forest-700 text-gray-300 hover:text-white flex items-center justify-center font-bold text-sm transition" title="Tutup Theater (ESC)">
+                        ✕
+                    </button>
+                </div>
             </div>
 
-            <div class="p-3 sm:p-4 bg-black overflow-y-auto flex justify-center items-center" x-html="activeVideoEmbed"></div>
+            {{-- Theater Stage Area --}}
+            <div id="facade-video-stage" class="flex-1 w-full h-full bg-black relative overflow-hidden flex items-center justify-center"></div>
 
         </div>
     </div>
 </section>
+
+<script>
+function videoGalleryTheater() {
+    return {
+        activeVideo: null,
+        openTheater(video) {
+            this.activeVideo = video;
+            this.$nextTick(() => {
+                this.initPlayer();
+            });
+        },
+        closeTheater() {
+            this.activeVideo = null;
+            const stage = document.getElementById('facade-video-stage');
+            if (stage) stage.innerHTML = '';
+        },
+        initPlayer() {
+            if (!this.activeVideo) return;
+            const stage = document.getElementById('facade-video-stage');
+            if (!stage) return;
+            stage.innerHTML = '';
+
+            const url = this.activeVideo.url || '';
+            const platform = this.activeVideo.platform || '';
+            const title = this.activeVideo.title || 'Video Dokumentasi Siswa';
+            const deskripsi = this.activeVideo.deskripsi || 'Dokumentasi kegiatan resmi peserta didik dan civitas akademika SD Negeri Cinanggerang I.';
+            const tanggal = this.activeVideo.tanggal || '';
+
+            // 1. YouTube Theater (Widescreen 16:9 Cinema)
+            const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/i);
+            if (platform === 'YouTube' || ytMatch) {
+                const ytId = ytMatch ? ytMatch[1] : '';
+                if (ytId) {
+                    stage.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center p-2 sm:p-6 bg-black">
+                            <div class="w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-forest-800 bg-forest-950">
+                                <iframe src="https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0" 
+                                        class="w-full h-full border-0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
+            // 2. Google Drive Theater (Widescreen Cinema)
+            const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (platform === 'Google Drive' || driveMatch) {
+                const driveId = driveMatch ? driveMatch[1] : '';
+                if (driveId) {
+                    stage.innerHTML = `
+                        <div class="w-full h-full flex items-center justify-center p-2 sm:p-6 bg-black">
+                            <div class="w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-forest-800 bg-forest-950">
+                                <iframe src="https://drive.google.com/file/d/${driveId}/preview" 
+                                        class="w-full h-full border-0" 
+                                        allow="autoplay; fullscreen" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
+            // 3. TikTok Theater (Studio Dual-Panel Theater Experience)
+            const tiktokMatch = url.match(/\/video\/(\d+)/i) || url.match(/embed\/v2\/(\d+)/i) || url.match(/(\d{18,21})/);
+            if (platform === 'TikTok' || url.includes('tiktok.com') || tiktokMatch) {
+                const videoId = tiktokMatch ? tiktokMatch[1] : '';
+                const cleanUrl = url.split('?')[0];
+
+                stage.innerHTML = `
+                    <div class="w-full h-full flex flex-col lg:flex-row items-center justify-center p-3 sm:p-6 gap-6 bg-black/95 overflow-y-auto">
+                        <div class="w-full max-w-[420px] flex-shrink-0 flex justify-center items-center">
+                            <div class="w-full flex justify-center items-center min-h-[500px]">
+                                <blockquote class="tiktok-embed" 
+                                            cite="${cleanUrl}" 
+                                            ${videoId ? `data-video-id="${videoId}"` : ''} 
+                                            style="max-width: 420px; min-width: 280px; width: 100%; margin: 0 auto;">
+                                    <section class="p-4 text-center text-xs text-slate-300">
+                                        <p class="font-bold text-white mb-1">${title}</p>
+                                        <a target="_blank" href="${cleanUrl}" class="text-rose-400 hover:underline">Memuat Pemutar Resmi TikTok...</a>
+                                    </section>
+                                </blockquote>
+                            </div>
+                        </div>
+                        <div class="w-full max-w-md bg-forest-900/60 p-5 rounded-2xl border border-forest-800/80 flex flex-col justify-between text-left shrink-0">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#010101] text-[#25F4EE] border border-[#25F4EE]/30">
+                                        🎵 TikTok Resmi Sekolah
+                                    </span>
+                                    <span class="text-xs text-gray-400 font-semibold">${tanggal}</span>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-black text-white leading-snug mb-2">${title}</h3>
+                                <p class="text-xs text-gray-300 leading-relaxed">${deskripsi}</p>
+                            </div>
+                            <div class="mt-5 pt-4 border-t border-forest-800/80 flex flex-col sm:flex-row items-center gap-2.5">
+                                <a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" 
+                                   class="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FE2C55] to-[#FF0050] hover:brightness-110 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition">
+                                    <span>Buka di Aplikasi TikTok</span>
+                                    <span>&rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Render TikTok Embed Script
+                if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
+                    window.tiktokEmbed.lib.render();
+                } else {
+                    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
+                    if (existingScript) existingScript.remove();
+                    const s = document.createElement('script');
+                    s.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
+                    s.async = true;
+                    document.body.appendChild(s);
+                }
+                return;
+            }
+
+            // 4. Fallback / Direct Link
+            stage.innerHTML = `
+                <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center text-white gap-4">
+                    <p class="text-sm font-semibold">${title}</p>
+                    <a href="${url}" target="_blank" class="px-5 py-3 rounded-xl bg-forest-800 hover:bg-forest-700 text-white font-bold text-sm shadow-xl">
+                        Buka Video di Sumber Asli &rarr;
+                    </a>
+                </div>
+            `;
+        }
+    };
+}
+</script>

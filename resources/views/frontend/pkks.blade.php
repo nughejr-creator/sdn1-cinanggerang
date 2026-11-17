@@ -6,159 +6,7 @@
 
 @section('content')
 <div class="bg-slate-50 min-h-screen text-slate-800"
-     x-data="{
-        activeTab: 'all',
-        previewModalOpen: false,
-        previewType: 'pdf',
-        previewUrl: '',
-        originalUrl: '',
-        previewTitle: '',
-        previewDescription: '',
-        previewTiktokId: '',
-        historyModalOpen: false,
-        historyCategoryFilter: 'all',
-        pinModalOpen: false,
-        pinInput: '',
-        pinError: '',
-        pinLoading: false,
-
-        openPreview(type, url, title, description = '') {
-            this.previewTitle = title;
-            this.previewDescription = description;
-            this.originalUrl = url;
-            let processedUrl = url;
-            let finalType = type;
-
-            // 1. Deteksi dan Konversi Google Drive
-            const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-            const openIdMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-            const folderMatch = url.match(/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/);
-
-            // 2. Deteksi YouTube (Watch, Shorts, Embed, youtu.be)
-            const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/i);
-
-            // 3. Deteksi TikTok Video
-            const tiktokMatch = url.match(/tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/)(\d+)/i);
-            const isTikTokGeneric = url.includes('tiktok.com');
-
-            if (fileMatch && fileMatch[1]) {
-                processedUrl = `https://drive.google.com/file/d/${fileMatch[1]}/preview`;
-                finalType = 'gdrive';
-            } else if (openIdMatch && openIdMatch[1]) {
-                processedUrl = `https://drive.google.com/file/d/${openIdMatch[1]}/preview`;
-                finalType = 'gdrive';
-            } else if (folderMatch && folderMatch[1]) {
-                processedUrl = `https://drive.google.com/embeddedfolderview?id=${folderMatch[1]}#grid`;
-                finalType = 'gdrive';
-            } else if (ytMatch && ytMatch[1]) {
-                processedUrl = `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
-                finalType = 'youtube';
-            } else if (tiktokMatch && tiktokMatch[1]) {
-                processedUrl = `https://www.tiktok.com/embed/v2/${tiktokMatch[1]}`;
-                this.previewTiktokId = tiktokMatch[1];
-                finalType = 'tiktok';
-            } else if (isTikTokGeneric) {
-                processedUrl = url;
-                this.previewTiktokId = '';
-                finalType = 'tiktok';
-            } else if (type === 'image' || url.match(/\.(jpeg|jpg|png|gif|webp|svg)($|\?)/i)) {
-                finalType = 'image';
-            } else if (url.match(/\.(mp4|webm|ogg)($|\?)/i) || (type === 'video' && (!url.startsWith('http://') && !url.startsWith('https://')))) {
-                finalType = 'video';
-            } else if (type === 'video') {
-                // Video eksternal yang bukan YouTube/TikTok/Drive -> direct link/portal
-                finalType = 'link';
-            } else if (type === 'pdf' || url.match(/\.pdf($|\?)/i)) {
-                finalType = 'pdf';
-            }
-
-            this.previewType = finalType;
-            this.previewUrl = processedUrl;
-            this.previewModalOpen = true;
-        },
-        initTikTokEmbed() {
-            this.$nextTick(() => {
-                const container = document.getElementById('tiktok-embed-container');
-                if (!container) return;
-
-                const videoId = this.previewTiktokId || '';
-                const videoUrl = this.originalUrl || (videoId ? `https://www.tiktok.com/@sdn.cinanggerang1/video/${videoId}` : '');
-
-                if (!videoId && !videoUrl) {
-                    container.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Tautan video TikTok tidak valid.</div>';
-                    return;
-                }
-
-                // Render blockquote resmi TikTok
-                container.innerHTML = `
-                    <blockquote class="tiktok-embed" 
-                                cite="${videoUrl}" 
-                                ${videoId ? `data-video-id="${videoId}"` : ''}
-                                style="max-width: 440px; min-width: 280px; width: 100%; margin: 0 auto;">
-                        <section class="p-4 text-center text-xs text-slate-300">
-                            <p class="font-bold mb-1">${this.previewTitle || 'Video Dokumentasi Kegiatan Siswa'}</p>
-                            <a target="_blank" href="${videoUrl}" class="text-rose-400 hover:underline">Memuat Pemutar Resmi TikTok...</a>
-                        </section>
-                    </blockquote>
-                `;
-
-                // Panggil atau muat ulang skrip resmi TikTok
-                if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
-                    window.tiktokEmbed.lib.render();
-                } else {
-                    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
-                    if (existingScript) existingScript.remove();
-                    const script = document.createElement('script');
-                    script.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
-                    script.async = true;
-                    document.body.appendChild(script);
-                }
-            });
-        },
-        closePreview() {
-            this.previewModalOpen = false;
-            this.previewUrl = '';
-            this.originalUrl = '';
-            this.previewType = '';
-            this.previewTiktokId = '';
-            const container = document.getElementById('tiktok-embed-container');
-            if (container) {
-                container.innerHTML = '';
-            }
-        },
-        async submitPin() {
-            if (!this.pinInput) {
-                this.pinError = 'Silakan masukkan PIN Asesor.';
-                return;
-            }
-            this.pinLoading = true;
-            this.pinError = '';
-
-            try {
-                const response = await fetch('{{ route('pkks.verify-pin') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ pin: this.pinInput })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    window.location.reload();
-                } else {
-                    this.pinError = data.message || 'PIN Asesor tidak valid. Silakan coba kembali.';
-                }
-            } catch (err) {
-                this.pinError = 'Terjadi kesalahan sistem. Silakan muat ulang halaman.';
-            } finally {
-                this.pinLoading = false;
-            }
-        }
-     }">
+     x-data="pkksPage()">
 
     {{-- HERO SECTION & BENTO GRID: EXECUTIVE CV KEPALA SEKOLAH --}}
     <section class="bg-gradient-to-b from-forest-950 via-forest-900 to-forest-950 text-white pt-10 pb-16 lg:pb-20 relative overflow-hidden border-b border-forest-800/80">
@@ -1630,4 +1478,163 @@
     </div>
 
 </div>
+
+<script>
+function pkksPage() {
+    return {
+        activeTab: 'all',
+        previewModalOpen: false,
+        previewType: 'pdf',
+        previewUrl: '',
+        originalUrl: '',
+        previewTitle: '',
+        previewDescription: '',
+        previewTiktokId: '',
+        historyModalOpen: false,
+        historyCategoryFilter: 'all',
+        pinModalOpen: false,
+        pinInput: '',
+        pinError: '',
+        pinLoading: false,
+
+        openPreview(type, url, title, description = '') {
+            this.previewTitle = title;
+            this.previewDescription = description;
+            this.originalUrl = url;
+            let processedUrl = url;
+            let finalType = type;
+
+            // 1. Deteksi dan Konversi Google Drive
+            const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+            const openIdMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+            const folderMatch = url.match(/drive\.google\.com\/drive\/folders\/([a-zA-Z0-9_-]+)/);
+
+            // 2. Deteksi YouTube
+            const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/i);
+
+            // 3. Deteksi TikTok Video (Mendukung semua format URL dengan parameter)
+            const tiktokMatch = url.match(/\/video\/(\d+)/i) || url.match(/embed\/v2\/(\d+)/i) || url.match(/(\d{18,21})/);
+            const isTikTokGeneric = url.includes('tiktok.com');
+
+            if (fileMatch && fileMatch[1]) {
+                processedUrl = 'https://drive.google.com/file/d/' + fileMatch[1] + '/preview';
+                finalType = 'gdrive';
+            } else if (openIdMatch && openIdMatch[1]) {
+                processedUrl = 'https://drive.google.com/file/d/' + openIdMatch[1] + '/preview';
+                finalType = 'gdrive';
+            } else if (folderMatch && folderMatch[1]) {
+                processedUrl = 'https://drive.google.com/embeddedfolderview?id=' + folderMatch[1] + '#grid';
+                finalType = 'gdrive';
+            } else if (ytMatch && ytMatch[1]) {
+                processedUrl = 'https://www.youtube-nocookie.com/embed/' + ytMatch[1] + '?autoplay=1&rel=0';
+                finalType = 'youtube';
+            } else if (tiktokMatch && tiktokMatch[1]) {
+                this.previewTiktokId = tiktokMatch[1];
+                processedUrl = 'https://www.tiktok.com/@sdn.cinanggerang1/video/' + tiktokMatch[1];
+                finalType = 'tiktok';
+            } else if (isTikTokGeneric) {
+                this.previewTiktokId = '';
+                processedUrl = url;
+                finalType = 'tiktok';
+            } else if (type === 'image' || url.match(/\.(jpeg|jpg|png|gif|webp|svg)($|\?)/i)) {
+                finalType = 'image';
+            } else if (url.match(/\.(mp4|webm|ogg)($|\?)/i) || (type === 'video' && (!url.startsWith('http://') && !url.startsWith('https://')))) {
+                finalType = 'video';
+            } else if (type === 'video') {
+                finalType = 'link';
+            } else if (type === 'pdf' || url.match(/\.pdf($|\?)/i)) {
+                finalType = 'pdf';
+            }
+
+            this.previewType = finalType;
+            this.previewUrl = processedUrl;
+            this.previewModalOpen = true;
+        },
+
+        initTikTokEmbed() {
+            this.$nextTick(() => {
+                const container = document.getElementById('tiktok-embed-container');
+                if (!container) return;
+
+                const videoId = this.previewTiktokId || '';
+                const rawUrl = this.originalUrl || (videoId ? ('https://www.tiktok.com/@sdn.cinanggerang1/video/' + videoId) : '');
+                const cleanUrl = rawUrl.split('?')[0];
+
+                if (!videoId && !cleanUrl) {
+                    container.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">Tautan video TikTok tidak valid.</div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <blockquote class="tiktok-embed" 
+                                cite="${cleanUrl}" 
+                                ${videoId ? `data-video-id="${videoId}"` : ''}
+                                style="max-width: 440px; min-width: 280px; width: 100%; margin: 0 auto;">
+                        <section class="p-4 text-center text-xs text-slate-300">
+                            <p class="font-bold mb-1">${this.previewTitle || 'Video Dokumentasi Kegiatan Siswa'}</p>
+                            <a target="_blank" href="${cleanUrl}" class="text-rose-400 hover:underline">Memuat Pemutar Resmi TikTok...</a>
+                        </section>
+                    </blockquote>
+                `;
+
+                if (window.tiktokEmbed && window.tiktokEmbed.lib && typeof window.tiktokEmbed.lib.render === 'function') {
+                    window.tiktokEmbed.lib.render();
+                } else {
+                    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
+                    if (existingScript) existingScript.remove();
+                    const script = document.createElement('script');
+                    script.src = 'https://www.tiktok.com/embed.js?t=' + Date.now();
+                    script.async = true;
+                    document.body.appendChild(script);
+                }
+            });
+        },
+
+        closePreview() {
+            this.previewModalOpen = false;
+            this.previewUrl = '';
+            this.originalUrl = '';
+            this.previewType = '';
+            this.previewTiktokId = '';
+            const container = document.getElementById('tiktok-embed-container');
+            if (container) {
+                container.innerHTML = '';
+            }
+        },
+
+        async submitPin() {
+            if (!this.pinInput) {
+                this.pinError = 'Silakan masukkan PIN Asesor.';
+                return;
+            }
+            this.pinLoading = true;
+            this.pinError = '';
+
+            try {
+                const response = await fetch('{{ route('pkks.verify-pin') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ pin: this.pinInput })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    window.location.reload();
+                } else {
+                    this.pinError = data.message || 'PIN Asesor tidak valid. Silakan coba kembali.';
+                }
+            } catch (err) {
+                this.pinError = 'Terjadi kesalahan sistem. Silakan muat ulang halaman.';
+            } finally {
+                this.pinLoading = false;
+            }
+        }
+    };
+}
+</script>
 @endsection
