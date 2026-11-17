@@ -593,7 +593,8 @@ class PkksDatabaseSeeder extends Seeder
             );
 
             foreach ($evidences as $idx => $ev) {
-                PkksEvidence::updateOrCreate(
+                // Gunakan firstOrCreate agar tidak pernah menimpa atau mereset eviden yang sudah diedit pengguna
+                PkksEvidence::firstOrCreate(
                     [
                         'pkks_indicator_id' => $indicator->id,
                         'title' => $ev['title'],
